@@ -1,4 +1,4 @@
-# Flex Device SDK for java
+# Flex Device SDK for Java
 
 The Device SDK allows field devices to send Dynamic Demand data to the Open Energi cloud (Flex) and subscribe to Portfolio Management signals.
 
@@ -8,7 +8,7 @@ The SDK requires Java 8. If you need support for a lower version please contact 
 
 ## Installation
 
-`pip install oe-flex-sdk`.
+[...Maven something or other]
 
 ## Usage
 
@@ -19,19 +19,8 @@ Given OE's Hub URL, a Device Id and SAS token:
 ```java
 import com.openenergi.flex.device.Client;
 
-public class HelloFlex {
-	
-	public static void main(string[] args) {
-		client = Client("<Hub URL>", "<Device Id>", "<SAS Token>");
-		
-		client.connect(); 	
-		
-		if (!client.ping()) System.out.println("Failed to send 'connected' message to broker"); 
-		
-	}
-	
-} 
-
+client = Client("<Hub URL>", "<Device Id>", "<SAS Token>");	
+client.connect(); 	
 ```
 
 ### Sending a Message
@@ -43,12 +32,13 @@ Refer to *Message.md* for details on the different message types.
 ```java
 import com.openenergi.flex.message.Reading;
 
+
 msg = Reading()
 		.setType(Reading.POWER)
 		.setEntity("l1234")
 		.setValue(13.4);
 
-msg_id = client.publish(msg);  # returns the message Id, which can be used to track acknowledgements
+client.publish(msg);
 ```
 
 Even though the example above uses a reading type from an enumeration, any string less than 64 characters in length can be passed into the `type` method. Note that types are not case-sensitive and will be lowercased during ingestion.
@@ -66,10 +56,10 @@ msg = Event()
 		.setEntity("s12")
 		.setValue("State of charge below 10% for the last 5 minutes");
 
-msg_id = client.publish(msg);  # returns the message Id, which can be used to track acknowledgements
+client.publish(msg);
 ```
 
-Note that although the above example uses a custom event type, the `EventType` class contains the FFR event types documented in *Message.md*.
+Note that although the above example uses a custom event type, the `Event` class contains constants for the FFR event types documented in *Message.md*.
 
 Note also that even if the `publish` method returns successfully, the message is not guaranteed to have been delivered. To be certain you need to use a callback to correlate acknowledged messages from the broker with published messages from your device - see "Acknowledgement" below.
 
