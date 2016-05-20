@@ -23,6 +23,16 @@ client = Client("<Hub URL>", "<Device Id>", "<SAS Token>");
 client.connect(); 	
 ```
 
+### Persistence
+
+By default, messages are persisted to an in-memory buffer. This means that if the device loses power, any unsent messages will be lost. To use file persistence instead, which provides stronger guarantees, use the `useFilePersistence()` method, specifying the directory where the files should be stored. You can also implement your own persistence interface - this must satisfy the `org.eclipse.paho.client.mqttv3.persist.MqttClientPersistence` interface.
+
+```java
+client.useFilePersistence('/tmp/mqtt'); //use file persistence 
+client.useMemoryPersistence(); //default in-memory persistence
+client.usePersistence(customPersister()); //use custom MqttClientPersistence implementation
+```
+
 ### Sending a Message
 
 Refer to *Message.md* for details on the different message types.
