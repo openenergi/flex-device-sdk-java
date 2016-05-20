@@ -25,7 +25,7 @@ client.connect();
 
 ### Persistence
 
-By default, messages are persisted to an in-memory buffer. This means that if the device loses power, any unsent messages will be lost. To use file persistence instead, which provides stronger guarantees, use the `useFilePersistence()` method, specifying the directory where the files should be stored. You can also implement your own persistence interface - this must satisfy the `org.eclipse.paho.client.mqttv3.persist.MqttClientPersistence` interface.
+By default, messages are persisted to an in-memory buffer. This means that if the device loses power, any unsent messages will be lost. To use file persistence instead, which provides stronger guarantees, use the `useFilePersistence()` method, specifying the directory where the files should be stored. You can also implement your own persister - this must satisfy the `org.eclipse.paho.client.mqttv3.persist.MqttClientPersistence` interface.
 
 ```java
 client.useFilePersistence('/tmp/mqtt'); //use file persistence 
