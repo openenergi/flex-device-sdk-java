@@ -35,7 +35,7 @@ client.usePersistence(customPersister()); //use custom MqttClientPersistence imp
 
 ### Sending a Message
 
-Refer to *Message.md* for details on the different message types.
+Refer to [Message Format Specification](https://github.com/openenergi/flex-device-sdk-java/blob/master/Messages.md) for details on the different message types.
 
 **Reading**
 
