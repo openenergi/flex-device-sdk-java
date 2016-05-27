@@ -43,7 +43,7 @@ Refer to [Message Format Specification](https://github.com/openenergi/flex-devic
 import com.openenergi.flex.message.Reading;
 
 
-msg = Reading().builder()
+msg = Reading.Builder()
 		.type(Reading.POWER)
 		.entity("l1234")
 		.value(13.4);
@@ -60,7 +60,7 @@ Note that even if the `publish` method returns successfully, the message is not 
 ```java
 import com.openenergi.flex.message.Event;
 
-msg = Event().builder()
+msg = Event.Builder()
 		.type("state-of-charge")
 		.level(Event.WARN)
 		.entity("s12")
