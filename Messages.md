@@ -1,8 +1,8 @@
 # Message Format Specification
 
-*Version: 0.1.0*
+*Version: 0.1.1*
 
-last modified on 2016-05-13
+last modified on 2016-05-27
 
 ### Versioning
 *Prior to version 1.0, the specification is a draft that is subject to short-notice changes and alterations.*
