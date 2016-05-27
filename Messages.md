@@ -205,7 +205,7 @@ Given a load with two stages (on/off), and a maximum power rating of 10kW, the h
 
 For a variable speed load with a maximum power rating of 10kW, the high availability would be the difference between 10kW and the current power consumption (if the power consumption can be increased). The low availability would be the difference between the current power consumption and 0kW (if the power consumption can be decreased).
 
-For a frequency tracking device (such as a battery) the high availability is the response expected from the load at a system frequency of 50.5Hz. The low availability is the response expected from the load at a system frequency of 49.5Hz.
+For a frequency tracking load (such as a battery) the high availability is the response expected from the load at a system frequency of 50.5Hz. The low availability is the response expected from the load at a system frequency of 49.5Hz.
 
 #### Response Readings
 The type should be one of the following:
