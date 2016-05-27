@@ -42,6 +42,7 @@ This document also outlines the communication protocols that can be used to send
 7. [Cloud-to-Device Message Types](#sig)
 	1. [Portfolio Management Signals](#sig-basic)
 	2. [Schedule-based signals](#sig-schedule)
+	
 ## <a name="sec"></a>Security Requirements
 
 All connections to Flex must be secured by SSL/TLS.  Supported cipher suites as of April 12, 2016 are listed [here](https://blogs.msdn.microsoft.com/azuresecurity/2016/04/12/azure-cipher-suite-change-removes-rc4-support/). 
@@ -107,11 +108,7 @@ Cases in which the data may not be valid but will be stored for later remediatio
 
 ### Clock Synchronization
 
-Open Energi will nominate an NTP server. The implementer must use this server to keep the device clock synchronized at all times when the device has outbound connectivity. The polling interval must not be greater than 10 minutes. 
-
-```
-Something about 3G latency
-```
+Open Energi will nominate an NTP server. All devices that send Dynamic Demand data to the Open Energi cloud must ensure that their clocks drift no more than 100ms.
 
 ## <a name="ent"></a>Entities
 
@@ -190,9 +187,7 @@ Due to the uncertainties associated with clock drift readings that are too old m
 In order for Open Energi to be able to aggregate the flexible energy provided by the integrator, some special readings need to be provided regularly, and they need to satisfy the below requirements.
 
 #### Power Consumption Readings
-The type should be “power”. The value should be in kW. A new reading should be generated whenever the power consumption increases or decreases by more than 5% since its last sent value, or every 12 hours, whichever comes first. 
-
-[Requirements for power metering?]
+The type should be `power`. The value should be in kW. A new reading should be generated whenever the power consumption increases or decreases by more than 5% since its last sent value, or every 12 hours, whichever comes first. 
 
 #### Availability Readings
 The type should be one of the following:
@@ -204,7 +199,13 @@ The value should be in kW.
 
 A new reading should be generated whenever the availability increases or decreases by more than 5% since its last sent value, or every 12 hours, whichever comes first.
 
-[Detailed example of availability calculation?]
+**Example Availability Calculations**
+
+Given a load with two stages (on/off), and a maximum power rating of 10kW, the high availability would be 0kW whenever the load is on and 10kW whenever it is off (and could be turned on if required). The low availability would be 0kW whenever the load is off and 10kW whenever it is on (and could be turned off if required).
+
+For a variable speed load with a maximum power rating of 10kW, the high availability would be the difference between 10kW and the current power consumption (if the power consumption can be increased). The low availability would be the difference between the current power consumption and 0kW (if the power consumption can be decreased).
+
+For a frequency tracking device (such as a battery) the high availability is the response expected from the load at a system frequency of 50.5Hz. The low availability is the response expected from the load at a system frequency of 49.5Hz.
 
 #### Response Readings
 The type should be one of the following:
