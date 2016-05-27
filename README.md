@@ -8,7 +8,7 @@ The SDK requires Java 8. If you need support for a lower version please contact 
 
 ## Installation
 
-[...Maven something or other]
+Use Maven. Details TBC.
 
 ## Usage
 
