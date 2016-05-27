@@ -1,12 +1,13 @@
 # Message Format Specification
 
-*Version: 1.0.0*
+*Version: 0.1.0*
 
 last modified on 2016-05-13
 
 ### Versioning
+*Prior to version 1.0, the specification is a draft that is subject to short-notice changes and alterations.*
 
-The message format specification follows the conventions of semantic versioning. Namely, 
+The message format specification follows the conventions of semantic versioning starting with version 1.0. Namely, 
 
 * The revision is incremented after non-normative mistakes in the documentation are corrected or clarifications made 
 * The minor version is incremented after normative backwards-compatible changes are made
