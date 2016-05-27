@@ -75,7 +75,7 @@ Note also that even if the `publish` method returns successfully, the message is
 
 **Schedule**
 
-*Note yet implemented - coming soon*
+*Documentation coming soon*
 
 ### Receiving Acknowledgements
 
