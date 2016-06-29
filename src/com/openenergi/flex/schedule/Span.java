@@ -31,12 +31,14 @@ public class Span {
 			throw new IllegalArgumentException("Expected one occurence of \"/\"");
 		}
 		
+		//Step 2: Parse start time
 		try {
 			this.start = LocalDateTime.parse(parts[0]);
 		} catch (DateTimeParseException ex){
 			throw new IllegalArgumentException("Invalid start date: " + ex.toString());
 		}
 		
+		//Step 3: Parse the duration after the "/"
 		try {
 			this.length = Duration.parse(parts[1]);
 		} catch (DateTimeParseException ex){
