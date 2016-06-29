@@ -18,7 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO(mbironneau)
+ * A schedule is a collection of intervals that define the (string) value of a variable over a period of time.
+ * For more details see the documentation <a href="https://github.com/openenergi/flex-device-sdk-java/blob/master/Messages.md">here</a>.
  * @author mbironneau
  *
  */
