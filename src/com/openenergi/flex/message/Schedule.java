@@ -14,11 +14,27 @@
 
 package com.openenergi.flex.message;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * TODO(mbironneau)
  * @author mbironneau
  *
  */
 public class Schedule extends Message {
-
+	
+	@SuppressWarnings("unused")
+	private static String topic = "events";
+	
+	private List<ScheduleItem> schedule;
+	
+	public Schedule(){
+		this.schedule = new ArrayList<ScheduleItem>();
+	}
+	
+	public Schedule addItem(ScheduleItem item){
+		this.schedule.add(item);
+		return this;
+	}
 }

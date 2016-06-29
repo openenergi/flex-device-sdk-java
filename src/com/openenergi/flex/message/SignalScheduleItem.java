@@ -14,9 +14,12 @@
 
 package com.openenergi.flex.message;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.google.gson.annotations.SerializedName;
+import com.openenergi.flex.schedule.RecurringSpan;
+import com.openenergi.flex.schedule.Span;
 
 /**
  * This class represents a single point in a Signal. The variable (type) of the Signal should take the value of the signal item 
@@ -29,11 +32,28 @@ public final class SignalScheduleItem implements Schedulable {
 	String span;
 	String repeat;
 	Float value;
+	
+	private RecurringSpan recurringSpan;
+	
+	
 	public Float getValue() {
 		return this.value;
 	}
+	
+	private void parse() {
+		this.recurringSpan = new RecurringSpan(this.span, this.repeat);
+	}
+	
 	public Date getStart() {
-		//TODO(mbironneau)
-		return null;
+		if (this.recurringSpan == null) this.parse();
+		
+		Span next = this.recurringSpan.getNextSpan();
+		
+		if (next.containsCurrentTime()) {
+			return java.sql.Timestamp.valueOf(next.getEndTime());
+		} else {
+			return java.sql.Timestamp.valueOf(next.start);
+		}
+		
 	}
 }

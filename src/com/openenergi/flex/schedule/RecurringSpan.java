@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 
 public class RecurringSpan {
-	private Span span;
-	private Duration repeat;
+	public Span span;
+	public Duration repeat;
 	
 	public RecurringSpan(Span span, Duration repeat){
 		this.span = span;

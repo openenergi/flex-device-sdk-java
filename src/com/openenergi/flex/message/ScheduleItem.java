@@ -14,8 +14,13 @@
 
 package com.openenergi.flex.message;
 
+import java.time.Duration;
+
+import com.openenergi.flex.schedule.RecurringSpan;
+import com.openenergi.flex.schedule.Span;
+
 /**
- * 
+ * This class assigns a value to a (possibly recurring) span of time. 
  * @author mbironneau
  *
  */
@@ -24,5 +29,35 @@ public class ScheduleItem extends Message {
 	private String repeat;
 	private String value;
 	
+	private RecurringSpan item;
 	
+	public ScheduleItem(RecurringSpan span, String value){
+		this.item = span;
+		this.value = value;
+		this.format();
+	}
+	
+	public ScheduleItem(){}
+	
+	public ScheduleItem(Span span, Duration repeat, String value){
+		this.item = new RecurringSpan(span, repeat);
+		this.value = value;
+		this.format();
+	}
+	
+	private void format(){
+		if (this.item == null) return;
+	
+		if (this.item.span != null) {
+			this.span = this.item.toString();
+		} else {
+			this.span = null;
+		}
+		
+		if (this.item.repeat != null) {
+			this.repeat = this.item.repeat.toString();
+		} else {
+			this.repeat = null;
+		}	
+	}
 }
