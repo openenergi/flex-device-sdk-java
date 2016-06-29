@@ -14,11 +14,10 @@
 
 package com.openenergi.flex.message;
 
-/**
- * TODO(mbironneau)
- * @author mbironneau
- *
- */
-public class Schedule extends Message {
-
+public class InvalidMessageException extends Exception {
+	private static final long serialVersionUID = 4524568133739097666L;
+	
+	public InvalidMessageException(String message){
+		super(message);
+	}
 }

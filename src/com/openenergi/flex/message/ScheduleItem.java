@@ -15,10 +15,14 @@
 package com.openenergi.flex.message;
 
 /**
- * TODO(mbironneau)
+ * 
  * @author mbironneau
  *
  */
-public class Schedule extends Message {
-
+public class ScheduleItem extends Message {
+	private String span;
+	private String repeat;
+	private String value;
+	
+	
 }

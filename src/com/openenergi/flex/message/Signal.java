@@ -14,6 +14,80 @@
 
 package com.openenergi.flex.message;
 
-public class Signal {
+import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
 
+import com.google.gson.annotations.SerializedName;
+
+
+/**
+ * 
+ * 
+ * 
+ * @author mbironneau
+ * @param <T>  The type of signal item (eg. NumericalItem or ScheduleItem)
+ *
+ */
+public class Signal<T extends Schedulable> {
+	String topic;
+	
+	@SerializedName("generated_at")
+	Date generatedAt;
+	
+	List<String> entities;
+	
+	public enum Type {
+		
+		/**
+		 * Amount added to Grid Frequency before it is input to RLTEC algorithm. Default is 0.
+		 */
+		OE_ADD("oe-add"),
+		
+		/**
+		 * Amount that Grid Frequency is multiplied by before it is input to RLTEC algorithm. Default is 1.
+		 */
+		OE_MULTIPLY("oe-multiply");
+		
+		private String value;
+		
+		private Type(String value){
+			this.value = value;
+		}
+	}
+	
+	String type;
+	List<T> items;
+	
+	/**
+	 * Gets the current value of the signal. Assumes that the signal items are sorted in decreasing priority order (i.e. the last valid item should be applied).
+	 * @return the value that the variable/parameter pointed to in type should be set to currently. 
+	 */
+	public Float getCurrentValue(){
+		Date currentDate = new Date();
+		ListIterator<T> li = this.items.listIterator(this.items.size());
+		while (li.hasPrevious()){
+			T item = li.previous();
+			if (item.getStart().before(currentDate) && item.getValue() != null){
+				return item.getValue();
+			}
+		};
+		return null;
+	}
+	
+	/**
+	 * Gets the time at which the signal will next change value (call getCurrentValue() at that time to get the new value).
+	 * @return the time at which the signal will next change value.
+	 */
+	public Date getNextChange(){
+		Date currentDate = new Date();
+		ListIterator<T> li = this.items.listIterator(this.items.size());
+		while (li.hasPrevious()){
+			T item = li.previous();
+			if (item.getStart().after(currentDate)){
+				return item.getStart();
+			}
+		};
+		return null;
+	}
 }

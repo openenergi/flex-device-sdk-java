@@ -14,6 +14,85 @@
 
 package com.openenergi.flex.message;
 
-public class Reading {
+public class Reading extends Message{
+	
+	@SuppressWarnings("unused")
+	private static String topic = "readings";
+	
+	/**
+	 * This enum contains common reading types. Custom reading types can also be sent, though care should be taken
+	 * to ensure that they not clash with the ones below.
+	 * @author mbironneau
+	 *
+	 */
+	public enum Type {
+		
+		/**
+		 * Instantaneous power consumption
+		 */
+		POWER("power"), 
+		
+		/**
+		 * Instantaneous power that can be brought forward (increased) within 2 seconds, lasting for up to 30 minutes.
+		 */
+		AVAILABILITY_FFR_HIGH("availability-ffr-high"), 
+		
+		/**
+		 * Instantaneous power that can be deferred (decreased) within 2 seconds, lasting for up to 30 minutes.
+		 */
+		AVAILABILITY_FFR_LOW("availability-ffr-low"),
+		
+		/**
+		 * Instantaneous power that is currently being brought forward responding to a High FFR switch request.
+		 */
+		RESPONSE_FFR_HIGH("response-ffr-high"), 
+		
+		/**
+		 * Instantaneous power that is currently being deferred responding to a Low FFR switch request.
+		 */
+		RESPONSE_FFR_LOW("response-ffr-low"),
+		
+		/**
+		 * A process variable that controls a process. If it exits a particular control band the asset will not be available for DD.
+		 */
+		CONTROL_VARIABLE("control-variable"),
+		
+		/**
+		 * The target value of the control variable.
+		 */
+		SETPOINT("setpoint"),
+		
+		/**
+		 * The upper range of the control band of the control variable. If the value of the control variable exceeds this value the 
+		 * asset will become unavailable for DD.
+		 */
+		SETPOINT_HIGH("setpoint-high"),
+		
+		/**
+		 * The lower range of the control band of the control variable. If the value of the control variable goes below this value
+		 * the asset will become unavailable for DD.
+		 */
+		SETPOINT_LOW("setpoint-low");
+	
+		private String value;
+		
+		private Type(String value){
+			this.value = value;
+		}
+	
+	}
+	
+	private Float value;
+
+	public Float getValue() {
+		return value;
+	}
+
+	public Reading setValue(Float value) {
+		this.value = value;
+		return this;
+	}
+	
+	
 
 }

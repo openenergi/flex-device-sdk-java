@@ -14,11 +14,26 @@
 
 package com.openenergi.flex.message;
 
+import java.util.Date;
+
+import com.google.gson.annotations.SerializedName;
+
 /**
- * TODO(mbironneau)
+ * This class represents a single point in a Signal. The variable (type) of the Signal should take the value of the signal item 
+ * after the local time exceeds startAt. For example, a signal for the variable OE_ADD with a single SignalItem that takes the value
+ * of 0.5 in 30 minutes means that in 30 minutes, the RLTEC algorithm parameter OE ADD should be set to 0.5. 
  * @author mbironneau
  *
  */
-public class Schedule extends Message {
-
+public final class SignalScheduleItem implements Schedulable {
+	String span;
+	String repeat;
+	Float value;
+	public Float getValue() {
+		return this.value;
+	}
+	public Date getStart() {
+		//TODO(mbironneau)
+		return null;
+	}
 }
