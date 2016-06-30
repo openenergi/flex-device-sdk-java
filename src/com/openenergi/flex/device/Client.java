@@ -108,6 +108,10 @@ public class Client {
 		//TODO(mbironneau)
 	}
 	
+	public void enableSubscription(){
+		//TODO(mbironneau)
+	}
+	
 	
 
 }
