@@ -34,6 +34,11 @@ public class Schedule extends Message {
 		this.schedule = new ArrayList<ScheduleItem>();
 	}
 	
+	/**
+	 * Adds an item to the schedule. A 
+	 * @param item
+	 * @return
+	 */
 	public Schedule addItem(ScheduleItem item){
 		this.schedule.add(item);
 		return this;

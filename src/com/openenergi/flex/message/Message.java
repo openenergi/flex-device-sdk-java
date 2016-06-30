@@ -16,6 +16,8 @@ package com.openenergi.flex.message;
 
 import java.util.Date;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import com.openenergi.flex.message.Event.Level;
 
@@ -28,13 +30,21 @@ import com.openenergi.flex.message.Event.Level;
  * Refer to the documentation <a href="https://github.com/openenergi/flex-device-sdk-java/blob/master/Messages.md">here</a> for more details.
  */
 public abstract class Message {
-	private Integer timestamp;
+	private Long timestamp;
 	private String entity;
 	private String type;
 	
 	@SerializedName("created_at")
 	private Date createdAt;
 	
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
+
 	public Message(){}
 	
 	public Message setType(String value){
@@ -51,11 +61,11 @@ public abstract class Message {
 		return entity;
 	}
 
-	public Integer getTimestamp() {
+	public Long getTimestamp() {
 		return timestamp;
 	}
 
-	public Message setTimestamp(Integer timestamp) {
+	public Message setTimestamp(Long timestamp) {
 		this.timestamp = timestamp;
 		return this;
 	}
@@ -72,5 +82,19 @@ public abstract class Message {
 			throw new InvalidMessageException("Entity not defined");
 		}
 	};
+	
+	/**
+	 * Serializes the message using JSON. If the timestamp field is not set it will be
+	 * set to the current system time.
+	 */
+	public String toString(){
+		if (this.timestamp == null){
+			this.timestamp = System.currentTimeMillis();
+		}
+		Gson gson = new GsonBuilder()
+						.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
+		
+		return gson.toJson(this);	
+	}
 	
 }

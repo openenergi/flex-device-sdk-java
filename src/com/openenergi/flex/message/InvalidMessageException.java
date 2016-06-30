@@ -14,6 +14,21 @@
 
 package com.openenergi.flex.message;
 
+/**
+ * This exception is thrown when a device-to-cloud message fails validation.
+ * The reasons that a message might fail validation are:
+ * 	<ol>
+ * 		<li>Entity not specified</li>
+ * 		<li>Type not specified</li>
+ * 		<li>Timestamp more than 48h in the past</li>
+ * 	</ol>
+ * 
+ * A message will not fail validation if no timestamp is specified - in that case
+ * the timestamp of the message will be set to the current system time.
+ * 
+ * @author mbironneau
+ *
+ */
 public class InvalidMessageException extends Exception {
 	private static final long serialVersionUID = 4524568133739097666L;
 	

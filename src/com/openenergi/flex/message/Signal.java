@@ -23,7 +23,10 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * 
+ * A Signal is a cloud-to-device message that contains information on the future desired state of assets
+ * connected to the device. 
  * 
+ * Refer to the documentation <a href="https://github.com/openenergi/flex-device-sdk-java/blob/master/Messages.md">here</a> for more details.
  * 
  * @author mbironneau
  * @param <T>  The type of signal item (eg. NumericalItem or ScheduleItem)

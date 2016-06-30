@@ -21,8 +21,8 @@
   <dependencies>
   	<dependency>
   		<groupId>com.microsoft.azure.iothub-java-client</groupId>
-  		<artifactId>iothub-java-client</artifactId>
-  		<version>LATEST</version>
+  		<artifactId>iothub-java-device-client</artifactId>
+  		<version>1.0.8</version>
   	</dependency>
   	<dependency>
   		<groupId>com.google.code.gson</groupId>

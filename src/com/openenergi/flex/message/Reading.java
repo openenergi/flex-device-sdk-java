@@ -14,6 +14,13 @@
 
 package com.openenergi.flex.message;
 
+/**
+ * A Reading is an instantaneous measurement of a metric associated with an entity (eg power consumption).
+ * 
+ * Refer to the documentation <a href="https://github.com/openenergi/flex-device-sdk-java/blob/master/Messages.md">here</a> for more details.
+ * @author mbironneau
+ *
+ */
 public class Reading extends Message{
 	
 	@SuppressWarnings("unused")
@@ -22,6 +29,7 @@ public class Reading extends Message{
 	/**
 	 * This enum contains common reading types. Custom reading types can also be sent, though care should be taken
 	 * to ensure that they not clash with the ones below.
+	 * 
 	 * @author mbironneau
 	 *
 	 */
