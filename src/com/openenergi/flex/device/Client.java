@@ -22,7 +22,10 @@ import java.util.function.Consumer;
 
 import com.microsoft.azure.iothub.DeviceClient;
 import com.microsoft.azure.iothub.IotHubClientProtocol;
+import com.microsoft.azure.iothub.IotHubEventCallback;
+import com.microsoft.azure.iothub.IotHubStatusCode;
 import com.openenergi.flex.message.Message;
+import com.openenergi.flex.message.MessageContext;
 import com.openenergi.flex.message.Signal;
 import com.openenergi.flex.message.SignalPointItem;
 import com.openenergi.flex.message.SignalScheduleItem;
@@ -54,9 +57,26 @@ public class Client {
 	};
 	private Protocol protocol = Protocol.AMQPS;
 	private DeviceClient client;
-	private Consumer<Message> onPublishCallback;
+	private Consumer<MessageContext> onPublishCallback;
 	private Consumer<Signal<SignalPointItem>> onSignalCallback;
 	private Consumer<Signal<SignalScheduleItem>> onScheduleSignalCallback;
+	private Boolean subscribed = true;
+	
+	private class HubCallback implements IotHubEventCallback {
+		private Consumer<MessageContext> callback;
+		
+		private HubCallback(Consumer<MessageContext> callback){
+			this.callback = callback;
+		}
+		
+		public void execute(IotHubStatusCode status, Object context) {
+			if (this.callback==null)return;
+			MessageContext ctx = (MessageContext)context;
+			ctx.setStatus(status);
+			this.callback.accept(ctx);
+		}
+		
+	}
 	
 	/**
 	 * Instantiates client using hub URL, device Id, and device key, using AMQPS protocol.
@@ -85,31 +105,82 @@ public class Client {
 	
 	}
 	
+	/**
+	 * Sends the given message to the IoTHub. Delivery is not guaranteed - use 
+	 * onPublish() to receive confirmation of delivery.
+	 * 
+	 * @param msg The message to publish.
+	 */
 	public void publish(Message msg){
-		//TODO(mbironneau)
 	}
 	
-	public void onPublish(Consumer<Message> callback){
-		//TODO(mbironneau)
+	/**
+	 * Sends the given message to the IotHub using the given context as a notification
+	 * parameter that is passed to callbacks (to track which messages have been successfully
+	 * delivered to the hub).
+	 *  
+	 * @param msg The message
+	 * @param context The context, passed to onPublish() callback when the message is delivered
+	 */
+	public void publish(Message msg, MessageContext context){
+		this.client.sendEventAsync(new com.microsoft.azure.iothub.Message(msg.toString()), new HubCallback(this.onPublishCallback), context);
 	}
 	
+	/**
+	 * Sets the Lambda to invoke when a message is received. 
+	 * 
+	 * <pre>
+	 * {@code
+	 * (Message msg) -> System.out.println("Message with Id " + msg.id.toString() + " published!")
+	 * }
+	 * </pre>
+	 * @param callback
+	 */
+	public void onPublish(Consumer<MessageContext> callback){
+		this.onPublishCallback = callback;
+	}
 	
+	/**
+	 * Sets the Lambda to invoke when a message is received. 
+	 * 
+	 * <pre>
+	 * {@code
+	 * (Signal signal) -> System.out.println(signal)
+	 * }
+	 * </pre>
+	 * @param callback
+	 */
 	public void onSignal(Consumer<Signal<SignalPointItem>> callback){
-		//TODO(mbironneau)
+		this.onSignalCallback = callback;
 	}
 	
+	/**
+	 * Sets the Lambda to invoke when a message is received. 
+	 * 
+	 * <pre>
+	 * {@code
+	 * (ScheduleSignal signal) -> System.out.println(signal.getCurrentValue())
+	 * }
+	 * </pre>
+	 * @param callback
+	 */
 	public void onScheduleSignal(Consumer<Signal<SignalScheduleItem>> callback){
-		//TODO(mbironneau)
+		this.onScheduleSignalCallback = callback;
 	}
 	
 	
-	
+	/**
+	 * Unsubscribes the client from cloud-to-device messages (Signals). By default the subscription is enabled.
+	 */
 	public void disableSubscription(){
-		//TODO(mbironneau)
+		this.subscribed = false;
 	}
 	
+	/**
+	 * Subscribes the client to cloud-to-device messages (Signals). By default the subscription is enabled.
+	 */
 	public void enableSubscription(){
-		//TODO(mbironneau)
+		this.subscribed = true;
 	}
 	
 	
