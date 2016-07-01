@@ -14,6 +14,8 @@
 
 package com.openenergi.flex.message;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * An event is a discrete, instantaneous record of an entity’s state transition. Examples are switch requests or alarm conditions.
  * This class contains a builder for events. For further documentation see <a href="https://github.com/openenergi/flex-device-sdk-java/blob/master/Messages.md">here</a>.
@@ -23,7 +25,6 @@ package com.openenergi.flex.message;
  */
 public class Event extends Message {
 	
-	String topic = "events";
 	
 	/**
 	 * Event levels are used to prioritize the message. They affect the retention policies and possible alerting. Event levels of WARN and ERROR
@@ -31,12 +32,19 @@ public class Event extends Message {
 	 * the same type with a lower Level, for example following up an ERROR message with an INFO message of the same type.
 	 */
 	public enum Level {
-		DEBUG(0), INFO(1), WARN(2), ERROR(3);
-		@SuppressWarnings("unused")
-		private int value;
+		DEBUG(0), 
+		INFO(1), 
+		WARN(2), 
+		ERROR(3);
+	
+		Integer value;
 		
-		private Level(int value){
+		Level(Integer value){
 			this.value = value;
+		}
+		
+		public Integer valueOf(){
+			return this.value;
 		}
 	}
 	
@@ -60,17 +68,19 @@ public class Event extends Message {
 		}
 	}
 	
-	private Level level;
+	private Integer level;
 	private String value;
  
-	public Event() {}
-
-	public Level getLevel() {
-		return level;
+	public Event() {
+		this.topic = "events";
 	}
 
-	public Message setLevel(Level level) {
-		this.level = level;
+	public Level getLevel() {
+		return Level.values()[this.level];
+	}
+
+	public Event setLevel(Level level) {
+		this.level = level.valueOf();
 		return this;
 	}
 
@@ -78,7 +88,7 @@ public class Event extends Message {
 		return value;
 	}
 
-	public Message setValue(String value) {
+	public Event setValue(String value) {
 		this.value = value;
 		return this;
 	}
