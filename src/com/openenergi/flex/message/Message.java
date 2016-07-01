@@ -14,12 +14,18 @@
 
 package com.openenergi.flex.message;
 
+import java.lang.reflect.Type;
 import java.util.Date;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
-import com.openenergi.flex.message.Event.Level;
 
 /**
  * This class consists of properties and methods shared by all Flex messages. In the abstract a Flex message just contains a timestamp, entity
@@ -29,10 +35,11 @@ import com.openenergi.flex.message.Event.Level;
  * 
  * Refer to the documentation <a href="https://github.com/openenergi/flex-device-sdk-java/blob/master/Messages.md">here</a> for more details.
  */
-public abstract class Message {
-	private Long timestamp;
-	private String entity;
-	private String type;
+public abstract class Message implements JsonDeserializer<Message>{
+	public String topic;
+	public Long timestamp;
+	public String entity;
+	public String type;
 	
 	@SerializedName("created_at")
 	private Date createdAt;
@@ -95,6 +102,30 @@ public abstract class Message {
 						.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
 		
 		return gson.toJson(this);	
+	}
+	
+	public Message deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+		JsonObject jsonObject = json.getAsJsonObject();
+		JsonPrimitive prim = (JsonPrimitive) jsonObject.get("topic");
+		switch (prim.getAsString().toLowerCase()){
+		case "readings":
+			Reading r = new Reading();
+			return context.deserialize(jsonObject, r.getClass());
+		case "events":
+			Event e = new Event();
+			return context.deserialize(jsonObject, e.getClass());
+		case "schedules":
+			Schedule s = new Schedule();
+			return context.deserialize(jsonObject, s.getClass());
+		case "signals":
+			Signal<SignalPointItem> sp = new Signal<SignalPointItem>();
+			return context.deserialize(jsonObject, sp.getClass());
+		case "schedule-signals":
+			Signal<SignalScheduleItem> ss = new Signal<SignalScheduleItem>();
+			return context.deserialize(jsonObject, ss.getClass());
+		}
+		return null;
+		
 	}
 	
 }

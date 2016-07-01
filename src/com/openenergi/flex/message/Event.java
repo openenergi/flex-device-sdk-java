@@ -23,8 +23,7 @@ package com.openenergi.flex.message;
  */
 public class Event extends Message {
 	
-	@SuppressWarnings("unused")
-	private static String topic = "events";
+	String topic = "events";
 	
 	/**
 	 * Event levels are used to prioritize the message. They affect the retention policies and possible alerting. Event levels of WARN and ERROR
@@ -33,6 +32,7 @@ public class Event extends Message {
 	 */
 	public enum Level {
 		DEBUG(0), INFO(1), WARN(2), ERROR(3);
+		@SuppressWarnings("unused")
 		private int value;
 		
 		private Level(int value){
@@ -52,6 +52,7 @@ public class Event extends Message {
 		 * control pattern (it is no longer required to bring forward or defer any power consumption).
 		 */
 		FFR_SWITCH_END("switch-ffr-end");
+		@SuppressWarnings("unused")
 		private String value;
 		
 		private Type(String value){
@@ -59,8 +60,6 @@ public class Event extends Message {
 		}
 	}
 	
-	
-	private String type;
 	private Level level;
 	private String value;
  

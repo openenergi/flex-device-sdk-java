@@ -16,19 +16,19 @@ package com.openenergi.flex.device;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Formatter;
-import java.util.Locale;
 import java.util.function.Consumer;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.microsoft.azure.iothub.DeviceClient;
 import com.microsoft.azure.iothub.IotHubClientProtocol;
 import com.microsoft.azure.iothub.IotHubEventCallback;
+import com.microsoft.azure.iothub.IotHubMessageResult;
 import com.microsoft.azure.iothub.IotHubStatusCode;
+import com.microsoft.azure.iothub.MessageCallback;
 import com.openenergi.flex.message.Message;
 import com.openenergi.flex.message.MessageContext;
 import com.openenergi.flex.message.Signal;
-import com.openenergi.flex.message.SignalPointItem;
-import com.openenergi.flex.message.SignalScheduleItem;
 
 public class Client {
 	private static String connStr = "HostName=%s;DeviceId=%s;SharedAccessKey=%s";
@@ -58,22 +58,57 @@ public class Client {
 	private Protocol protocol = Protocol.AMQPS;
 	private DeviceClient client;
 	private Consumer<MessageContext> onPublishCallback;
-	private Consumer<Signal<SignalPointItem>> onSignalCallback;
-	private Consumer<Signal<SignalScheduleItem>> onScheduleSignalCallback;
+	private Consumer<Signal<?>> onSignalCallback;
 	private Boolean subscribed = true;
+	
+	private Boolean connected;
 	
 	private class HubCallback implements IotHubEventCallback {
 		private Consumer<MessageContext> callback;
 		
-		private HubCallback(Consumer<MessageContext> callback){
+		public HubCallback(Consumer<MessageContext> callback){
 			this.callback = callback;
 		}
 		
 		public void execute(IotHubStatusCode status, Object context) {
 			if (this.callback==null)return;
-			MessageContext ctx = (MessageContext)context;
+			
+			MessageContext ctx;
+			
+			if (context != null){
+				ctx = (MessageContext)context;
+			} else {
+				ctx = new MessageContext();
+			}
 			ctx.setStatus(status);
 			this.callback.accept(ctx);
+		}
+		
+	}
+	
+	private class SignalCallback implements MessageCallback {
+		private Consumer<Signal<?>> callback;
+		
+		public SignalCallback(Consumer<Signal<?>> callback){
+			this.callback = callback;
+		}
+
+		public IotHubMessageResult execute(
+				com.microsoft.azure.iothub.Message rawMessage, Object context) {
+			Gson gson = new Gson();
+			Signal<?> msg;
+			try {
+				msg = gson.fromJson(rawMessage.getBytes().toString(), Signal.class);
+			} catch (JsonSyntaxException ex){
+				//TODO(mbironneau) Log exception
+				return IotHubMessageResult.ABANDON;
+			}
+			
+			if (this.callback != null){
+				this.callback.accept(msg);
+			}
+
+			return IotHubMessageResult.COMPLETE;
 		}
 		
 	}
@@ -100,9 +135,28 @@ public class Client {
 	 * @throws IOException if the connection does not succeed.
 	 */
 	public void connect() throws IOException {
+		if (this.connected) return;
+		
 		this.client.open();
 		
+		if (this.subscribed) this.client.setMessageCallback(new SignalCallback(this.onSignalCallback), null);
+	}
 	
+	/**
+	 * Disconnects from the IotHub. Idempotent.
+	 */
+	public void disconnect() {
+		if (!this.connected) return;
+		
+		try {
+			this.client.close();
+		} catch (IOException ignored){
+			//Ignore IOExceptions to make method idempotent
+		} finally {
+			this.connected = false;
+		}
+		
+		
 	}
 	
 	/**
@@ -112,6 +166,7 @@ public class Client {
 	 * @param msg The message to publish.
 	 */
 	public void publish(Message msg){
+		this.publish(msg, null);
 	}
 	
 	/**
@@ -141,7 +196,7 @@ public class Client {
 	}
 	
 	/**
-	 * Sets the Lambda to invoke when a message is received. 
+	 * Sets the Lambda to invoke when a signal is received. 
 	 * 
 	 * <pre>
 	 * {@code
@@ -150,23 +205,11 @@ public class Client {
 	 * </pre>
 	 * @param callback
 	 */
-	public void onSignal(Consumer<Signal<SignalPointItem>> callback){
+	public void onSignal(Consumer<Signal<?>> callback){
 		this.onSignalCallback = callback;
 	}
 	
-	/**
-	 * Sets the Lambda to invoke when a message is received. 
-	 * 
-	 * <pre>
-	 * {@code
-	 * (ScheduleSignal signal) -> System.out.println(signal.getCurrentValue())
-	 * }
-	 * </pre>
-	 * @param callback
-	 */
-	public void onScheduleSignal(Consumer<Signal<SignalScheduleItem>> callback){
-		this.onScheduleSignalCallback = callback;
-	}
+
 	
 	
 	/**

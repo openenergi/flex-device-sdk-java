@@ -25,8 +25,7 @@ import java.util.List;
  */
 public class Schedule extends Message {
 	
-	@SuppressWarnings("unused")
-	private static String topic = "events";
+	String topic = "schedules";
 	
 	private List<ScheduleItem> schedule;
 	

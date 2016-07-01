@@ -14,10 +14,8 @@
 
 package com.openenergi.flex.message;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
-import com.google.gson.annotations.SerializedName;
 import com.openenergi.flex.schedule.RecurringSpan;
 import com.openenergi.flex.schedule.Span;
 

@@ -23,8 +23,7 @@ package com.openenergi.flex.message;
  */
 public class Reading extends Message{
 	
-	@SuppressWarnings("unused")
-	private static String topic = "readings";
+	String topic = "readings";
 	
 	/**
 	 * This enum contains common reading types. Custom reading types can also be sent, though care should be taken
@@ -82,7 +81,7 @@ public class Reading extends Message{
 		 */
 		SETPOINT_LOW("setpoint-low");
 	
-		private String value;
+		String value;
 		
 		private Type(String value){
 			this.value = value;

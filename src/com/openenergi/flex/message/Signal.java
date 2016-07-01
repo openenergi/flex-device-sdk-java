@@ -18,6 +18,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 
 
@@ -33,7 +38,6 @@ import com.google.gson.annotations.SerializedName;
  *
  */
 public class Signal<T extends Schedulable> {
-	String topic;
 	
 	@SerializedName("generated_at")
 	Date generatedAt;
@@ -52,6 +56,7 @@ public class Signal<T extends Schedulable> {
 		 */
 		OE_MULTIPLY("oe-multiply");
 		
+		@SuppressWarnings("unused")
 		private String value;
 		
 		private Type(String value){
@@ -59,7 +64,6 @@ public class Signal<T extends Schedulable> {
 		}
 	}
 	
-	String type;
 	List<T> items;
 	
 	/**
@@ -93,4 +97,21 @@ public class Signal<T extends Schedulable> {
 		};
 		return null;
 	}
+	
+
+	public Message deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+		JsonObject jsonObject = json.getAsJsonObject();
+		JsonPrimitive prim = (JsonPrimitive) jsonObject.get("topic");
+		switch (prim.getAsString().toLowerCase()){
+		case "signals":
+			Signal<SignalPointItem> sp = new Signal<SignalPointItem>();
+			return context.deserialize(jsonObject, sp.getClass());
+		case "schedule-signals":
+			Signal<SignalScheduleItem> ss = new Signal<SignalScheduleItem>();
+			return context.deserialize(jsonObject, ss.getClass());
+		}
+		return null;
+		
+	}
+
 }

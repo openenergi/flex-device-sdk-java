@@ -32,6 +32,8 @@ public class MessageContext {
 		this.setData(data);
 	}
 	
+	public MessageContext(){}
+	
 	public void setStatus(IotHubStatusCode status){
 		switch (status){
 		case BAD_FORMAT:
