@@ -59,12 +59,13 @@ public class Span {
 	}
 	
 	/**
-	 * Determines whether this span contains the current time or not.
+	 * Determines whether this span contains the current time or not. The left endpoint is inclusive whereas
+	 * the right endpoint (end of interval) is not.
 	 * @return True if the span contains the current time, False otherwise.
 	 */
 	public Boolean containsCurrentTime() {
 		LocalDateTime now = LocalDateTime.now();
-		if (this.start.isBefore(now) && this.getEndTime().isAfter(now)){
+		if ((this.start.isBefore(now) || this.start.equals(now)) && this.getEndTime().isAfter(now)){
 			return true;
 		} else {
 			return false;
