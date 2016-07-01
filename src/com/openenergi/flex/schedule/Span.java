@@ -1,16 +1,13 @@
 package com.openenergi.flex.schedule;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.Temporal;
-import java.util.Date;
-import java.util.TimeZone;
 
 public class Span {
+	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+	
 	public LocalDateTime start;
 	public Duration length;
 	
@@ -33,7 +30,7 @@ public class Span {
 		
 		//Step 2: Parse start time
 		try {
-			this.start = LocalDateTime.parse(parts[0]);
+			this.start = LocalDateTime.parse(parts[0], Span.formatter);
 		} catch (DateTimeParseException ex){
 			throw new IllegalArgumentException("Invalid start date: " + ex.toString());
 		}
@@ -50,9 +47,7 @@ public class Span {
 	 * Formats the Span according to ISO8601 notation.
 	 */
 	public String toString(){
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-		df.setTimeZone(TimeZone.getTimeZone("UTC"));
-		return df.format(this.start) + "/" + this.length.toString();
+		return this.start.format(Span.formatter) + "/" + this.length.toString();
 	}
 	
 	/**

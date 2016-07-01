@@ -25,8 +25,11 @@ import com.openenergi.flex.schedule.Span;
  *
  */
 public class ScheduleItem extends Message {
+	@SuppressWarnings("unused")
 	private String span;
+	@SuppressWarnings("unused")
 	private String repeat;
+	@SuppressWarnings("unused")
 	private String value;
 	
 	private RecurringSpan item;
