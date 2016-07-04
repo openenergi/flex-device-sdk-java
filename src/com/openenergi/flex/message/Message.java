@@ -14,17 +14,14 @@
 
 package com.openenergi.flex.message;
 
-import java.lang.reflect.Type;
 import java.util.Date;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -35,7 +32,7 @@ import com.google.gson.annotations.SerializedName;
  * 
  * Refer to the documentation <a href="https://github.com/openenergi/flex-device-sdk-java/blob/master/Messages.md">here</a> for more details.
  */
-public abstract class Message implements JsonDeserializer<Message>{
+public class Message {
 	public String topic;
 	public Long timestamp;
 	public String entity;
@@ -104,25 +101,32 @@ public abstract class Message implements JsonDeserializer<Message>{
 		return gson.toJson(this);	
 	}
 	
-	public Message deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-		JsonObject jsonObject = json.getAsJsonObject();
-		JsonPrimitive prim = (JsonPrimitive) jsonObject.get("topic");
-		switch (prim.getAsString().toLowerCase()){
+	public static Object deserialize(String json) throws JsonParseException {
+		Gson gson = new Gson();
+		
+		JSONObject j;
+		String topic;
+		
+		try {
+			j = new JSONObject(json);
+			topic = j.getString("topic");
+		} catch (JSONException e){
+			throw new JsonParseException(e.getMessage());
+		}
+		
+		switch (topic){
 		case "readings":
-			Reading r = new Reading();
-			return context.deserialize(jsonObject, r.getClass());
+			return gson.fromJson(json, Reading.class);
 		case "events":
-			Event e = new Event();
-			return context.deserialize(jsonObject, e.getClass());
+			return gson.fromJson(json, Event.class);
 		case "schedules":
-			Schedule s = new Schedule();
-			return context.deserialize(jsonObject, s.getClass());
+			return gson.fromJson(json, Schedule.class);
 		case "signals":
 			Signal<SignalPointItem> sp = new Signal<SignalPointItem>();
-			return context.deserialize(jsonObject, sp.getClass());
+			return gson.fromJson(json, sp.getClass());
 		case "schedule-signals":
 			Signal<SignalScheduleItem> ss = new Signal<SignalScheduleItem>();
-			return context.deserialize(jsonObject, ss.getClass());
+			return gson.fromJson(json, ss.getClass());
 		}
 		return null;
 		

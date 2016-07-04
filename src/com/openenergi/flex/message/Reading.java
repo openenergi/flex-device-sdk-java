@@ -22,8 +22,7 @@ package com.openenergi.flex.message;
  *
  */
 public class Reading extends Message{
-	
-	String topic = "readings";
+
 	
 	/**
 	 * This enum contains common reading types. Custom reading types can also be sent, though care should be taken
@@ -89,13 +88,17 @@ public class Reading extends Message{
 	
 	}
 	
-	private Float value;
+	public Reading(){
+		this.topic = "readings";
+	}
+	
+	Double value;
 
-	public Float getValue() {
+	public Double getValue() {
 		return value;
 	}
 
-	public Reading setValue(Float value) {
+	public Reading setValue(Double value) {
 		this.value = value;
 		return this;
 	}
