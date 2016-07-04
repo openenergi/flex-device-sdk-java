@@ -24,15 +24,13 @@ import com.openenergi.flex.schedule.Span;
  * @author mbironneau
  *
  */
-public class ScheduleItem extends Message {
-	@SuppressWarnings("unused")
-	private String span;
-	@SuppressWarnings("unused")
-	private String repeat;
-	@SuppressWarnings("unused")
-	private String value;
+public class ScheduleItem {
+	String span;
+	String repeat;
+	String value;
 	
-	private RecurringSpan item;
+	
+	private transient RecurringSpan item;
 	
 	public ScheduleItem(RecurringSpan span, String value){
 		this.item = span;
@@ -52,7 +50,7 @@ public class ScheduleItem extends Message {
 		if (this.item == null) return;
 	
 		if (this.item.span != null) {
-			this.span = this.item.toString();
+			this.span = this.item.span.toString();
 		} else {
 			this.span = null;
 		}

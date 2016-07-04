@@ -24,13 +24,10 @@ import java.util.List;
  *
  */
 public class Schedule extends Message {
-	
-	String topic = "schedules";
-	
-	private List<ScheduleItem> schedule;
+	public List<ScheduleItem> schedule;
 	
 	public Schedule(){
-		this.schedule = new ArrayList<ScheduleItem>();
+		this.topic = "schedules";
 	}
 	
 	/**
@@ -39,7 +36,14 @@ public class Schedule extends Message {
 	 * @return
 	 */
 	public Schedule addItem(ScheduleItem item){
+		if (this.schedule == null){
+			this.schedule = new ArrayList<ScheduleItem>();
+		}
 		this.schedule.add(item);
 		return this;
+	}
+	
+	public ScheduleItem getItem(int index) throws IndexOutOfBoundsException{
+		return this.schedule.get(index);
 	}
 }
