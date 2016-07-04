@@ -61,7 +61,7 @@ public class Client {
 	private Consumer<Signal<?>> onSignalCallback;
 	private Boolean subscribed = true;
 	
-	private Boolean connected;
+	private Boolean connected = false;
 	
 	private class HubCallback implements IotHubEventCallback {
 		private Consumer<MessageContext> callback;
