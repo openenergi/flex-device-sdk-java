@@ -90,7 +90,7 @@ import com.openenergi.flex.message.Message;
 import com.openenergi.flex.message.MessageContext;
 
 MessageContext ctx = new MessageContext();
-ctx.setData(123); //Message Id meaningful to application
+ctx.setData(123); //Message Id meaningful to application - can be any object
 
 client.onPublish((MessageContext ctx) -> System.out.println("Message with Id " + ctx.getData().toString() + " published!"));
 ```
