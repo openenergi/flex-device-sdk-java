@@ -8,7 +8,19 @@ The SDK requires Java 8. If you need support for a lower version please contact 
 
 ## Installation
 
-Use Maven. Details TBC.
+Download a JAR from the releases page. 
+
+**Maven**
+
+Starting with version 0.2 you will be able to download the JAR from Maven central.
+
+```
+	<dependency>
+  		<groupId>com.openenergi.flex</groupId>
+  		<artifactId>flex-device-sdk-java</artifactId>
+  		<version>0.1.0</version>
+  	</dependency>
+```
 
 ## Usage
 
@@ -43,10 +55,10 @@ Refer to [Message Format Specification](https://github.com/openenergi/flex-devic
 import com.openenergi.flex.message.Reading;
 
 
-msg = Reading.Builder()
-		.type(Reading.POWER)
-		.entity("l1234")
-		.value(13.4);
+Reading msg = new Reading()
+		.setType(Reading.Types.POWER)
+		.setEntity("l1234")
+		.setValue(13.4);
 
 client.publish(msg);
 ```
@@ -60,11 +72,11 @@ Note that even if the `publish` method returns successfully, the message is not 
 ```java
 import com.openenergi.flex.message.Event;
 
-msg = Event.Builder()
-		.type("state-of-charge")
-		.level(Event.WARN)
-		.entity("s12")
-		.value("State of charge below 10% for the last 5 minutes");
+Event msg = new Event()
+		.setType("state-of-charge")
+		.setLevel(Event.Levels.WARN)
+		.setEntity("s12")
+		.setValue("State of charge below 10% for the last 5 minutes");
 
 client.publish(msg);
 ```
@@ -75,7 +87,9 @@ Note also that even if the `publish` method returns successfully, the message is
 
 **Schedule**
 
-*Documentation coming soon*
+The messages above specify an instantaneous change of a metric. More generally, you may need to report that a value will change on a recurring, predictable basis. For example, you may want to withdraw an asset from service during certain periods.
+
+A schedule allows you to achieve this. More documentation coming soon - for now we suggest looking at the javadoc for `Schedule`, `ScheduleItem`, `Span` and `RecurringSpan`.
 
 ### Receiving Acknowledgements
 
@@ -83,8 +97,12 @@ To receive an acknowledgement when your message has been successfully received, 
 
 ```java
 import com.openenergi.flex.message.Message;
+import com.openenergi.flex.message.MessageContext;
 
-client.onPublish((Message msg) -> System.out.println("Message with Id " + msg.id.toString() + " published!"));
+MessageContext ctx = new MessageContext();
+ctx.setData(123); //Message Id meaningful to application
+
+client.onPublish((MessageContext ctx) -> System.out.println("Message with Id " + ctx.getData().toString() + " published!"));
 ```
 
 ### Overriding the Message Timestamp
@@ -110,15 +128,16 @@ msg = Event().setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
 
 ## Receiving Messages
 
-Devices are by default subscribed to Portfolio Management signals. These are further documented in *Message.md*. There are two callbacks: one for signal messages and one for schedule signal messages.
+Devices are by default subscribed to Portfolio Management signals. These are further documented in *Message.md*. There is only one callback for point and schedule messages.
 
 ```java
 import com.openenergi.flex.message.Signal;
 import com.openenergi.flex.message.ScheduleSignal;
 
 client.onSignal((Signal signal) -> System.out.println(signal));
-client.onScheduleSignal((ScheduleSignal signal) -> System.out.println(signal.schedule.getCurrentValue()));
 ```
+
+More documentation coming soon on how to get the current value of a signal (or the time at which it will next change) - for now we suggest having a look at the javadoc for `Signal`. 
 
 **Disabling message subscription**
 
