@@ -22,7 +22,7 @@ public class EventTests {
 					.setType("something");
 		
 		try {
-			System.out.println(e.toString());
+			//System.out.println(e.toString());
 			JSONAssert.assertEquals("{\"topic\": \"events\", \"entity\": \"l1\",  \"timestamp\": 12345,  \"type\": \"something\", \"value\": \"value\", \"level\": 0}", e.toString(), true);
 		} catch (JSONException e1) {
 			fail("Failed to serialize: " + e1.getMessage());

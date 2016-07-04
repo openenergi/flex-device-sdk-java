@@ -21,7 +21,7 @@ public class ReadingTests {
 					.setType("something");
 		
 		try {
-			System.out.println(e.toString());
+			//System.out.println(e.toString());
 			JSONAssert.assertEquals("{\"topic\": \"readings\", \"entity\": \"l1\",  \"timestamp\": 12345,  \"type\": \"something\", \"value\": 1.23}", e.toString(), true);
 		} catch (JSONException e1) {
 			fail("Failed to serialize: " + e1.getMessage());
