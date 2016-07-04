@@ -15,7 +15,7 @@
 package com.openenergi.flex.message;
 
 /**
- * An event is a discrete, instantaneous record of an entity’s state transition. Examples are switch requests or alarm conditions.
+ * An event is a discrete, instantaneous record of an entity's state transition. Examples are switch requests or alarm conditions.
  * This class contains a builder for events. For further documentation see <a href="https://github.com/openenergi/flex-device-sdk-java/blob/master/Messages.md">here</a>.
  * 
  * @author mbironneau
