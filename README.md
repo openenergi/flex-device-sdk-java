@@ -1,4 +1,6 @@
 # Flex Device SDK for Java
+![Travis Badge](https://travis-ci.org/openenergi/flex-device-sdk-java.svg?branch=master)
+
 
 The Device SDK allows field devices to send Dynamic Demand data to the Open Energi cloud (Flex) and subscribe to Portfolio Management signals.
 
