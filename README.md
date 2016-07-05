@@ -92,7 +92,7 @@ import com.openenergi.flex.message.Message;
 import com.openenergi.flex.message.MessageContext;
 
 MessageContext ctx = new MessageContext();
-ctx.setData(123); //Message Id meaningful to application - can be any object
+ctx.setData(123); //Message context (eg. Id) meaningful to application - can be any object
 
 client.onPublish((MessageContext ctx) -> System.out.println("Message with Id " + ctx.getData().toString() + " published!"));
 ```
@@ -104,7 +104,7 @@ By default, the `timestamp` field of the message will be set to the current syst
 ```java
 import java.time.LocalDateTime;
 
-msg = Reading().setTimestamp(LocalDateTime.now());
+msg = new Reading().setTimestamp(LocalDateTime.now());
 ```
     
 ### Setting the `created_at` field:
@@ -115,7 +115,7 @@ By default the `created_at` field is not populated. To set the `created_at` fiel
 import java.time.ZonedDateTime;
 import java.time.ZoneOffset;
 
-msg = Event().setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
+msg = new Event().setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
 ```
 
 ## Receiving Messages
@@ -129,7 +129,9 @@ import com.openenergi.flex.message.ScheduleSignal;
 client.onSignal((Signal signal) -> System.out.println(signal));
 ```
 
-More documentation coming soon on how to get the current value of a signal (or the time at which it will next change) - for now we suggest having a look at the javadoc for `Signal`. 
+A Signal's current value can be obtained by calling `signal.getCurrentValue()`. For scheduling purposes, it is also possible to determine the time at which the signal will next change by calling `signal.getNextChange()`.
+
+Release 0.2 will come with a low-overhead scheduling wrapper that invokes a callback `Consumer<T>` whenever the signal changes, so it will not be necessary to invoke these methods directly.
 
 **Disabling message subscription**
 

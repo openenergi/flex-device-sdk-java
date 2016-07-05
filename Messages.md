@@ -112,7 +112,9 @@ Open Energi will nominate an NTP server. All devices that send Dynamic Demand da
 
 ## <a name="ent"></a>Entities
 
-All messages are associated with an **entity**. An entity is a logical, stateful thing on whose state metrics are defined and recorded. Certain state transitions may also be recorded as events. Examples of entities are physical assets, meters or sensors.
+All messages are associated with an **entity**. An entity is a logical, stateful thing on whose state metrics are defined and recorded. Certain state transitions may also be recorded as events. Examples of entities are physical assets, meters or sensors. 
+
+A **device** is a type of entity that represents a physical or virtual gateway device on a site. In the tree of all entities, a device is a parent to all other physical entities on a site. Devices are special because they are associated with a **communication key** used to authenticate all communications via the API and ensure that integrators do not accidentally send data for entities for which they have no authority.
 
 The list of entities associated to a device and their meaning will be agreed between Open Energi and the integrator beforehand.
 
