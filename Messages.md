@@ -1,15 +1,15 @@
 # Message Format Specification
 
-*Version: 0.1.1*
+*Version: 0.1.2*
 
-last modified on 2016-05-27
+last modified on 2016-07-05
 
 ### Versioning
 *Prior to version 1.0, the specification is a draft that is subject to short-notice changes and alterations.*
 
 The message format specification follows the conventions of semantic versioning starting with version 1.0. Namely, 
 
-* The revision is incremented after non-normative mistakes in the documentation are corrected or clarifications made 
+* The revision is incremented after non-normative corrections or clarifications
 * The minor version is incremented after normative backwards-compatible changes are made
 * The major version is incremented after normative backwards-incompatible changes are made
 
