@@ -16,7 +16,7 @@ public interface Schedulable {
 	 * Current value of item.
 	 * @return Current value
 	 */
-	Float getValue();
+	Double getValue();
 	
 	/**
 	 * Date when the item will be valid (in the case of a schedule - when the item is next valid).

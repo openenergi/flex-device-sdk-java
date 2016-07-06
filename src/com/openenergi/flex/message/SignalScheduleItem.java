@@ -29,12 +29,12 @@ import com.openenergi.flex.schedule.Span;
 public final class SignalScheduleItem implements Schedulable {
 	String span;
 	String repeat;
-	Float value;
+	Double value;
 	
 	private RecurringSpan recurringSpan;
 	
 	
-	public Float getValue() {
+	public Double getValue() {
 		return this.value;
 	}
 	

@@ -14,14 +14,13 @@
 
 package com.openenergi.flex.message;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 
@@ -37,7 +36,7 @@ import com.google.gson.annotations.SerializedName;
  * @param <T>  The type of signal item (eg. NumericalItem or ScheduleItem)
  *
  */
-public class Signal<T extends Schedulable> {
+public class Signal<T extends Schedulable> extends Message {
 	
 	@SerializedName("generated_at")
 	Date generatedAt;
@@ -66,11 +65,46 @@ public class Signal<T extends Schedulable> {
 	
 	List<T> items;
 	
+	public Signal(){
+		this.entities = new ArrayList<String>(); 
+		this.items = new LinkedList<T>();
+	}
+	
+	/**
+	 * Adds an entity to the list of target entities.
+	 * 
+	 * @param entity The entity code of the target
+	 * @return The signal
+	 */
+	public Signal<T> addEntity(String entity){
+		this.entities.add(entity);
+		return this;
+	}
+	
+	/**
+	 * Adds signal item to the list of items.
+	 * @param item the item to add
+	 * @return
+	 */
+	public Signal<T> addItem(T item){
+		this.items.add(item);
+		return this;
+	}
+	
+	/**
+	 * Returns the Signal item at the given index. 
+	 * @param ix Zero-based index
+	 * @return The item
+	 */
+	public T getItem(int ix){
+		return this.items.get(ix);
+	}
+	
 	/**
 	 * Gets the current value of the signal. Assumes that the signal items are sorted in decreasing priority order (i.e. the last valid item should be applied).
 	 * @return the value that the variable/parameter pointed to in type should be set to currently. 
 	 */
-	public Float getCurrentValue(){
+	public Double getCurrentValue(){
 		Date currentDate = new Date();
 		ListIterator<T> li = this.items.listIterator(this.items.size());
 		while (li.hasPrevious()){
@@ -98,20 +132,5 @@ public class Signal<T extends Schedulable> {
 		return null;
 	}
 	
-
-	public Message deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-		JsonObject jsonObject = json.getAsJsonObject();
-		JsonPrimitive prim = (JsonPrimitive) jsonObject.get("topic");
-		switch (prim.getAsString().toLowerCase()){
-		case "signals":
-			Signal<SignalPointItem> sp = new Signal<SignalPointItem>();
-			return context.deserialize(jsonObject, sp.getClass());
-		case "schedule-signals":
-			Signal<SignalScheduleItem> ss = new Signal<SignalScheduleItem>();
-			return context.deserialize(jsonObject, ss.getClass());
-		}
-		return null;
-		
-	}
 
 }

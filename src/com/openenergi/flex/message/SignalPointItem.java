@@ -28,11 +28,18 @@ import com.google.gson.annotations.SerializedName;
 public final class SignalPointItem implements Schedulable {
 	@SerializedName("start_at")
 	Date startAt;
-	Float value;
-	public Float getValue() {
+	Double value;
+	public Double getValue() {
 		return this.value;
 	}
 	public Date getStart() {
 		return this.startAt;
+	}
+	
+	public SignalPointItem(){}
+	
+	public SignalPointItem(Date start, Double value){
+		this.startAt = start;
+		this.value = value;
 	}
 }
