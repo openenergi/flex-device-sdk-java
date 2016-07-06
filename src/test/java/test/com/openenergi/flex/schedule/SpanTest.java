@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import org.junit.Test;
 
 
-public class SpanTests {
+public class SpanTest {
 	
 
 	@Test

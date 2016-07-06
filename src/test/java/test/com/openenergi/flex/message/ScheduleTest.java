@@ -13,7 +13,7 @@ import com.google.gson.JsonSyntaxException;
 import com.openenergi.flex.schedule.Span;
 
 
-public class ScheduleTests {
+public class ScheduleTest {
 	
 
 	@Test

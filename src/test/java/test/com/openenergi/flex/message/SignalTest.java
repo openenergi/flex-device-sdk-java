@@ -11,7 +11,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import com.google.gson.JsonSyntaxException;
 
 
-public class SignalTests {
+public class SignalTest {
 	
 
 	/*@Test

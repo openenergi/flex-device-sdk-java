@@ -9,38 +9,36 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import com.google.gson.JsonSyntaxException;
 
 
-public class EventTests {
+public class ReadingTest {
 	
 
 	@Test
-	public void testSerializeEvent() {
-		Event e = (Event) new Event()
-					.setValue("value")
-					.setLevel(Event.Level.DEBUG)
+	public void testSerializeReading() {
+		Reading e = (Reading) new Reading()
+					.setValue(1.23)
 					.setEntity("l1")
 					.setTimestamp(12345L)
 					.setType("something");
 		
 		try {
 			//System.out.println(e.toString());
-			JSONAssert.assertEquals("{\"topic\": \"events\", \"entity\": \"l1\",  \"timestamp\": 12345,  \"type\": \"something\", \"value\": \"value\", \"level\": 0}", e.toString(), true);
+			JSONAssert.assertEquals("{\"topic\": \"readings\", \"entity\": \"l1\",  \"timestamp\": 12345,  \"type\": \"something\", \"value\": 1.23}", e.toString(), true);
 		} catch (JSONException e1) {
 			fail("Failed to serialize: " + e1.getMessage());
 		}
 	}
 
 	@Test
-	public void testDeserializeEvent() {
-		String s = "{\"topic\": \"events\", \"entity\": \"l1\",  \"timestamp\": 12345,  \"type\": \"something\", \"value\": \"value\", \"level\": 0}";
+	public void testDeserializeReading() {
+		String s = "{\"topic\": \"readings\", \"entity\": \"l1\",  \"timestamp\": 12345,  \"type\": \"something\", \"value\": 1.23}";
 		try {
-			Event m = (Event) Message.deserialize(s);
+			Reading m = (Reading) Message.deserialize(s);
 			assertEquals(m.entity, "l1");
-			assertEquals(m.topic, "events");
+			assertEquals(m.topic, "readings");
 			assertEquals((Long) 12345L, m.timestamp);
 			assertEquals(m.type, "something");
-			if (m instanceof Event){
-				assertEquals(((Event)m).value, "value");
-				assertEquals(((Event)m).level, (Integer) 0);
+			if (m instanceof Reading){
+				assertEquals(((Reading)m).value, (Double)1.23);
 			} else {
 				fail("not an event");
 			}

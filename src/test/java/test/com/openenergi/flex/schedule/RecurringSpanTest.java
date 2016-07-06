@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import org.junit.Test;
 
 
-public class RecurringSpanTests {
+public class RecurringSpanTest {
 	
 
 	@Test
