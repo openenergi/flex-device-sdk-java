@@ -14,6 +14,7 @@
 
 package com.openenergi.flex.message;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -68,6 +69,7 @@ public class Signal<T extends Schedulable> extends Message {
 	public Signal(){
 		this.entities = new ArrayList<String>(); 
 		this.items = new LinkedList<T>();
+		this.topic = "signals";
 	}
 	
 	/**
@@ -105,11 +107,11 @@ public class Signal<T extends Schedulable> extends Message {
 	 * @return the value that the variable/parameter pointed to in type should be set to currently. 
 	 */
 	public Double getCurrentValue(){
-		Date currentDate = new Date();
+		LocalDateTime currentDate = LocalDateTime.now();
 		ListIterator<T> li = this.items.listIterator(this.items.size());
 		while (li.hasPrevious()){
 			T item = li.previous();
-			if (item.getStart().before(currentDate) && item.getValue() != null){
+			if (item.getStart().isBefore(currentDate) && item.getValue() != null){
 				return item.getValue();
 			}
 		};
@@ -120,12 +122,12 @@ public class Signal<T extends Schedulable> extends Message {
 	 * Gets the time at which the signal will next change value (call getCurrentValue() at that time to get the new value).
 	 * @return the time at which the signal will next change value.
 	 */
-	public Date getNextChange(){
-		Date currentDate = new Date();
+	public LocalDateTime getNextChange(){
+		LocalDateTime currentDate = LocalDateTime.now();
 		ListIterator<T> li = this.items.listIterator(this.items.size());
 		while (li.hasPrevious()){
 			T item = li.previous();
-			if (item.getStart().after(currentDate)){
+			if (item.getStart().isAfter(currentDate)){
 				return item.getStart();
 			}
 		};

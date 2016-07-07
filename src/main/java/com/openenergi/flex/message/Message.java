@@ -14,15 +14,27 @@
 
 package com.openenergi.flex.message;
 
-import java.util.Date;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializer;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonPrimitive;
+import java.time.ZoneId;
+import java.time.Instant;
+
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Date;
 
 /**
  * This class consists of properties and methods shared by all Flex messages. In the abstract a Flex message just contains a timestamp, entity
@@ -95,14 +107,26 @@ public class Message {
 		if (this.timestamp == null){
 			this.timestamp = System.currentTimeMillis();
 		}
-		Gson gson = new GsonBuilder()
-						.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
+		Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonSerializer<LocalDateTime>() {
+            @Override
+            public JsonElement serialize(LocalDateTime localDateTime, Type type, JsonSerializationContext jsonSerializationContext) {
+                Instant instant = localDateTime.atZone(ZoneOffset.UTC).toInstant();
+                Date date = Date.from(instant);
+                return new JsonPrimitive(date.getTime());
+            }
+        }).setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
 		
 		return gson.toJson(this);	
 	}
 	
 	public static Object deserialize(String json) throws JsonParseException {
-		Gson gson = new Gson();
+		Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
+			@Override
+			public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+				Instant instant = Instant.ofEpochMilli(json.getAsJsonPrimitive().getAsLong());
+				return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+			}
+		}).create();
 		
 		JSONObject j;
 		String topic;
@@ -122,11 +146,9 @@ public class Message {
 		case "schedules":
 			return gson.fromJson(json, Schedule.class);
 		case "signals":
-			Signal<SignalPointItem> sp = new Signal<SignalPointItem>();
-			return gson.fromJson(json, sp.getClass());
+			return gson.fromJson(json, new TypeToken<Signal<SignalPointItem>>(){}.getType());
 		case "schedule-signals":
-			Signal<SignalScheduleItem> ss = new Signal<SignalScheduleItem>();
-			return gson.fromJson(json, ss.getClass());
+			return gson.fromJson(json, new TypeToken<Signal<SignalScheduleItem>>(){}.getType());
 		}
 		return null;
 		

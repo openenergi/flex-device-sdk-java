@@ -14,7 +14,7 @@
 
 package com.openenergi.flex.message;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -27,18 +27,18 @@ import com.google.gson.annotations.SerializedName;
  */
 public final class SignalPointItem implements Schedulable {
 	@SerializedName("start_at")
-	Date startAt;
+	LocalDateTime startAt;
 	Double value;
 	public Double getValue() {
 		return this.value;
 	}
-	public Date getStart() {
+	public LocalDateTime getStart() {
 		return this.startAt;
 	}
 	
 	public SignalPointItem(){}
 	
-	public SignalPointItem(Date start, Double value){
+	public SignalPointItem(LocalDateTime start, Double value){
 		this.startAt = start;
 		this.value = value;
 	}

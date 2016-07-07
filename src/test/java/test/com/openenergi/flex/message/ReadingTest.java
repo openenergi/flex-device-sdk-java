@@ -40,7 +40,7 @@ public class ReadingTest {
 			if (m instanceof Reading){
 				assertEquals(((Reading)m).value, (Double)1.23);
 			} else {
-				fail("not an event");
+				fail("not a reading");
 			}
 			
 		} catch (JsonSyntaxException e1) {
