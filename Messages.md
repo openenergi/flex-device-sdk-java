@@ -1,8 +1,8 @@
 # Message Format Specification
 
-*Version: 0.1.2*
+*Version: 0.1.3*
 
-last modified on 2016-07-05
+last modified on 2016-07-08
 
 ### Versioning
 *Prior to version 1.0, the specification is a draft that is subject to short-notice changes and alterations.*
@@ -105,6 +105,17 @@ Cases in which the data may not be valid but will be stored for later remediatio
 * Data not passing business logic layer validation, such as declared availability being too high
 * Data that is too old (see below)
 
+## <a name="failure"></a>Failure Modes
+
+There are several types of reasons that a message can fail to deliver:
+
+* Connection (link) failure - This will be visible to the application through netowrk errors
+* Message bus rejects message - Either because the message is over 256Kb or the communication key is incorrect. This will be visible to the application through protocol-level errors
+* Message bus rejects message - due to too many requests (or the server is busy). This will be visible to the application through protocol-level errors. If using the ReliableClient from the OE SDK it will retry and the error will not be visible to the end application.
+* Message bus accepts message, but the message is invalid - The message will be stored and its invalidity will be recorded. These can be queried through the Device API.
+
+If using one of the Open Energi SDKs or the Microsoft IoT Hub client, a list of protocol level errors can be found 
+[here](https://azure.github.io/azure-iot-sdks/java/device/api_reference/com/microsoft/azure/iothub/IotHubStatusCode.html). The ReliableClient will retry in certain cases so some failures (eg. server busy) will not be visible to the end application.
 
 ### Clock Synchronization
 
@@ -124,7 +135,7 @@ The list of entities associated to a device and their meaning will be agreed bet
 
 A reading is an instantaneous measurement of a metric associated with an entity. The value of the reading is assumed to hold between the timestamp of the message and the next received timestamp of a readings message of the same type (known as a change-of-value or step-after series). Examples are instantaneous power consumption of an asset or grid frequency recorded from a meter.
 
-Due to the uncertainties associated with clock drift readings that are too old may not be included in Dynamic Demand aggregations (see appendix).
+Due to the uncertainties associated with clock drift readings that are too old may not be included in Dynamic Demand aggregations. Integrators should not in general submit data that is older than 24h.
 
 *In the event of conflicting readings (eg. same entity/type/timestamp but different value), the last write wins. If there are conflicting readings in the same batch (for protocols that support message batching), the one ultimately used by the system, if any, is non-deterministic.*
 
@@ -189,15 +200,14 @@ Due to the uncertainties associated with clock drift readings that are too old m
 In order for Open Energi to be able to aggregate the flexible energy provided by the integrator, some special readings need to be provided regularly, and they need to satisfy the below requirements.
 
 #### Power Consumption Readings
-The type should be `power`. The value should be in kW. A new reading should be generated whenever the power consumption increases or decreases by more than 5% since its last sent value, or every 12 hours, whichever comes first. 
+The type should be `power`. The value should be in kW and rounded to the nearest 100W. A new reading should be generated whenever the power consumption increases or decreases by more than 5% since its last sent value, or every 12 hours, whichever comes first.
 
 #### Availability Readings
 The type should be one of the following:
 
-* `availability-ffr-low`: The amount of power consumption that is available to be deferred within 2 seconds of `timestamp` and for up to 30 minutes
-* `availability-ffr-high`: The amount of power consumption that is available to be brought forward within 2 seconds of `timestamp` and for up to 30 minutes
+* `availability-ffr-low`: (kW, the nearest 100W) The amount of power consumption that is available to be deferred within 2 seconds of `timestamp` and for up to 30 minutes
+* `availability-ffr-high`: (kW, to the nearest 100W) The amount of power consumption that is available to be brought forward within 2 seconds of `timestamp` and for up to 30 minutes
 
-The value should be in kW.
 
 A new reading should be generated whenever the availability increases or decreases by more than 5% since its last sent value, or every 12 hours, whichever comes first.
 
@@ -212,8 +222,8 @@ For a frequency tracking load (such as a battery) the high availability is the r
 #### Response Readings
 The type should be one of the following:
 
-* `response-ffr-high`: The amount of power consumption that is currently being brought forward
-* `response-ffr-low`: The amount of power consumption that is currently being deferred
+* `response-ffr-high`: (kW, to the nearest 100W) The amount of power consumption that is currently being brought forward
+* `response-ffr-low`: (kW, to the nearest 100W) The amount of power consumption that is currently being deferred
 
 The value should be in kW.
 
@@ -322,17 +332,6 @@ The following message properties should be used. The Level should be 1 (INFO):
 * When a switch request begins, a message of type “switch-ffr-start” with value “1”/”-1” (high/low) should be sent. 
 * When a switch request ends, a message of type “switch-ffr-end” should be sent (with no value).
 
-#### Continuity Events
-
-Continuity events can be used to repudiate data. In the event that an integrator wishes to repudiate data that has previously been sent, there are two options:
-
-* Send correct data by sending readings with the same timestamps and different values
-* Send a continuity event
-
-The `value` of a continuity event is the number of seconds, ending at `timestamp`, that **all** readings should be considered invalid. For example, if `timestamp` corresponds to 1:00PM today and the `value` of the continuity event is `1800`, then all readings betweeen 12:30PM and 1:00PM today will be considered invalid by the system on receipt of the continuity event.
-
-Integrators who issue frequent continuity events may see their Dynamic Demand revenue penalised as it affects Open Energi's ability to rely on the data they provide to supply grid balancing services.
-
 ### <a name="mes-schedules"></a>Schedules
 
 A schedule is a collection of intervals that define the (string) value of a variable over a period of time. For example, the list of services that an entity is allowed to participate in can be sent via a schedule. The schedule can be repeating. Intervals are specified in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601#Time_intervals) notation.
@@ -396,9 +395,9 @@ A schedule is a collection of intervals that define the (string) value of a vari
     </tr>
     <tr>
         <td>value</td>
-		<td>String (max length 512), not null</td>
+		<td>Object, possibly null</td>
 		<td>Value of the schedule during this interval</td>
-		<td>“[\“ffr\”, \“special Monday service\”]”</td>
+		<td>[“ffr”, “special Monday service”]</td>
     </tr>
 
 </table>
@@ -414,7 +413,7 @@ In the event that multiple intervals overlap or conflict, the preceding value in
 		"schedule": [{
 			"span": "2016-W01-1T00:00:00/P1D",
 			"repeat": "P1W",
-			"value": “[\“ffr\”, \“special Monday service\”]”
+			"value": [“ffr”, “special Monday service”]
 		}, {
 			"span": null,
 			"repeat": null,
@@ -446,10 +445,10 @@ Portfolio management signals (i.e. DDv2) can be sent to devices that connect via
         <th>Example</th>
     </tr>
     <tr>
-        <td>created_at</td>
-		<td>String, not null, ISO 8601 datetime</td>
+        <td>timestamp</td>
+		<td>Long, not null (ms since epoch)</td>
 		<td>System time when signal was generated</td>
-		<td>2016-12-25T12:00:00.000Z</td>
+		<td>1413235133452</td>
     </tr>
     <tr>
         <td>topic</td>
@@ -506,7 +505,7 @@ The last signal point in the signal should leave the entity in a "safe" state.
 *Example of a portfolio management signal message*
 
     {
-    	"topic": "signal",
+    	"topic": "signals",
 		"generated_at": "2015-12-25T12:00:00Z",
     	"entities": ["l1234", "l4509"],
     	"type": "oe-add",
@@ -519,6 +518,13 @@ The last signal point in the signal should leave the entity in a "safe" state.
     	}]
     
     }
+
+#### Open Energi Signal Types
+
+There are two Signal types that have special meaning to Open Energi's control algorithm: `oe-add` and `oe-multiply`. They are used to manipulate Grid Frequency before it is used as an input to the algorithm. 
+
+* `oe-multiply`: This value makes the algorithm's response to the Grid Frequency more or less extreme by multiplying its deviation from 50 by the given amount. If `oe-multiply` is set to *x* and the Grid Frequency is *GF*, then the Grid Frequency used as an input by the algorithm will be `50 + x(GF - 50)`. Note that if *x* is 1, then no change occurs. This is the default value.
+* `oe-add`: This value alters the algorithm's response to the Grid Frequency by adding a given to the Grid Frequency. If `oe-add` is set to *x* and the Grid Frequency is *GF*, then the Grid Frequency used as an input by the algorithm will be `GF + x/2` if `GF >= 50` and `GF - x/2` if `GF < 50` (division by 2 is used so that an `oe-add` of 1 corresponds to mapping a GF of 50Hz to 50.5Hz).
     
 ### <a name="sig-schedule"></a>Schedule Signals
 
@@ -532,7 +538,7 @@ The last element in the `schedule` array specifies the default value fo `oe-add`
 
     {
     	"topic": "schedule-signal",
-		"generated_at": "2015-12-25T12:00:00Z",
+		"timestamp": 14100023938431,
     	"entities": ["l1234", "l4509"],
     	"type": "oe-add",
     	"schedule": [{
