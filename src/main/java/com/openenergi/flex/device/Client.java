@@ -96,19 +96,19 @@ public class Client {
 		public IotHubMessageResult execute(
 				com.microsoft.azure.iothub.Message rawMessage, Object context) {
 			Gson gson = new Gson();
-			Signal<?> msg;
 			try {
-				msg = gson.fromJson(rawMessage.getBytes().toString(), Signal.class);
+				Signal msg = (Signal) Message.deserialize(rawMessage.getBytes().toString());
+				if (this.callback != null){
+					this.callback.accept(msg);
+				}
+
+				return IotHubMessageResult.COMPLETE;
 			} catch (JsonSyntaxException ex){
 				//TODO(mbironneau) Log exception
 				return IotHubMessageResult.ABANDON;
 			}
 			
-			if (this.callback != null){
-				this.callback.accept(msg);
-			}
 
-			return IotHubMessageResult.COMPLETE;
 		}
 		
 	}

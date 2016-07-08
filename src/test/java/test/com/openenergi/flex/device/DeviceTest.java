@@ -7,6 +7,8 @@ import org.junit.Test;
 import com.openenergi.flex.message.Event;
 import com.openenergi.flex.message.MessageContext;
 
+import static org.junit.Assert.assertEquals;
+
 
 public class DeviceTest {
 	
@@ -29,12 +31,13 @@ public class DeviceTest {
 		try {
 			client.connect();
 			MessageContext ctx = new MessageContext();
-			ctx.setData(1);
+			ctx.setData(1L);
 			Event e = (Event) new Event()
 			.setValue("testing")
 			.setLevel(Event.Level.DEBUG)
 			.setEntity("l1")
 			.setType("test");
+			client.onPublish((MessageContext pub) ->  assertEquals(pub.getData(), 1L));
 			client.publish(e, ctx);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
