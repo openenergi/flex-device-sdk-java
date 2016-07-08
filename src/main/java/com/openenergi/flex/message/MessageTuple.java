@@ -18,8 +18,8 @@ package com.openenergi.flex.message;
  * This is used when persisting messages.
  */
 public class MessageTuple {
-    Message message;
-    MessageContext context;
+    public Message message;
+    public MessageContext context;
 
     public MessageTuple(){}
 

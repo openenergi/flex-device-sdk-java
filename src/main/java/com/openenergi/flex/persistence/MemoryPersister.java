@@ -17,18 +17,18 @@ package com.openenergi.flex.persistence;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.UUID;
 
 /**
  * Persists messages in memory in an ordered hashmap.
  */
-public class MemoryPersister extends AbstractPersister {
+public class MemoryPersister implements Persister {
     private Integer size;
     private ConcurrentSkipListSet<TokenizedObject> list;
 
-    @Override
-    void put(Object data, Long priority) {
+    public void put(Object data, Long priority) {
         //warning: size() is not constant time with this data structure
         if (this.list.size() >= this.size){
             if (priority > this.list.first().priority) {
@@ -57,13 +57,12 @@ public class MemoryPersister extends AbstractPersister {
         return this.list.size();
     }
 
-    @Override
-    TokenizedObject peek() {
-        return this.list.last();
+
+    public TokenizedObject peek()  throws NoSuchElementException{
+            return this.list.last();
     }
 
-    @Override
-    void delete(String token) {
+    public void delete(String token) {
         //This method looks like it is O(N). However, peek() returns elements from the
         //head of the list, so by iterating in descending order we are actually quite
         //likely to hit the desired element without iterating through more than a few

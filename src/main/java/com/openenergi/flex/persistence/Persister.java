@@ -14,25 +14,27 @@
 
 package com.openenergi.flex.persistence;
 
+import java.util.NoSuchElementException;
+
 /**
  * An interface to a persistent data store for message tuples.
  */
-public abstract class AbstractPersister {
+public interface Persister {
     /**
      * Stores the object.
      * @param data The object to store
      * @param priority A number representing the priority of the entry for future eviction (the higher the more important)
      */
-    abstract void put(Object data, Long priority);
+    void put(Object data, Long priority);
 
     /**
-     * Returns the object in the store with the highest priority.
+     * Returns the object in the store with the highest priority or NULL.
      */
-    abstract TokenizedObject peek();
+    TokenizedObject peek() throws NoSuchElementException;
 
     /**
      * Delete the object with the given token.
      * @param token
      */
-    abstract void delete(String token);
+    void delete(String token);
 }

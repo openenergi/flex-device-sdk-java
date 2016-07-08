@@ -91,7 +91,12 @@ public class Reading extends Message{
 	public Reading(){
 		this.topic = "readings";
 	}
-	
+
+	public Reading setType(Reading.Type t){
+		this.type = t.toString();
+		return this;
+	}
+
 	Double value;
 
 	public Double getValue() {

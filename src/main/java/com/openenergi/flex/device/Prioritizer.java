@@ -14,29 +14,14 @@
 
 package com.openenergi.flex.device;
 
-import com.openenergi.flex.message.MessageTuple;
+import com.openenergi.flex.message.Message;
 
 
 /**
- * This is an interface for all classes that provide persistence of messages. Their purpose is to buffer communications in the event of
- * loss of connectivity or other transient failures.
+ * An interface that scores messages to assign them a priority. The higher the message priority, the faster it gets
+ * sent after recovering from connection failure and the less likely it is to get evicted from persistence if it
+ * fills up.
  */
-public interface Buffer {
-    /**
-     * Persist a message tuple.
-     * @param mt the message tuple
-     */
-    void put(MessageTuple mt);
-
-    /**
-     * Whether the buffer contains any more message tuples.
-     * @return true if there are any tuples, false if the buffer is empty.
-     */
-    Boolean hasNext();
-
-    /**
-     * Return the next message tuple in the buffer.
-     * @return message tuple or NULL.
-     */
-    MessageTuple next();
+public interface Prioritizer {
+   Long score (Message msg);
 }
