@@ -31,7 +31,7 @@ Starting with version 0.2 you will be able to download the JAR from Maven centra
 Given OE's Hub URL, a Device Id and Device Key:
 
 ```java
-import com.openenergi.flex.device.Client;
+import com.openenergi.flex.device.BasicClient;
 
 client = Client("<Hub URL>", "<Device Id>", "<Device Key>");	
 client.connect(); 	
@@ -138,7 +138,7 @@ Release 0.2 will come with a low-overhead scheduling wrapper that invokes a call
 If you do not want to subscribe to cloud-to-device messages, you should use the `disableSubscription()` method. It can later be re-enabled using `enableSubscription()`.
 
 ```java
-import com.openenergi.flex.device.Client;
+import com.openenergi.flex.device.BasicClient;
     
 client = Client("<Hub URL", "<Device Id>", "<Device Key>");
    

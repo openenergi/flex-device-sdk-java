@@ -15,7 +15,7 @@ public class DeviceTest {
 
 	@Test
 	public void testConnect() {
-		Client client = new Client("oeiot.azure-devices.net", "d1000000", "EM/3FdzxAxxExOktcF311DNcm8pCWHpLLrHZpmTx+p4=");
+		BasicClient client = new BasicClient("oeiot.azure-devices.net", "d1000000", "EM/3FdzxAxxExOktcF311DNcm8pCWHpLLrHZpmTx+p4=");
 		try {
 			client.connect();
 		} catch (IOException e) {
@@ -27,7 +27,7 @@ public class DeviceTest {
 	
 	@Test
 	public void testSendMessage() {
-		Client client = new Client("oeiot.azure-devices.net", "d1000000", "EM/3FdzxAxxExOktcF311DNcm8pCWHpLLrHZpmTx+p4=");
+		BasicClient client = new BasicClient("oeiot.azure-devices.net", "d1000000", "EM/3FdzxAxxExOktcF311DNcm8pCWHpLLrHZpmTx+p4=");
 		try {
 			client.connect();
 			MessageContext ctx = new MessageContext();
