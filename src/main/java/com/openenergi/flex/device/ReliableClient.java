@@ -72,6 +72,11 @@ public class ReliableClient implements Client{
                     TokenizedObject to = this.persister.peekLock();
                     this.client.publish((Message)to.data, new MessageContext(to.token));
                 } catch (NoSuchElementException ex){
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException e){
+                        return;
+                    }
                 }
 
             }
