@@ -24,6 +24,7 @@ import com.openenergi.flex.persistence.TokenizedObject;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
@@ -48,7 +49,7 @@ public class ReliableClient implements Client{
         private Client client;
         private AtomicLong sleepUntil;
 
-        public BufferDrainer(Persister persister, BasicClient client){
+        public BufferDrainer(Persister persister, Client client){
             this.persister = persister;
             this.client = client;
         }
@@ -67,8 +68,12 @@ public class ReliableClient implements Client{
                         return;
                     }
                 }
-                TokenizedObject to = this.persister.peekLock();
-                this.client.publish((Message)to.data, new MessageContext(to.token));
+                try {
+                    TokenizedObject to = this.persister.peekLock();
+                    this.client.publish((Message)to.data, new MessageContext(to.token));
+                } catch (NoSuchElementException ex){
+                }
+
             }
         }
     }
@@ -78,6 +83,7 @@ public class ReliableClient implements Client{
         this.prioritizer = new FFRPrioritizer();
         this.persister = new MemoryPersister(10000);
         this.setPublishCallback();
+        (new Thread(new BufferDrainer(this.persister, this.client))).run();
     }
 
     public ReliableClient(BasicClient client, Persister persister){
