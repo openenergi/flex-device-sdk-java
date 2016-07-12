@@ -16,7 +16,7 @@ public class MemoryPersisterTest {
     public void testPut() {
        MemoryPersister mp = new MemoryPersister(3);
         try {
-            mp.put("asdf", 1L);
+            mp.put("asdf", 1L, false);
         } catch (PersisterFullException e) {
             fail("Should not throw");
         }
@@ -28,10 +28,10 @@ public class MemoryPersisterTest {
     public void testCap(){
         MemoryPersister mp = new MemoryPersister(3);
         try {
-            mp.put("asdf", 1L);
-            mp.put("bsdf", 2L);
-            mp.put("csdf", 3L);
-            mp.put("dsdf", 4L); //first item gets evicted
+            mp.put("asdf", 1L, false);
+            mp.put("bsdf", 2L, false);
+            mp.put("csdf", 3L, false);
+            mp.put("dsdf", 4L, false); //first item gets evicted
         } catch (PersisterFullException e) {
             fail("Should not throw");
         }
@@ -44,16 +44,16 @@ public class MemoryPersisterTest {
     public void testCap2(){
         MemoryPersister mp = new MemoryPersister(3);
         try {
-            mp.put("asdf", 4L);
-            mp.put("bsdf", 3L);
-            mp.put("csdf", 2L);
+            mp.put("asdf", 4L, false);
+            mp.put("bsdf", 3L, false);
+            mp.put("csdf", 2L, false);
         } catch (PersisterFullException e) {
             e.printStackTrace();
         }
 
 
         try {
-            mp.put("dsdf", 1L); //this item never gets inserted
+            mp.put("dsdf", 1L, false); //this item never gets inserted
         } catch (PersisterFullException expected) {
         }
         assertEquals(3L, (long) mp.size());
@@ -64,8 +64,8 @@ public class MemoryPersisterTest {
     public void testDelete(){
         MemoryPersister mp = new MemoryPersister(3);
         try {
-            mp.put("asdf", 1L);
-            mp.put("bsdf", 2L);
+            mp.put("asdf", 1L, false);
+            mp.put("bsdf", 2L, false);
         } catch (PersisterFullException e) {
             fail("Should not throw");
         }
@@ -75,5 +75,6 @@ public class MemoryPersisterTest {
         assertEquals(1L, (long) mp.size());
         assertEquals("asdf", mp.peekLock().data);
     }
+
 
 }

@@ -39,9 +39,9 @@ public class TokenizedObject {
         this.data = data;
         this.priority = priority;
         if (locked){
-            this.locker = new Semaphore(1, true);
-        } else {
             this.locker = new Semaphore(0, true);
+        } else {
+            this.locker = new Semaphore(1, true);
         }
     }
 
