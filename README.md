@@ -26,6 +26,17 @@ Starting with version 0.2 you will be able to download the JAR from Maven centra
 
 ## Usage
 
+### Clients
+
+There are two different clients: the `BasicClient` and `RetryingClient`. The `BasicClient` client does not buffer messages - in the event of connection loss or server error, the messages will be lost unless there is application-level logic to do that. The `RetryingClient` can buffer and possibly persist messages so that they are not lost.
+
+The usage of both clients is the same, but the `RetryingClient` has more options in the constructor:
+
+* The `Persister` specifies which type of persistence to use for buffered messages. At the moment only in-memory persistence is implemented but we will implement on-disk persistence soon. If using the `MemoryPersister` the capacity can be specified, in maximum number of messages (default: 10000).
+* The `Prioritizer` informs eviction policy for buffered messages and also which messages get sent first once connections get restored (the higher priority items get sent first). The default, `FFRPrioritizer`, gives higher priority to FFR-related messages (eg. availability) and newer messages.
+
+*The RetryingClient does not implement message-context-based publishing at the moment as retry logic is handled within the client itself.*
+
 ### Connecting to the Message Broker
 
 Given OE's Hub URL, a Device Id and Device Key:
@@ -33,7 +44,7 @@ Given OE's Hub URL, a Device Id and Device Key:
 ```java
 import com.openenergi.flex.device.BasicClient;
 
-client = Client("<Hub URL>", "<Device Id>", "<Device Key>");	
+client = BasicClient("<Hub URL>", "<Device Id>", "<Device Key>");	
 client.connect(); 	
 ```
 
@@ -58,6 +69,8 @@ client.publish(msg);
 Even though the example above uses a reading type from an enumeration, any string less than 64 characters in length can be passed into the `type` method. Note that types are not case-sensitive and will be lowercased during ingestion.
 
 Note that even if the `publish` method returns successfully, the message is not guaranteed to have been delivered. To be certain you need to use a callback to correlate acknowledged messages from the broker with published messages from your device - see "Acknowledgement" below.
+
+*If using the `RetryingClient`, the only exceptions you will receive are fatal ones - retriable exceptions will be retried.*
 
 **Event**
 
