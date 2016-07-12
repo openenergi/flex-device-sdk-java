@@ -25,8 +25,7 @@ import com.microsoft.azure.iothub.IotHubStatusCode;
 public class MessageContext {
 
 	private Object data;
-	private String status;
-	
+	private IotHubStatusCode status;
 	
 	public MessageContext(Object data){
 		this.setData(data);
@@ -35,48 +34,10 @@ public class MessageContext {
 	public MessageContext(){}
 	
 	public void setStatus(IotHubStatusCode status){
-		switch (status){
-		case BAD_FORMAT:
-			this.status = "Internal error - message had incorrect format";
-			break;
-		case OK:
-		case OK_EMPTY:
-			this.status = "The message was successfully received";
-			break;
-		case UNAUTHORIZED:
-			this.status = "Unauthorized - please try again or request a new device key";
-			break;
-		case TOO_MANY_DEVICES:
-			this.status = "Please contact Open Energi quoting the error code TOO_MANY_DEVICES";
-			break;
-		case HUB_OR_DEVICE_ID_NOT_FOUND:
-			this.status = "Either the Hub or Device Id was not found. Please check inputs.";
-			break;
-		case PRECONDITION_FAILED:
-			this.status = "Please contact Open Energi quoting the error code PRECONDITION_FAILED";
-			break;
-		case REQUEST_ENTITY_TOO_LARGE:
-			this.status = "Your message was too large. The limit is 256KB";
-			break;
-		case THROTTLED:
-			this.status = "This device has been sending too many messages and the request was throttled. Please try again soon";
-			break;
-		case INTERNAL_SERVER_ERROR:
-			this.status = "There was an unknown server-side error. If this happens frequently please contact Open Energi quoting the error code INTERNAL_SERVER_ERROR";
-			break;
-		case SERVER_BUSY:
-			this.status = "The server is busy. Please try again soon. If this happens frequently please contact Open Energi quoting the error code SERVER_BUSY";
-			break;
-		case ERROR:
-			this.status = "There was an uknown error. Please contact Open Energi quoting the error code ERROR";
-			break;
-		case MESSAGE_EXPIRED:
-			this.status = "The message failed to deliver in a timely fashion. If this happens frequently please contact Open Energi quoting the error code MESSAGE_EXPIRED";
-			break;
-		}
+		this.status = status;
 	}
 	
-	public String getStatus(){
+	public IotHubStatusCode getStatus(){
 		return this.status;
 	}
 

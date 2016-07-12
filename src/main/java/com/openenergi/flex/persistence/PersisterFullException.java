@@ -14,34 +14,14 @@
 
 package com.openenergi.flex.persistence;
 
-import java.util.NoSuchElementException;
-
 /**
- * An interface to a persistent data store for message tuples.
+ * Represents the exception that is thrown when a message cannot be persisted as it is
+ * lower priorioty than the lowest priority item in the persister buffer and the buffer
+ * is full.
  */
-public interface Persister {
-    /**
-     * Stores the object.
-     * @param data The object to store
-     * @param priority A number representing the priority of the entry for future eviction (the higher the more important)
-     * @return The token of the object (can be used to delete it if the request is successful)
-     */
-    Long put(Object data, Long priority, Boolean acquireLock) throws PersisterFullException;
+public class PersisterFullException extends Exception {
 
-    /**
-     * Returns the object in the store with the highest priority and locks it.
-     */
-    TokenizedObject peekLock() throws NoSuchElementException;
-
-    /**
-     * Deletes the object with the given token.
-     * @param token The token of the object
-     */
-    void delete(Long token);
-
-    /**
-     * Releases the object held at token for processing by other threads.
-     * @param token The token of the object
-     */
-    void release(Long token);
+    public PersisterFullException(String message){
+        super(message);
+    }
 }

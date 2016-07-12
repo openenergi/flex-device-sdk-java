@@ -17,30 +17,102 @@ package com.openenergi.flex.device;
 import com.openenergi.flex.message.Message;
 import com.openenergi.flex.message.MessageContext;
 import com.openenergi.flex.message.Signal;
+import com.openenergi.flex.persistence.MemoryPersister;
 import com.openenergi.flex.persistence.Persister;
+import com.openenergi.flex.persistence.PersisterFullException;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 /**
+ * A client that implements buffering behavior, prioritizing the transmission of
+ * certain messages (i.e. FFR-related) when connection is recovered.
  *
+ * By default it buffers messages in memory during outages - this can be changed by
+ * selecting a different persister in the constructor.
  */
 public class ReliableClient implements Client{
+    private static AtomicLong backoffExpiration = new AtomicLong();
     Persister persister;
     Prioritizer prioritizer;
     BasicClient client;
 
     public ReliableClient(String hubUrl, String deviceId, String deviceKey) {
         this.client = new BasicClient(hubUrl, deviceId, deviceKey);
+        this.prioritizer = new FFRPrioritizer();
+        this.persister = new MemoryPersister(10000);
+    }
+
+    public ReliableClient(BasicClient client, Persister persister){
+        this.client = client;
+        this.persister = persister;
+        this.prioritizer = new FFRPrioritizer();
+    }
+
+    public ReliableClient(BasicClient client, Persister persister, Prioritizer prioritizer){
+        this.client = client;
+        this.persister = persister;
+        this.prioritizer = prioritizer;
+    }
+
+    private void setPublishCallback(){
+        this.client.onPublish((MessageContext ctx) -> {
+            Long token;
+            token = (Long) ctx.getData();
+            switch (ctx.getStatus()){
+                case HUB_OR_DEVICE_ID_NOT_FOUND:
+                case BAD_FORMAT:
+                case MESSAGE_EXPIRED:
+                case PRECONDITION_FAILED:
+                case REQUEST_ENTITY_TOO_LARGE:
+                case UNAUTHORIZED:
+                    //not retriable
+                    //TODO(mbironneau): log error and/or throw exception
+                    this.persister.delete(token);
+                    return;
+                case OK:
+                    //great
+                    this.persister.delete(token);
+                    return;
+                case THROTTLED:
+                case SERVER_BUSY:
+                case INTERNAL_SERVER_ERROR:
+                case TOO_MANY_DEVICES:
+                    //retriable - release the message for retrying
+                    this.persister.release(token);
+                    return;
+                default:
+                    //TODO(mbironneau): log
+                    //we don't know what to do as this status
+                    //code is unexpected. To prevent the persister
+                    //from filling up if messages are going through,
+                    //delete the message from the persister.
+                    this.persister.delete(token);
+
+            }
+        });
     }
 
     @Override
     public void connect() throws IOException {
-
+        this.client.connect();
     }
 
     @Override
     public void publish(Message msg) {
+        Long token = -1L;
+
+        try {
+            token = this.persister.put(msg, this.prioritizer.score(msg), true);
+        } catch (PersisterFullException e) {
+            e.printStackTrace(); //TODO(mbironneau): log
+        }
+
+        if (System.currentTimeMillis() >= ReliableClient.backoffExpiration.get()) {
+            //only publish the message if we are not backing off
+            this.client.publish(msg, new MessageContext(token));
+        }
 
     }
 

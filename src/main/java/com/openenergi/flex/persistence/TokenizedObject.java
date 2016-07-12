@@ -14,19 +14,49 @@
 
 package com.openenergi.flex.persistence;
 
+import java.util.concurrent.Semaphore;
+
 /**
  * An object alongside a token that can later be used to delete it.
  */
 public class TokenizedObject {
-    String token;
+    Long token;
     Long priority;
     Object data;
+    private Semaphore locker;
 
     public TokenizedObject(){}
 
-    public TokenizedObject(String token, Object data, Long priority){
+    /**
+     *
+     * @param token Token by which to retrieve the object
+     * @param data The data of the object
+     * @param priority Priority of the data (higher is more)
+     * @param locked Whether the object should be initialized in a locked state
+     */
+    public TokenizedObject(Long token, Object data, Long priority, Boolean locked){
         this.token = token;
         this.data = data;
         this.priority = priority;
+        if (locked){
+            this.locker = new Semaphore(1, true);
+        } else {
+            this.locker = new Semaphore(0, true);
+        }
+    }
+
+    /**
+     * Tries to lock the object from processing by other threads.
+     */
+    public Boolean tryAcquire(){
+        return this.locker.tryAcquire();
+    }
+
+
+    /**
+     * Releases the object for processing by other threads.
+     */
+    public void release(){
+        this.locker.release();
     }
 }

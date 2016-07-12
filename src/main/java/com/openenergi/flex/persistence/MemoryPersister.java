@@ -19,25 +19,28 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Persists messages in memory in an ordered hashmap.
  */
 public class MemoryPersister implements Persister {
+    private static AtomicLong tokenCounter = new AtomicLong();
     private Integer size;
     private ConcurrentSkipListSet<TokenizedObject> list;
 
-    public void put(Object data, Long priority) {
+    public Long put(Object data, Long priority, Boolean acquireLock) throws PersisterFullException {
         //warning: size() is not constant time with this data structure
         if (this.list.size() >= this.size){
             if (priority > this.list.first().priority) {
                 this.truncate();
             } else {
-                return; //TODO(mbironneau): Log this instead of silently dropping it
+                throw new PersisterFullException("Buffer full"); //TODO(mbironneau): Log this instead of silently dropping it
             }
         }
-        this.list.add(new TokenizedObject(UUID.randomUUID().toString(), data, priority));
+        Long token = MemoryPersister.tokenCounter.getAndIncrement();
+        this.list.add(new TokenizedObject(token, data, priority, acquireLock));
+        return token;
     }
 
     /**
@@ -58,11 +61,21 @@ public class MemoryPersister implements Persister {
     }
 
 
-    public TokenizedObject peek()  throws NoSuchElementException{
-            return this.list.last();
+    public TokenizedObject peekLock()  throws NoSuchElementException{
+        Iterator<TokenizedObject> it = this.list.descendingIterator();
+        while (it.hasNext()){
+            TokenizedObject to = it.next();
+            if (to.tryAcquire()){
+                return to;
+            }
+        }
+        //if we got this far then there are no eligible objects. for consistency
+        //we should throw.
+        throw new NoSuchElementException();
     }
 
-    public void delete(String token) {
+
+    public void delete(Long token) {
         //This method looks like it is O(N). However, peek() returns elements from the
         //head of the list, so by iterating in descending order we are actually quite
         //likely to hit the desired element without iterating through more than a few
@@ -78,6 +91,23 @@ public class MemoryPersister implements Persister {
         });
     }
 
+    @Override
+    public void release(Long token) {
+        //This method looks like it is O(N). However, peek() returns elements from the
+        //head of the list, so by iterating in descending order we are actually quite
+        //likely to hit the desired element without iterating through more than a few
+        //items.
+
+        Iterator<TokenizedObject> it = this.list.descendingIterator();
+
+        it.forEachRemaining((TokenizedObject to) -> {
+            if (to.token == token) {
+                to.release();
+                return;
+            }
+        });
+    }
+
     /**
      * Construct a new in-memory persister with maximum capacity.
      * @param size Maximum capacity (in number of messages).
@@ -87,7 +117,7 @@ public class MemoryPersister implements Persister {
         if (size == 0) throw new IllegalArgumentException("Size should be at least 1");
         this.list = new ConcurrentSkipListSet<>(new Comparator<TokenizedObject>() {
             public int compare(TokenizedObject o1, TokenizedObject o2) {
-                return o1.priority < o2.priority ? -1 : o1.priority == o2.priority ? 0 : 1;
+                return Long.compare(o1.priority, o2.priority);
             }
         });
         this.size = size;
