@@ -109,15 +109,15 @@ Cases in which the data may not be valid but will be stored for later remediatio
 
 There are several types of reasons that a message can fail to deliver:
 
-* Connection (link) failure - This will be visible to the application through network level errors. If using the ReliableClient from the OE SDK it will retry and the error will not be visible to the end application.
+* Connection (link) failure - This will be visible to the application through network level errors. If using the RetryingClient from the OE SDK it will retry and the error will not be visible to the end application.
 * Message bus rejects message - Either because the message is over 256Kb or the communication key is incorrect. This will be visible to the application through protocol-level errors
-* Message bus rejects message - due to too many requests (or the server is busy). This will be visible to the application through protocol-level errors. If using the ReliableClient from the OE SDK it will retry and the error will not be visible to the end application.
+* Message bus rejects message - due to too many requests (or the server is busy). This will be visible to the application through protocol-level errors. If using the RetryingClient from the OE SDK it will retry and the error will not be visible to the end application.
 * Message bus accepts message, but the message is invalid - The message will be stored and its invalidity will be recorded. These can be queried through the Device API.
 
 If using one of the Open Energi SDKs or the Microsoft IoT Hub client, a list of protocol level errors can be found 
-[here](https://azure.github.io/azure-iot-sdks/java/device/api_reference/com/microsoft/azure/iothub/IotHubStatusCode.html). The ReliableClient will retry in certain cases so some failures (eg. server busy) will not be visible to the end application.
+[here](https://azure.github.io/azure-iot-sdks/java/device/api_reference/com/microsoft/azure/iothub/IotHubStatusCode.html). The RetryingClient will retry in certain cases so some failures (eg. server busy) will not be visible to the end application.
 
-If using the ReliableClient, message may be buffered in the event of retriable exceptions. In the event that the cause of the exception (eg network failure) lasts a long time, the size of the buffer may reach the capacity of the machine, which will inevitably lead to data loss and degradation of performance. Integrators should take care to size the device appropriately so that it can store 24H of FFR data.
+If using the RetryingClient, message may be buffered in the event of retriable exceptions. In the event that the cause of the exception (eg network failure) lasts a long time, the size of the buffer may reach the capacity of the machine, which will inevitably lead to data loss and degradation of performance. Integrators should take care to size the device appropriately so that it can store 24H of FFR data.
 
 ### Clock Synchronization
 
