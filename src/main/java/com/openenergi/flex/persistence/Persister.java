@@ -33,6 +33,8 @@ public interface Persister {
      */
     TokenizedObject peekLock() throws NoSuchElementException;
 
+    TokenizedObject getByToken(Long token) throws NoSuchElementException;
+
     /**
      * Deletes the object with the given token.
      * @param token The token of the object

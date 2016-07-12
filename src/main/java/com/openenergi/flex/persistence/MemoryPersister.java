@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class MemoryPersister implements Persister {
     private static AtomicLong tokenCounter = new AtomicLong();
     private Integer size;
+    public AtomicLong counter = new AtomicLong(0L); //total number of objects ever stored
     private ConcurrentSkipListSet<TokenizedObject> list;
 
     public Long put(Object data, Long priority, Boolean acquireLock) throws PersisterFullException {
@@ -38,6 +39,7 @@ public class MemoryPersister implements Persister {
                 throw new PersisterFullException("Buffer full"); //TODO(mbironneau): Log this instead of silently dropping it
             }
         }
+        this.counter.incrementAndGet();
         Long token = MemoryPersister.tokenCounter.getAndIncrement();
         this.list.add(new TokenizedObject(token, data, priority, acquireLock));
         return token;
@@ -66,6 +68,20 @@ public class MemoryPersister implements Persister {
         while (it.hasNext()){
             TokenizedObject to = it.next();
             if (to.tryAcquire()){
+                return to;
+            }
+        }
+        //if we got this far then there are no eligible objects. for consistency
+        //we should throw.
+        throw new NoSuchElementException();
+    }
+
+    @Override
+    public TokenizedObject getByToken(Long token) throws NoSuchElementException {
+        Iterator<TokenizedObject> it = this.list.descendingIterator();
+        while (it.hasNext()){
+            TokenizedObject to = it.next();
+            if (to.token == token){
                 return to;
             }
         }

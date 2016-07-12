@@ -40,6 +40,9 @@ public class ReliableClient implements Client{
     private static AtomicLong retryPeriod = new AtomicLong(2000L);
     private static Long retryIncrement = 2000L;
     private static final Long retryMax = 60000L;
+    private BufferDrainer drainer;
+    private Consumer<MessageContext> callback;
+
     Persister persister;
     Prioritizer prioritizer;
     Client client;
@@ -47,7 +50,7 @@ public class ReliableClient implements Client{
     private class BufferDrainer implements Runnable {
         private Persister persister;
         private Client client;
-        private AtomicLong sleepUntil;
+        private AtomicLong sleepUntil = new AtomicLong(0);
 
         public BufferDrainer(Persister persister, Client client){
             this.persister = persister;
@@ -92,18 +95,21 @@ public class ReliableClient implements Client{
         this.prioritizer = new FFRPrioritizer();
         this.persister = new MemoryPersister(bufferSize);
         this.setPublishCallback();
-        (new Thread(new BufferDrainer(this.persister, this.client))).run();
+        this.drainer = new BufferDrainer(this.persister, this.client);
+        (new Thread(this.drainer)).start();
     }
 
-    public ReliableClient(BasicClient client, Persister persister){
+    public ReliableClient(Client client, Persister persister){
         this(client, persister, new FFRPrioritizer());
     }
 
-    public ReliableClient(BasicClient client, Persister persister, Prioritizer prioritizer){
+    public ReliableClient(Client client, Persister persister, Prioritizer prioritizer){
         this.client = client;
         this.persister = persister;
         this.prioritizer = prioritizer;
-        (new Thread(new BufferDrainer(this.persister, this.client))).run();
+        this.setPublishCallback();
+        this.drainer = new BufferDrainer(this.persister, this.client);
+        (new Thread(this.drainer)).start();
     }
 
     private void setPublishCallback(){
@@ -120,11 +126,13 @@ public class ReliableClient implements Client{
                     //not retriable
                     //TODO(mbironneau): log error and/or throw exception
                     resetRetryInterval();
+                    if (this.callback != null) this.callback.accept(ctx);
                     this.persister.delete(token);
                     return;
                 case OK:
                     //great
                     resetRetryInterval();
+                    if (this.callback != null) this.callback.accept(ctx);
                     this.persister.delete(token);
                     return;
                 case THROTTLED:
@@ -202,14 +210,37 @@ public class ReliableClient implements Client{
 
     }
 
+    /**
+     * Attempt to publish message and return token to persisted message. This token can
+     * be used to retrieve the message from the client's Persister.
+     * @param msg Message to publish
+     * @return Token to persisted message.
+     */
+    public Long publishAndGetToken(Message msg){
+        Long token = -1L;
+
+        try {
+            token = this.persister.put(msg, this.prioritizer.score(msg), true);
+        } catch (PersisterFullException e) {
+            e.printStackTrace(); //TODO(mbironneau): log
+        }
+
+        if (System.currentTimeMillis() >= ReliableClient.backoffExpiration.get()) {
+            //only publish the message if we are not backing off
+            this.client.publish(msg, new MessageContext(token));
+        }
+
+        return token;
+    }
+
     @Override
     public void publish(Message msg, MessageContext ctx) {
         throw new NotImplementedException();
     }
 
     @Override
-    public void onPublish(Consumer<MessageContext> ctx) {
-        throw new NotImplementedException();
+    public void onPublish(Consumer<MessageContext> callback) {
+        this.callback = callback;
     }
 
     @Override
