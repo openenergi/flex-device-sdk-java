@@ -84,23 +84,26 @@ public class ReliableClient implements Client{
     }
 
     public ReliableClient(String hubUrl, String deviceId, String deviceKey) {
+        this(hubUrl, deviceId, deviceKey, 10000);
+    }
+
+    public ReliableClient(String hubUrl, String deviceId, String deviceKey, Integer bufferSize){
         this.client = new BasicClient(hubUrl, deviceId, deviceKey);
         this.prioritizer = new FFRPrioritizer();
-        this.persister = new MemoryPersister(10000);
+        this.persister = new MemoryPersister(bufferSize);
         this.setPublishCallback();
         (new Thread(new BufferDrainer(this.persister, this.client))).run();
     }
 
     public ReliableClient(BasicClient client, Persister persister){
-        this.client = client;
-        this.persister = persister;
-        this.prioritizer = new FFRPrioritizer();
+        this(client, persister, new FFRPrioritizer());
     }
 
     public ReliableClient(BasicClient client, Persister persister, Prioritizer prioritizer){
         this.client = client;
         this.persister = persister;
         this.prioritizer = prioritizer;
+        (new Thread(new BufferDrainer(this.persister, this.client))).run();
     }
 
     private void setPublishCallback(){
