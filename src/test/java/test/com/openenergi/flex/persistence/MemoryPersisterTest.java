@@ -8,6 +8,8 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.google.gson.JsonSyntaxException;
 
+import java.util.NoSuchElementException;
+
 
 public class MemoryPersisterTest {
 
@@ -74,6 +76,37 @@ public class MemoryPersisterTest {
         mp.delete(to.token);
         assertEquals(1L, (long) mp.size());
         assertEquals("asdf", mp.peekLock().data);
+    }
+
+    @Test
+    public void testLocking(){
+        MemoryPersister mp = new MemoryPersister(3);
+        Long token1 = -1L;
+        Long token2 = -1L;
+        try {
+            token1 = mp.put("asdf", 1L, false);
+            token2 = mp.put("bsdf", 2L, true);
+        } catch (PersisterFullException e) {
+            fail("Should not throw");
+        }
+        TokenizedObject to = mp.peekLock();
+        assertEquals(to.data, "asdf");
+
+        try {
+            mp.peekLock();
+        } catch (NoSuchElementException expected){
+        }
+
+        mp.release(token2);
+
+        try {
+            to = mp.peekLock();
+            assertEquals(to.data, "bsdf");
+        } catch (NoSuchElementException ex){
+            fail("Should not throw");
+        }
+
+
     }
 
 

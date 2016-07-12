@@ -20,9 +20,9 @@ import java.util.concurrent.Semaphore;
  * An object alongside a token that can later be used to delete it.
  */
 public class TokenizedObject {
-    Long token;
-    Long priority;
-    Object data;
+    public Long token;
+    public Long priority;
+    public Object data;
     private Semaphore locker;
 
     public TokenizedObject(){}

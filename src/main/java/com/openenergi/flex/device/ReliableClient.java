@@ -20,6 +20,8 @@ import com.openenergi.flex.message.Signal;
 import com.openenergi.flex.persistence.MemoryPersister;
 import com.openenergi.flex.persistence.Persister;
 import com.openenergi.flex.persistence.PersisterFullException;
+import com.openenergi.flex.persistence.TokenizedObject;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -34,14 +36,48 @@ import java.util.function.Consumer;
  */
 public class ReliableClient implements Client{
     private static AtomicLong backoffExpiration = new AtomicLong();
+    private static AtomicLong retryPeriod = new AtomicLong(2000L);
+    private static Long retryIncrement = 2000L;
+    private static final Long retryMax = 60000L;
     Persister persister;
     Prioritizer prioritizer;
-    BasicClient client;
+    Client client;
+
+    private class BufferDrainer implements Runnable {
+        private Persister persister;
+        private Client client;
+        private AtomicLong sleepUntil;
+
+        public BufferDrainer(Persister persister, BasicClient client){
+            this.persister = persister;
+            this.client = client;
+        }
+
+        public void setSleepUntil(Long until){
+            this.sleepUntil.set(until);
+        }
+
+        public void run(){
+            while (true){
+                if (System.currentTimeMillis() < this.sleepUntil.get()){
+                    try {
+                        Thread.sleep(1000L);
+                        continue;
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                }
+                TokenizedObject to = this.persister.peekLock();
+                this.client.publish((Message)to.data, new MessageContext(to.token));
+            }
+        }
+    }
 
     public ReliableClient(String hubUrl, String deviceId, String deviceKey) {
         this.client = new BasicClient(hubUrl, deviceId, deviceKey);
         this.prioritizer = new FFRPrioritizer();
         this.persister = new MemoryPersister(10000);
+        this.setPublishCallback();
     }
 
     public ReliableClient(BasicClient client, Persister persister){
@@ -69,10 +105,12 @@ public class ReliableClient implements Client{
                 case UNAUTHORIZED:
                     //not retriable
                     //TODO(mbironneau): log error and/or throw exception
+                    resetRetryInterval();
                     this.persister.delete(token);
                     return;
                 case OK:
                     //great
+                    resetRetryInterval();
                     this.persister.delete(token);
                     return;
                 case THROTTLED:
@@ -80,6 +118,7 @@ public class ReliableClient implements Client{
                 case INTERNAL_SERVER_ERROR:
                 case TOO_MANY_DEVICES:
                     //retriable - release the message for retrying
+                    backOff();
                     this.persister.release(token);
                     return;
                 default:
@@ -93,6 +132,39 @@ public class ReliableClient implements Client{
             }
         });
     }
+
+    /**
+     * If there is no active backoff, create one and increment the retry interval.
+     */
+    private static void backOff(){
+        if (ReliableClient.backoffExpiration.get() < System.currentTimeMillis()) {
+            ReliableClient.backoffExpiration.set(System.currentTimeMillis() + ReliableClient.retryPeriod.get());
+        }
+        incrementRetryInterval();
+    }
+
+    /**
+     * Increment the retry interval by the retry increment and cap this to the max retry interval.
+     */
+    private static void incrementRetryInterval(){
+        Long currentInterval = ReliableClient.retryPeriod.get();
+        if (currentInterval < ReliableClient.retryMax){
+            currentInterval += ReliableClient.retryIncrement;
+            if (currentInterval > ReliableClient.retryMax) currentInterval = ReliableClient.retryMax;
+        }
+        ReliableClient.retryPeriod.set(currentInterval);
+    }
+
+    /**
+     * Reset the retry period to its minimum value (the retry increment).
+     */
+    private static void resetRetryInterval(){
+        ReliableClient.retryPeriod.set(ReliableClient.retryIncrement);
+    }
+
+
+
+
 
     @Override
     public void connect() throws IOException {
@@ -117,17 +189,22 @@ public class ReliableClient implements Client{
     }
 
     @Override
-    public void onPublish(Consumer<MessageContext> ctx) {
+    public void publish(Message msg, MessageContext ctx) {
+        throw new NotImplementedException();
+    }
 
+    @Override
+    public void onPublish(Consumer<MessageContext> ctx) {
+        throw new NotImplementedException();
     }
 
     @Override
     public void onSignal(Consumer<Signal<?>> sig) {
-
+        this.client.onSignal(sig);
     }
 
     @Override
     public void disableSubscription() {
-
+        this.client.disableSubscription();
     }
 }
