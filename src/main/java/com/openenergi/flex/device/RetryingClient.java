@@ -35,7 +35,7 @@ import java.util.function.Consumer;
  * By default it buffers messages in memory during outages - this can be changed by
  * selecting a different persister in the constructor.
  */
-public class ReliableClient implements Client{
+public class RetryingClient implements Client{
     private static AtomicLong backoffExpiration = new AtomicLong();
     private static AtomicLong retryPeriod = new AtomicLong(2000L);
     private static Long retryIncrement = 2000L;
@@ -86,11 +86,11 @@ public class ReliableClient implements Client{
         }
     }
 
-    public ReliableClient(String hubUrl, String deviceId, String deviceKey) {
+    public RetryingClient(String hubUrl, String deviceId, String deviceKey) {
         this(hubUrl, deviceId, deviceKey, 10000);
     }
 
-    public ReliableClient(String hubUrl, String deviceId, String deviceKey, Integer bufferSize){
+    public RetryingClient(String hubUrl, String deviceId, String deviceKey, Integer bufferSize){
         this.client = new BasicClient(hubUrl, deviceId, deviceKey);
         this.prioritizer = new FFRPrioritizer();
         this.persister = new MemoryPersister(bufferSize);
@@ -99,11 +99,11 @@ public class ReliableClient implements Client{
         (new Thread(this.drainer)).start();
     }
 
-    public ReliableClient(Client client, Persister persister){
+    public RetryingClient(Client client, Persister persister){
         this(client, persister, new FFRPrioritizer());
     }
 
-    public ReliableClient(Client client, Persister persister, Prioritizer prioritizer){
+    public RetryingClient(Client client, Persister persister, Prioritizer prioritizer){
         this.client = client;
         this.persister = persister;
         this.prioritizer = prioritizer;
@@ -158,30 +158,31 @@ public class ReliableClient implements Client{
     /**
      * If there is no active backoff, create one and increment the retry interval.
      */
-    private static void backOff(){
-        if (ReliableClient.backoffExpiration.get() < System.currentTimeMillis()) {
-            ReliableClient.backoffExpiration.set(System.currentTimeMillis() + ReliableClient.retryPeriod.get());
+    private void backOff(){
+        if (RetryingClient.backoffExpiration.get() < System.currentTimeMillis()) {
+            RetryingClient.backoffExpiration.set(System.currentTimeMillis() + RetryingClient.retryPeriod.get());
         }
         incrementRetryInterval();
+        this.drainer.setSleepUntil(RetryingClient.backoffExpiration.get());
     }
 
     /**
      * Increment the retry interval by the retry increment and cap this to the max retry interval.
      */
     private static void incrementRetryInterval(){
-        Long currentInterval = ReliableClient.retryPeriod.get();
-        if (currentInterval < ReliableClient.retryMax){
-            currentInterval += ReliableClient.retryIncrement;
-            if (currentInterval > ReliableClient.retryMax) currentInterval = ReliableClient.retryMax;
+        Long currentInterval = RetryingClient.retryPeriod.get();
+        if (currentInterval < RetryingClient.retryMax){
+            currentInterval += RetryingClient.retryIncrement;
+            if (currentInterval > RetryingClient.retryMax) currentInterval = RetryingClient.retryMax;
         }
-        ReliableClient.retryPeriod.set(currentInterval);
+        RetryingClient.retryPeriod.set(currentInterval);
     }
 
     /**
      * Reset the retry period to its minimum value (the retry increment).
      */
     private static void resetRetryInterval(){
-        ReliableClient.retryPeriod.set(ReliableClient.retryIncrement);
+        RetryingClient.retryPeriod.set(RetryingClient.retryIncrement);
     }
 
 
@@ -203,7 +204,7 @@ public class ReliableClient implements Client{
             e.printStackTrace(); //TODO(mbironneau): log
         }
 
-        if (System.currentTimeMillis() >= ReliableClient.backoffExpiration.get()) {
+        if (System.currentTimeMillis() >= RetryingClient.backoffExpiration.get()) {
             //only publish the message if we are not backing off
             this.client.publish(msg, new MessageContext(token));
         }
@@ -225,7 +226,7 @@ public class ReliableClient implements Client{
             e.printStackTrace(); //TODO(mbironneau): log
         }
 
-        if (System.currentTimeMillis() >= ReliableClient.backoffExpiration.get()) {
+        if (System.currentTimeMillis() >= RetryingClient.backoffExpiration.get()) {
             //only publish the message if we are not backing off
             this.client.publish(msg, new MessageContext(token));
         }

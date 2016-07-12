@@ -17,7 +17,7 @@ public class ReliableClientTest {
     @Test
     public void testWithoutFailures() {
         MemoryPersister p = new MemoryPersister(10);
-        ReliableClient client = new ReliableClient(new FailingClient(), p);
+        RetryingClient client = new RetryingClient(new FailingClient(), p);
         Reading e = (Reading) new Reading()
                 .setValue(1.23)
                 .setEntity("l1")
@@ -39,7 +39,7 @@ public class ReliableClientTest {
     public void testWithRetry() {
         MemoryPersister p = new MemoryPersister(10);
         FailingClient mock = new FailingClient();
-        ReliableClient client = new ReliableClient(mock, p);
+        RetryingClient client = new RetryingClient(mock, p);
         Reading e = (Reading) new Reading()
                 .setValue(1.23)
                 .setEntity("l1")
