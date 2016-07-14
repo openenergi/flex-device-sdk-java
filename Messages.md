@@ -1,8 +1,8 @@
 # Message Format Specification
 
-*Version: 0.1.3*
+*Version: 0.1.4*
 
-last modified on 2016-07-08
+last modified on 2016-07-14
 
 ### Versioning
 *Prior to version 1.0, the specification is a draft that is subject to short-notice changes and alterations.*
@@ -525,8 +525,16 @@ The last signal point in the signal should leave the entity in a "safe" state.
 
 There are two Signal types that have special meaning to Open Energi's control algorithm: `oe-add` and `oe-multiply`. They are used to manipulate Grid Frequency before it is used as an input to the algorithm. 
 
-* `oe-multiply`: This value makes the algorithm's response to the Grid Frequency more or less extreme by multiplying its deviation from 50 by the given amount. If `oe-multiply` is set to *x* and the Grid Frequency is *GF*, then the Grid Frequency used as an input by the algorithm will be `50 + x(GF - 50)`. Note that if *x* is 1, then no change occurs. This is the default value.
-* `oe-add`: This value alters the algorithm's response to the Grid Frequency by adding a given to the Grid Frequency. If `oe-add` is set to *x* and the Grid Frequency is *GF*, then the Grid Frequency used as an input by the algorithm will be `GF + x/2` if `GF >= 50` and `GF - x/2` if `GF < 50` (division by 2 is used so that an `oe-add` of 1 corresponds to mapping a GF of 50Hz to 50.5Hz).
+* `oe-multiply-high`: This value makes the algorithm's response to the Grid Frequency more or less extreme by multiplying its deviation from 50Hz by the given amount. Its default value is 1. It only applies when the Grid Frequency is greater than 50Hz.
+* `oe-multiply-low`: This value makes the algorithm's response to the Grid Frequency more or less extreme by multiplying its deviation from 50Hz by the given amount. Its default value is 1. it only applies when the Grid Frequency is less than 50Hz.
+* `oe-add`: This value alters the algorithm's response to the Grid Frequency by adding a given to the Grid Frequency. 
+
+**Calculation**
+
+Given a Grid Frequency reading of *GF*, the Effective Frequency input of the control algorithm will be
+
+* `0.5*(2*oeMultiplyHigh*(GF - 50)+oeAdd)+50` if `GF >= 50`
+* `0.5*(2*oeMultiplyLow*(50-GF)+oeAdd)+50` otherwise
     
 ### <a name="sig-schedule"></a>Schedule Signals
 
