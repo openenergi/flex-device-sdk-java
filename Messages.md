@@ -523,7 +523,7 @@ The last signal point in the signal should leave the entity in a "safe" state.
 
 #### Open Energi Signal Types
 
-There are two Signal types that have special meaning to Open Energi's control algorithm: `oe-add` and `oe-multiply`. They are used to manipulate Grid Frequency before it is used as an input to the algorithm. 
+There are two Signal types that have special meaning to Open Energi's control algorithm: `oe-add` and `oe-multiply`. They are used to manipulate Grid Frequency before it is used as an input to the algorithm (the Effective Frequency). 
 
 * `oe-multiply-high`: This value makes the algorithm's response to the Grid Frequency more or less extreme by multiplying its deviation from 50Hz by the given amount. Its default value is 1. It only applies when the Grid Frequency is greater than 50Hz.
 * `oe-multiply-low`: This value makes the algorithm's response to the Grid Frequency more or less extreme by multiplying its deviation from 50Hz by the given amount. Its default value is 1. it only applies when the Grid Frequency is less than 50Hz.
