@@ -16,6 +16,7 @@ package com.openenergi.flex.device;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 import com.google.gson.Gson;
@@ -97,14 +98,16 @@ public class BasicClient implements Client {
 				com.microsoft.azure.iothub.Message rawMessage, Object context) {
 			Gson gson = new Gson();
 			try {
-				Signal msg = (Signal) Message.deserialize(rawMessage.getBytes().toString());
+				Signal msg = (Signal) Message.deserialize(new String(rawMessage.getBytes(), StandardCharsets.UTF_8));
 				if (this.callback != null){
 					this.callback.accept(msg);
+				} else {
+					System.out.println("[NO CALLBACK} Received signal " + new String(rawMessage.getBytes(), StandardCharsets.UTF_8));
 				}
 
 				return IotHubMessageResult.COMPLETE;
 			} catch (JsonSyntaxException ex){
-				//TODO(mbironneau) Log exception
+				ex.printStackTrace();
 				return IotHubMessageResult.ABANDON;
 			}
 			
