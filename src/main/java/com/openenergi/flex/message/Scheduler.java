@@ -36,7 +36,6 @@ public final class Scheduler {
          */
         public void run() {
             Double currentValue = signal.getCurrentValue();
-            scheduleNextRun();
             if (currentValue != null){
                 try {
                     callback.accept(new SignalCallbackItem(signal.entities, signal.getType(), currentValue));
@@ -44,7 +43,7 @@ public final class Scheduler {
                     e.printStackTrace();
                 }
             }
-
+            scheduleNextRun();
         }
 
         /**

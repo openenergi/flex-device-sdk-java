@@ -111,7 +111,7 @@ public class Signal<T extends Schedulable> extends Message {
 		ListIterator<T> li = this.items.listIterator(this.items.size());
 		while (li.hasPrevious()){
 			T item = li.previous();
-			if (item.getStart().isBefore(currentDate) && item.getValue() != null){
+			if (currentDate.isAfter(item.getStart()) && item.getValue() != null){
 				return item.getValue();
 			}
 		};
