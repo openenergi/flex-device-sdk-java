@@ -7,13 +7,13 @@ import java.util.List;
  * Signal messages.
  */
 public final class SignalCallbackItem {
-    private List<String> entities;
+    private String entity;
     private String type;
     private Double value;
     public static final String END_OF_SIGNAL = "END_OF_SIGNAL";
 
-    public SignalCallbackItem(List<String> entities, String type, Double value){
-        this.entities = entities;
+    public SignalCallbackItem(String entity, String type, Double value){
+        this.entity = entity;
         this.type = type;
         this.value = value;
     }
@@ -22,8 +22,8 @@ public final class SignalCallbackItem {
      * Get the entities targeted by the signal.
      * @return The list of entities
      */
-    public List<String> getEntities() {
-        return entities;
+    public String getEntity() {
+        return entity;
     }
 
     /**

@@ -5,6 +5,7 @@ import sun.nio.ch.ThreadPool;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -21,6 +22,7 @@ import java.util.function.Consumer;
 public final class Scheduler {
 
     private final static ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(5, new ThreadPoolExecutor.CallerRunsPolicy());
+    private final static ConcurrentHashMap<String, ZonedDateTime> latestSignals = new ConcurrentHashMap<String, ZonedDateTime>(1000);
 
     private static class ScheduleInvocation implements Runnable {
         private Consumer<SignalCallbackItem> callback;
@@ -41,7 +43,14 @@ public final class Scheduler {
             Double currentValue = signal.getCurrentValue();
             if (currentValue != null){
                 try {
-                    callback.accept(new SignalCallbackItem(signal.entities, signal.getType(), currentValue));
+                    signal.entities.forEach(entity -> {
+                        ZonedDateTime latest = getLatestReceivedSignal((String) entity, signal.getType());
+
+                        if (latest == null || !(latest.isAfter(signal.generatedAt))){
+                            callback.accept(new SignalCallbackItem((String) entity, signal.getType(), currentValue));
+                        }
+                    });
+
                 } catch (Exception e){
                     e.printStackTrace();
                 }
@@ -69,30 +78,35 @@ public final class Scheduler {
         }
     }
 
+    private static ZonedDateTime getLatestReceivedSignal(String entity, String type){
+        return latestSignals.get(entity + "::" + type);
+    }
+
+    private static void setLatestReceivedSignal(String entity, String type, ZonedDateTime time){
+        latestSignals.put(entity + "::" + type, time);
+    }
+
     /**
      * Schedules the given signal for execution by invoking the callback whenever the signal changes with the new value.
      * @param signal The signal to schedule for execution.
      * @param callback The callback to call with the new value.
      */
-    public static void accept(Signal signal, Consumer<SignalCallbackItem> callback){
-
-
-        //Step 1: Invoke the callback for the current value of the signal
-        //assuming that the current date is greater than the start of the
-        //first signal item
+    public static void accept(Signal signal, Consumer<SignalCallbackItem> callback) throws IllegalArgumentException {
+        validate(signal);
         Double currentValue = signal.getCurrentValue();
+        signal.entities.forEach(entity -> {
+            ZonedDateTime latest = getLatestReceivedSignal((String) entity, signal.getType());
+            if (latest == null || latest.isBefore(signal.generatedAt)){
+                setLatestReceivedSignal((String) entity, signal.getType(), signal.generatedAt);
 
-        if (currentValue != null){
-            callback.accept(new SignalCallbackItem(signal.entities, signal.getType(), currentValue));
-        }
+                if (currentValue != null){
+                    callback.accept(new SignalCallbackItem((String) entity, signal.getType(), currentValue));
+                }
+            }
+        });
 
 
-        //Step 2: Schedule the next point. We're assuming that it won't be too close to the current
-        //one as we are essentially scheduling them one by one, so any delay will compound.
-        //A better way to do it would be to schedule multiple changes at once. This is another
-        //item for future work.
         if (signal.getNextChange() == null){
-            //callback.accept(new SignalCallbackItem(null, SignalCallbackItem.END_OF_SIGNAL, null));
             return;
         }
 
@@ -100,5 +114,10 @@ public final class Scheduler {
         invocations.scheduleNextRun();
     }
 
+    private static void validate(Signal signal) throws IllegalArgumentException {
+        if (signal.getType() == null || signal.entities == null || signal.entities.size() == 0 || signal.getGeneratedAt() == null){
+            throw new IllegalArgumentException("Bad signal: Had null type, entities or generated_at");
+        }
+    }
 
 }

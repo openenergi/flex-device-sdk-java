@@ -39,9 +39,17 @@ import com.google.gson.annotations.SerializedName;
  *
  */
 public class Signal<T extends Schedulable> extends Message {
-	
+
+	public ZonedDateTime getGeneratedAt() {
+		return generatedAt;
+	}
+
+	public void setGeneratedAt(ZonedDateTime generatedAt) {
+		this.generatedAt = generatedAt;
+	}
+
 	@SerializedName("generated_at")
-	Date generatedAt;
+	ZonedDateTime generatedAt;
 	
 	List<String> entities;
 	

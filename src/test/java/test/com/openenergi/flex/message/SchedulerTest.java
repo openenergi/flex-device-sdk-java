@@ -24,7 +24,7 @@ public class SchedulerTest {
         ZonedDateTime now = ZonedDateTime.now();
         Long nowMillis = now.toInstant().toEpochMilli();
         CountDownLatch lock = new CountDownLatch(2);
-
+        signal.setGeneratedAt(now);
         signal.addItem(new SignalPointItem(now, 1.));
         signal.addItem(new SignalPointItem(now.plusSeconds(1), 2.));
         signal.setType("oe-test");
@@ -34,8 +34,7 @@ public class SchedulerTest {
         Scheduler.accept(signal, signalCallbackItem -> {
             System.out.println(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli() - nowMillis); //check how good the scheduling is
             assertEquals("oe-test", signalCallbackItem.getType());
-            assertEquals(1, signalCallbackItem.getEntities().size());
-            assertEquals("L1234", signalCallbackItem.getEntities().get(0));
+            assertEquals("L1234", signalCallbackItem.getEntity());
             if (signalCallbackItem.getType() != SignalCallbackItem.END_OF_SIGNAL){
                 latestValue = signalCallbackItem.getValue();
                 System.out.println("VALUE: " + String.valueOf(latestValue));
