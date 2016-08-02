@@ -4,6 +4,7 @@ import sun.nio.ch.ThreadPool;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -14,6 +15,8 @@ import java.util.function.Consumer;
  *
  * At the moment, it does *not* deal with persisting the schedulable, so in the event of a crash, the signal may NOT
  * be (completely) invoked. This is a to-do in the same category as persistence for the RetryingClient.
+ *
+ * Another work item is to coalesce signals for the same type/entities. That will be more work...
  */
 public final class Scheduler {
 
@@ -50,10 +53,10 @@ public final class Scheduler {
          * Schedules the next invocation - or just returns if the signal has ended.
          */
         private void scheduleNextRun(){
-            LocalDateTime nextChange = signal.getNextChange();
+            ZonedDateTime nextChange = signal.getNextChange();
             if (nextChange != null){
                 try {
-                    Long delay = nextChange.toInstant(ZoneOffset.UTC).toEpochMilli() - LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
+                    Long delay = nextChange.toInstant().toEpochMilli() - ZonedDateTime.now().toInstant().toEpochMilli();
                     scheduler.schedule(this, delay, TimeUnit.MILLISECONDS);
                 } catch (RejectedExecutionException e){
                     //should never get reached as we are using CallerRunsPolicy

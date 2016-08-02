@@ -16,17 +16,18 @@ package com.openenergi.flex.schedule;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public class Span {
-	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+	private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
 	
-	public LocalDateTime start;
+	public ZonedDateTime start;
 	public Duration length;
 	
 	
-	public Span(LocalDateTime start, Duration length){
+	public Span(ZonedDateTime start, Duration length){
 		this.start = start;
 		this.length = length;
 	}
@@ -44,7 +45,7 @@ public class Span {
 		
 		//Step 2: Parse start time
 		try {
-			this.start = LocalDateTime.parse(parts[0], Span.formatter);
+			this.start = ZonedDateTime.parse(parts[0], formatter);
 		} catch (DateTimeParseException ex){
 			throw new IllegalArgumentException("Invalid start date: " + ex.toString());
 		}
@@ -68,8 +69,8 @@ public class Span {
 	 * Returns the end time for the span (start + duration)
 	 * @return end time
 	 */
-	public LocalDateTime getEndTime(){
-		return LocalDateTime.from(this.length.addTo(this.start));
+	public ZonedDateTime getEndTime(){
+		return ZonedDateTime.from(this.length.addTo(this.start));
 	}
 	
 	/**
@@ -78,7 +79,7 @@ public class Span {
 	 * @return True if the span contains the current time, False otherwise.
 	 */
 	public Boolean containsCurrentTime() {
-		LocalDateTime now = LocalDateTime.now();
+		ZonedDateTime now = ZonedDateTime.now();
 		if ((this.start.isBefore(now) || this.start.equals(now)) && this.getEndTime().isAfter(now)){
 			return true;
 		} else {

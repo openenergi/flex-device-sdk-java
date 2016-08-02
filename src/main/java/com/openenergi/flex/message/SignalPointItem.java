@@ -14,6 +14,9 @@
 
 package com.openenergi.flex.message;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.time.LocalDateTime;
 
 import com.google.gson.annotations.SerializedName;
@@ -27,18 +30,18 @@ import com.google.gson.annotations.SerializedName;
  */
 public final class SignalPointItem implements Schedulable {
 	@SerializedName("start_at")
-	LocalDateTime startAt;
+	ZonedDateTime startAt;
 	Double value;
 	public Double getValue() {
 		return this.value;
 	}
-	public LocalDateTime getStart() {
-		return this.startAt;
+	public ZonedDateTime getStart() {
+		return startAt;
 	}
 	
 	public SignalPointItem(){}
 	
-	public SignalPointItem(LocalDateTime start, Double value){
+	public SignalPointItem(ZonedDateTime start, Double value){
 		this.startAt = start;
 		this.value = value;
 	}

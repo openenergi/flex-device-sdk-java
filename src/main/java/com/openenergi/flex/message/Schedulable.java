@@ -1,6 +1,6 @@
 package com.openenergi.flex.message;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 /**
  * A Schedulable class represents an abstract point in a device-to-cloud Signal. For example, it may
@@ -22,5 +22,5 @@ public interface Schedulable {
 	 * Date when the item will be valid (in the case of a schedule - when the item is next valid).
 	 * @return Start date when value takes effect
 	 */
-	LocalDateTime getStart();
+	ZonedDateTime getStart();
 }

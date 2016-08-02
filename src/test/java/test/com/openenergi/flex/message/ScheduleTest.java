@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import org.json.JSONException;
 import org.junit.Test;
@@ -22,15 +24,15 @@ public class ScheduleTest {
 					.setEntity("l1")
 					.setTimestamp(12345L)
 					.setType("something");
-		
-		ScheduleItem item = new ScheduleItem(new Span(LocalDateTime.of(2016, 12, 27, 23, 0), Duration.ofHours(1)), Duration.ofDays(7), "value");
+
+		ScheduleItem item = new ScheduleItem(new Span(ZonedDateTime.of(LocalDateTime.of(2016, 12, 27, 23, 0), ZoneOffset.UTC), Duration.ofHours(1)), Duration.ofDays(7), "value");
 		
 		e.addItem(item);
 		
 		try {
 			//System.out.println(e.toString());
 			//FIXME(mbironneau) - 168H is not always equal to 7D with DST; not sure why this conversion is happening.
-			JSONAssert.assertEquals("{\"topic\": \"schedules\", \"entity\": \"l1\",  \"timestamp\": 12345,  \"type\": \"something\", \"schedule\": [{\"span\": \"2016-12-27T23:00:00.000Z/PT1H\", \"repeat\": \"PT168H\", \"value\": \"value\"}]}", e.toString(), true);
+			JSONAssert.assertEquals("{\"topic\": \"schedules\", \"entity\": \"l1\",  \"timestamp\": 12345,  \"type\": \"something\", \"schedule\": [{\"span\": \"2016-12-27T23:00:00Z/PT1H\", \"repeat\": \"PT168H\", \"value\": \"value\"}]}", e.toString(), true);
 		} catch (JSONException e1) {
 			fail("Failed to serialize: " + e1.getMessage());
 		}

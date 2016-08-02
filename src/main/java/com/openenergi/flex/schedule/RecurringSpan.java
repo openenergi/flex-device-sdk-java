@@ -15,7 +15,9 @@
 package com.openenergi.flex.schedule;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 
 public class RecurringSpan {
@@ -48,10 +50,10 @@ public class RecurringSpan {
 	 * @return
 	 */
 	public Span getNextSpan(){
-		LocalDateTime now = LocalDateTime.now();
+		ZonedDateTime now = ZonedDateTime.now();
 		Span curr = new Span(this.span.start, this.span.length);
 		while(!(curr.containsCurrentTime() || curr.start.isAfter(now))){
-			curr.start = LocalDateTime.from(curr.length.addTo(curr.start));
+			curr.start = ZonedDateTime.from(curr.length.addTo(curr.start));
 		}
 		return curr;
 	}

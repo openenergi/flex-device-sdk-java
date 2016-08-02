@@ -15,6 +15,8 @@
 package com.openenergi.flex.message;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
 import com.openenergi.flex.schedule.RecurringSpan;
 import com.openenergi.flex.schedule.Span;
 
@@ -41,7 +43,7 @@ public final class SignalScheduleItem implements Schedulable {
 		this.recurringSpan = new RecurringSpan(this.span, this.repeat);
 	}
 	
-	public LocalDateTime getStart() {
+	public ZonedDateTime getStart() {
 		if (this.recurringSpan == null) this.parse();
 		
 		Span next = this.recurringSpan.getNextSpan();

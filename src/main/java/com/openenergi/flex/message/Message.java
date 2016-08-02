@@ -28,12 +28,12 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonPrimitive;
-import java.time.ZoneId;
-import java.time.Instant;
+
+import java.text.SimpleDateFormat;
+import java.time.*;
 
 import java.lang.reflect.Type;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -49,6 +49,7 @@ public class Message {
 	public Long timestamp;
 	public String entity;
 	public String type;
+
 	
 	@SerializedName("created_at")
 	private Date createdAt;
@@ -107,12 +108,10 @@ public class Message {
 		if (this.timestamp == null){
 			this.timestamp = System.currentTimeMillis();
 		}
-		Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonSerializer<LocalDateTime>() {
+		Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new JsonSerializer<ZonedDateTime>() {
             @Override
-            public JsonElement serialize(LocalDateTime localDateTime, Type type, JsonSerializationContext jsonSerializationContext) {
-                Instant instant = localDateTime.atZone(ZoneOffset.UTC).toInstant();
-                Date date = Date.from(instant);
-                return new JsonPrimitive(date.getTime());
+            public JsonElement serialize(ZonedDateTime zdt, Type type, JsonSerializationContext jsonSerializationContext) {
+				return new JsonPrimitive(zdt.format(DateTimeFormatter.ISO_INSTANT));
             }
         }).setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
 		
@@ -120,11 +119,10 @@ public class Message {
 	}
 	
 	public static Object deserialize(String json) throws JsonParseException {
-		Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
+		Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new JsonDeserializer<ZonedDateTime>() {
 			@Override
-			public LocalDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-				Instant instant = Instant.ofEpochMilli(json.getAsJsonPrimitive().getAsLong());
-				return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+			public ZonedDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+				 return ZonedDateTime.parse(json.getAsJsonPrimitive().getAsString());
 			}
 		}).create();
 		

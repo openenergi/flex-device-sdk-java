@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
 import org.junit.Test;
 
 
@@ -13,7 +15,7 @@ public class RecurringSpanTest {
 	@Test
 	public void testGetNextSpanNow() {
 		try {
-			LocalDateTime now = LocalDateTime.now();
+			ZonedDateTime now = ZonedDateTime.now();
 			Span s = new Span(now, Duration.ofHours(1));
 			RecurringSpan rs = new RecurringSpan(s, Duration.ofDays(1));
 			Span s2 = rs.getNextSpan();
@@ -27,7 +29,7 @@ public class RecurringSpanTest {
 	@Test
 	public void testGetNextSpanNotNow() {
 		try {
-			LocalDateTime now = LocalDateTime.now().minusMinutes(2);
+			ZonedDateTime now = ZonedDateTime.now().minusMinutes(2);
 			Span s = new Span(now, Duration.ofMinutes(1));
 			RecurringSpan rs = new RecurringSpan(s, Duration.ofMinutes(4));
 			Span s2 = rs.getNextSpan();
@@ -41,7 +43,7 @@ public class RecurringSpanTest {
 	@Test
 	public void testGetNextSpanAdjacent(){
 		try {
-			LocalDateTime now = LocalDateTime.now().minusMinutes(2);
+			ZonedDateTime now = ZonedDateTime.now().minusMinutes(2);
 			Span s = new Span(now, Duration.ofMinutes(1));
 			RecurringSpan rs = new RecurringSpan(s, Duration.ofMinutes(1));
 			Span s2 = rs.getNextSpan();

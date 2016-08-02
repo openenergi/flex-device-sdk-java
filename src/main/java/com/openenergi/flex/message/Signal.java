@@ -15,6 +15,7 @@
 package com.openenergi.flex.message;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -92,7 +93,15 @@ public class Signal<T extends Schedulable> extends Message {
 		this.items.add(item);
 		return this;
 	}
-	
+
+	/**
+	 * Return the list of signal items
+	 * @return items.
+     */
+	public List<T> getItems(){
+		return this.items;
+	}
+
 	/**
 	 * Returns the Signal item at the given index. 
 	 * @param ix Zero-based index
@@ -107,7 +116,7 @@ public class Signal<T extends Schedulable> extends Message {
 	 * @return the value that the variable/parameter pointed to in type should be set to currently. 
 	 */
 	public Double getCurrentValue(){
-		LocalDateTime currentDate = LocalDateTime.now();
+		ZonedDateTime currentDate = ZonedDateTime.now();
 		ListIterator<T> li = this.items.listIterator(this.items.size());
 		while (li.hasPrevious()){
 			T item = li.previous();
@@ -122,8 +131,8 @@ public class Signal<T extends Schedulable> extends Message {
 	 * Gets the time at which the signal will next change value (call getCurrentValue() at that time to get the new value).
 	 * @return the time at which the signal will next change value.
 	 */
-	public LocalDateTime getNextChange(){
-		LocalDateTime currentDate = LocalDateTime.now();
+	public ZonedDateTime getNextChange(){
+		ZonedDateTime currentDate = ZonedDateTime.now();
 		ListIterator<T> li = this.items.listIterator(this.items.size());
 		while (li.hasPrevious()){
 			T item = li.previous();

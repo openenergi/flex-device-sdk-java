@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -20,8 +21,8 @@ public class SchedulerTest {
     @Test
     public void testSchedulingSingle(){
         Signal<SignalPointItem> signal = new Signal<SignalPointItem>();
-        LocalDateTime now = LocalDateTime.now();
-        Long nowMillis = now.toInstant(ZoneOffset.UTC).toEpochMilli();
+        ZonedDateTime now = ZonedDateTime.now();
+        Long nowMillis = now.toInstant().toEpochMilli();
         CountDownLatch lock = new CountDownLatch(2);
 
         signal.addItem(new SignalPointItem(now, 1.));
