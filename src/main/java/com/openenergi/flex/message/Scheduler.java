@@ -17,7 +17,7 @@ import java.util.function.Consumer;
  */
 public final class Scheduler {
 
-    private final static ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(5, new ThreadPoolExecutor.DiscardOldestPolicy());
+    private final static ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(5, new ThreadPoolExecutor.CallerRunsPolicy());
 
     private static class ScheduleInvocation implements Runnable {
         private Consumer<SignalCallbackItem> callback;

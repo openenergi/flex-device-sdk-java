@@ -37,6 +37,7 @@ public class SchedulerTest {
             assertEquals("L1234", signalCallbackItem.getEntities().get(0));
             if (signalCallbackItem.getType() != SignalCallbackItem.END_OF_SIGNAL){
                 latestValue = signalCallbackItem.getValue();
+                System.out.println("VALUE: " + String.valueOf(latestValue));
             } else {
                 //ended = true;
             }
