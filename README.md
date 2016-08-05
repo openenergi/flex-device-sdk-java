@@ -14,7 +14,7 @@ Download a JAR from the releases page.
 
 **Maven**
 
-Starting with version 0.2 you will be able to download the JAR from Maven central.
+Starting with version 0.3 you will be able to download the JAR from Maven central.
 
 ```
 	<dependency>
@@ -157,4 +157,22 @@ client = Client("<Hub URL", "<Device Id>", "<Device Key>");
    
 client.disableSubscription();
 connect();
+```
+
+## Implementing Signal Scheduling
+
+Cloud-to-device messages (Signals) are used to enact behavior from a gateway device such as modifying the effective Grid Frequency (eg. see message.md for details of the `oe-add` and `oe-multiply` variables). 
+
+In order to process Signals correctly, it is necessary to implement the following behavior:
+
+- Each Signal Item must be scheduled to take effect at the time specified by its `start_at` property
+- If another Signal arrives for the same entity/variable type, it should take precedence over any previous signals if and only if its `generated_at` property is greater or equal to the others
+
+To aid in implementing this behavior, the SDK comes with a singleton `Scheduler` class that has static methods to deal with any received signals. It will schedule the signal items for later execution and deal with overwriting signals with later ones according to the bullet points above. It will invoke a callback whenever a signal item should be executed, which leaves the implementer to glue the logic in to effect the change, eg. changing a parameter or writing to a register.
+
+```java
+client.onSignal((Signal signal) -> Scheduler.accept(signal, (SignalCallbackItem s) -> {
+	System.out.println("Change variable " + s.getType() + " to value " + s.getValue() + " for entity " + s.getEntity());
+}));
+
 ```
