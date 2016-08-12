@@ -21,7 +21,6 @@ import com.openenergi.flex.persistence.MemoryPersister;
 import com.openenergi.flex.persistence.Persister;
 import com.openenergi.flex.persistence.PersisterFullException;
 import com.openenergi.flex.persistence.TokenizedObject;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
@@ -236,7 +235,7 @@ public class RetryingClient implements Client{
 
     @Override
     public void publish(Message msg, MessageContext ctx) {
-        throw new NotImplementedException();
+        System.out.println("Not implemented RetryingClient.publish");
     }
 
     @Override
