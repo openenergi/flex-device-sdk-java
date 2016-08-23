@@ -70,7 +70,7 @@ public class Event extends Message {
 	String value;
  
 	public Event() {
-		this.topic = "events";
+		this.setTopic("events");
 	}
 
 	public Level getLevel() {

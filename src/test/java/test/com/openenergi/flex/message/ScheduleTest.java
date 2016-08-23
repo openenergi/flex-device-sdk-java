@@ -43,10 +43,10 @@ public class ScheduleTest {
 		String s = "{\"topic\": \"schedules\", \"entity\": \"l1\",  \"timestamp\": 12345,  \"type\": \"something\", \"schedule\": [{\"span\": \"2016-12-27T23:00:00.000Z/PT1H\", \"repeat\": \"PT168H\", \"value\": \"value\"}]}";
 		try {
 			Schedule m = (Schedule) Message.deserialize(s);
-			assertEquals(m.entity, "l1");
-			assertEquals(m.topic, "schedules");
-			assertEquals((Long) 12345L, m.timestamp);
-			assertEquals(m.type, "something");
+			assertEquals(m.getEntity(), "l1");
+			assertEquals(m.getTopic(), "schedules");
+			assertEquals((Long) 12345L, m.getTimestamp());
+			assertEquals(m.getType(), "something");
 			if (m instanceof Schedule){
 				ScheduleItem i = ((Schedule)m).schedule.get(0);
 				assertEquals(i.span, "2016-12-27T23:00:00.000Z/PT1H");

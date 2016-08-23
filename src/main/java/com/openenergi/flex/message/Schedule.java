@@ -27,7 +27,7 @@ public class Schedule extends Message {
 	public List<ScheduleItem> schedule;
 	
 	public Schedule(){
-		this.topic = "schedules";
+		this.setTopic("schedules");
 	}
 	
 	/**

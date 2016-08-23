@@ -45,10 +45,14 @@ import java.util.Date;
  * Refer to the documentation <a href="https://github.com/openenergi/flex-device-sdk-java/blob/master/Messages.md">here</a> for more details.
  */
 public class Message {
-	public String topic;
-	public Long timestamp;
-	public String entity;
-	public String type;
+	private String topic;
+	private Long timestamp;
+	private String entity;
+	private String type;
+
+	@SerializedName("device_id")
+	private String deviceId;
+	private String provenance;
 
 	
 	@SerializedName("created_at")
@@ -151,5 +155,28 @@ public class Message {
 		return null;
 		
 	}
-	
+
+	public String getTopic() {
+		return topic;
+	}
+
+	public void setTopic(String topic) {
+		this.topic = topic;
+	}
+
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
+
+	public String getProvenance() {
+		return provenance;
+	}
+
+	public void setProvenance(String provenance) {
+		this.provenance = provenance;
+	}
 }

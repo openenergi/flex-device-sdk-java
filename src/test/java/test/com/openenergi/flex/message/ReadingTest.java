@@ -33,10 +33,10 @@ public class ReadingTest {
 		String s = "{\"topic\": \"readings\", \"entity\": \"l1\",  \"timestamp\": 12345,  \"type\": \"something\", \"value\": 1.23}";
 		try {
 			Reading m = (Reading) Message.deserialize(s);
-			assertEquals(m.entity, "l1");
-			assertEquals(m.topic, "readings");
-			assertEquals((Long) 12345L, m.timestamp);
-			assertEquals(m.type, "something");
+			assertEquals(m.getEntity(), "l1");
+			assertEquals(m.getTopic(), "readings");
+			assertEquals((Long) 12345L, m.getTimestamp());
+			assertEquals(m.getType(), "something");
 			if (m instanceof Reading){
 				assertEquals(((Reading)m).value, (Double)1.23);
 			} else {

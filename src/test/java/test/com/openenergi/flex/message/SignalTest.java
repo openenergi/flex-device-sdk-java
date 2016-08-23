@@ -39,9 +39,9 @@ public class SignalTest {
 
 			Signal<SignalPointItem> m = (Signal<SignalPointItem>) Message.deserialize(s);
 			assertEquals(m.entities.get(0), "l1");
-			assertEquals(m.topic, "signals");
-			assertEquals((Long) 12345L, m.timestamp);
-			assertEquals(m.type, "something");
+			assertEquals(m.getTopic(), "signals");
+			assertEquals((Long) 12345L, m.getTimestamp());
+			assertEquals(m.getType(), "something");
 			ZonedDateTime testDateTime = ZonedDateTime.of(2016,5,27, 15, 0, 0, 0, ZoneOffset.UTC);
 			assertEquals(m.getItem(0).getStart(), testDateTime);
 

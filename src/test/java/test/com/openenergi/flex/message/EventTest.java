@@ -34,10 +34,10 @@ public class EventTest {
 		String s = "{\"topic\": \"events\", \"entity\": \"l1\",  \"timestamp\": 12345,  \"type\": \"something\", \"value\": \"value\", \"level\": 0}";
 		try {
 			Event m = (Event) Message.deserialize(s);
-			assertEquals(m.entity, "l1");
-			assertEquals(m.topic, "events");
-			assertEquals((Long) 12345L, m.timestamp);
-			assertEquals(m.type, "something");
+			assertEquals(m.getEntity(), "l1");
+			assertEquals(m.getTopic(), "events");
+			assertEquals((Long) 12345L, m.getTimestamp());
+			assertEquals(m.getType(), "something");
 			if (m instanceof Event){
 				assertEquals(((Event)m).value, "value");
 				assertEquals(((Event)m).level, (Integer) 0);

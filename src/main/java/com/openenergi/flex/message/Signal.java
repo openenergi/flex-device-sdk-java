@@ -78,7 +78,7 @@ public class Signal<T extends Schedulable> extends Message {
 	public Signal(){
 		this.entities = new ArrayList<String>(); 
 		this.items = new LinkedList<T>();
-		this.topic = "signals";
+		this.setTopic("signals");
 	}
 	
 	/**

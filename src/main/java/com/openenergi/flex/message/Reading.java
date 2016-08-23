@@ -89,11 +89,11 @@ public class Reading extends Message{
 	}
 	
 	public Reading(){
-		this.topic = "readings";
+		this.setTopic("readings");
 	}
 
 	public Reading setType(Reading.Type t){
-		this.type = t.toString();
+		this.setType(t.toString());
 		return this;
 	}
 
