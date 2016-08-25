@@ -14,12 +14,9 @@
 
 package com.openenergi.flex.message;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Date;
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.google.gson.annotations.SerializedName;
+import java.time.ZonedDateTime;
 
 /**
  * This class represents a single point in a Signal. The variable (type) of the Signal should take the value of the signal item 
@@ -29,7 +26,7 @@ import com.google.gson.annotations.SerializedName;
  *
  */
 public final class SignalPointItem implements Schedulable {
-	@SerializedName("start_at")
+	@JsonProperty("start_at")
 	ZonedDateTime startAt;
 	Double value;
 	public Double getValue() {

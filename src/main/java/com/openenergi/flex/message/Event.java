@@ -14,6 +14,8 @@
 
 package com.openenergi.flex.message;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * An event is a discrete, instantaneous record of an entity's state transition. Examples are switch requests or alarm conditions.
  * This class contains a builder for events. For further documentation see <a href="https://github.com/openenergi/flex-device-sdk-java/blob/master/Messages.md">here</a>.
@@ -34,13 +36,15 @@ public class Event extends Message {
 		INFO(1), 
 		WARN(2), 
 		ERROR(3);
-	
+
+
 		Integer value;
 		
 		Level(Integer value){
 			this.value = value;
 		}
-		
+
+		@JsonValue
 		public Integer valueOf(){
 			return this.value;
 		}
@@ -60,14 +64,18 @@ public class Event extends Message {
 		FFR_SWITCH_END("switch-ffr-end");
 		@SuppressWarnings("unused")
 		private String value;
+
+		public String getValue(){
+			return this.value;
+		}
 		
 		private Type(String value){
 			this.value = value;
 		}
 	}
 	
-	Integer level;
-	String value;
+	private Integer level;
+	private String value;
  
 	public Event() {
 		this.setTopic("events");

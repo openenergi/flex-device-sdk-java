@@ -25,9 +25,9 @@ import com.openenergi.flex.schedule.Span;
  *
  */
 public class ScheduleItem {
-	String span;
-	String repeat;
-	String value;
+	private String span;
+	private String repeat;
+	private String value;
 	
 	
 	private transient RecurringSpan item;
@@ -60,5 +60,29 @@ public class ScheduleItem {
 		} else {
 			this.repeat = null;
 		}	
+	}
+
+	public String getSpan() {
+		return span;
+	}
+
+	public void setSpan(String span) {
+		this.span = span;
+	}
+
+	public String getRepeat() {
+		return repeat;
+	}
+
+	public void setRepeat(String repeat) {
+		this.repeat = repeat;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
 	}
 }

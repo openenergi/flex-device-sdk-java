@@ -39,18 +39,18 @@ public class FFRPrioritizer implements Prioritizer {
 
         switch (msg.getTopic()){
             case "readings":
-                if (msg.getType() == Reading.Type.AVAILABILITY_FFR_HIGH.toString()||
+                if (msg.getType() == Reading.Type.AVAILABILITY_FFR_HIGH.getValue()||
                         msg.getType() == Reading.Type.AVAILABILITY_FFR_LOW.toString()
-                 || msg.getType() == Reading.Type.POWER.toString()
-                        ||msg.getType() == Reading.Type.RESPONSE_FFR_HIGH.toString()
-                || msg.getType() == Reading.Type.AVAILABILITY_FFR_LOW.toString()){
+                 || msg.getType() == Reading.Type.POWER.getValue()
+                        ||msg.getType() == Reading.Type.RESPONSE_FFR_HIGH.getValue()
+                || msg.getType() == Reading.Type.AVAILABILITY_FFR_LOW.getValue()){
                     return msg.getTimestamp()*2;
                 } else {
                     return msg.getTimestamp();
                 }
             case "events":
-                if (msg.getType() == Event.Type.FFR_SWITCH_END.toString()
-                        || msg.getType() == Event.Type.FFR_SWITCH_START.toString()) {
+                if (msg.getType() == Event.Type.FFR_SWITCH_END.getValue()
+                        || msg.getType() == Event.Type.FFR_SWITCH_START.getValue()) {
                     return msg.getTimestamp()*2;
                 } else {
                     Event e = (Event) msg;

@@ -14,26 +14,19 @@
 
 package com.openenergi.flex.message;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParseException;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonSerializer;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.*;
-
-import java.lang.reflect.Type;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -47,15 +40,32 @@ import java.util.Date;
 public class Message {
 	private String topic;
 	private Long timestamp;
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String entity;
 	private String type;
+	private static final ObjectMapper mapper = getMapper();
 
-	@SerializedName("device_id")
+	private static ObjectMapper getMapper(){
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.setDateFormat(df);
+		mapper.registerModule(new JavaTimeModule());
+		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+		return mapper;
+	}
+
+	@JsonProperty("devicecode")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String deviceId;
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String provenance;
 
 	
-	@SerializedName("created_at")
+	@JsonProperty("created_at")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Date createdAt;
 	
 	public Date getCreatedAt() {
@@ -108,49 +118,37 @@ public class Message {
 	 * Serializes the message using JSON. If the timestamp field is not set it will be
 	 * set to the current system time.
 	 */
-	public String toString(){
+	public String toString() {
 		if (this.timestamp == null){
 			this.timestamp = System.currentTimeMillis();
 		}
-		Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new JsonSerializer<ZonedDateTime>() {
-            @Override
-            public JsonElement serialize(ZonedDateTime zdt, Type type, JsonSerializationContext jsonSerializationContext) {
-				return new JsonPrimitive(zdt.format(DateTimeFormatter.ISO_INSTANT));
-            }
-        }).setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
-		
-		return gson.toJson(this);	
+		try {
+			return mapper.writeValueAsString(this);
+		} catch (JsonProcessingException e){
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
-	public static Object deserialize(String json) throws JsonParseException {
-		Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new JsonDeserializer<ZonedDateTime>() {
-			@Override
-			public ZonedDateTime deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-				 return ZonedDateTime.parse(json.getAsJsonPrimitive().getAsString());
-			}
-		}).create();
-		
-		JSONObject j;
-		String topic;
-		
-		try {
-			j = new JSONObject(json);
-			topic = j.getString("topic");
-		} catch (JSONException e){
-			throw new JsonParseException(e.getMessage());
-		}
-		
+	public static Object deserialize(String json) throws IOException {
+		String topic = "";
+		JsonNode root;
+		root = mapper.readTree(json);
+		topic = root.get("topic").asText();
+
+
+
 		switch (topic){
 		case "readings":
-			return gson.fromJson(json, Reading.class);
+			return mapper.convertValue(root, Reading.class);
 		case "events":
-			return gson.fromJson(json, Event.class);
+			return mapper.convertValue(root, Event.class);
 		case "schedules":
-			return gson.fromJson(json, Schedule.class);
+			return mapper.convertValue(root, Schedule.class);
 		case "signals":
-			return gson.fromJson(json, new TypeToken<Signal<SignalPointItem>>(){}.getType());
+			return mapper.convertValue(root, new TypeReference<Signal<SignalPointItem>>() {});
 		case "schedule-signals":
-			return gson.fromJson(json, new TypeToken<Signal<SignalScheduleItem>>(){}.getType());
+			return mapper.convertValue(root, new TypeReference<Signal<SignalScheduleItem>>() {});
 		}
 		return null;
 		

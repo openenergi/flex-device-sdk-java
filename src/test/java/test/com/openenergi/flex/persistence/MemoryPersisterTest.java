@@ -1,14 +1,11 @@
 package com.openenergi.flex.persistence;
 
-import static org.junit.Assert.*;
-
-import org.json.JSONException;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
-
-import com.google.gson.JsonSyntaxException;
 
 import java.util.NoSuchElementException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 public class MemoryPersisterTest {

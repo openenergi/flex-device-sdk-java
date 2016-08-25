@@ -38,10 +38,10 @@ public final class Scheduler {
             Double currentValue = signal.getCurrentValue();
             if (currentValue != null){
                 try {
-                    signal.entities.forEach(entity -> {
+                    signal.getEntities().forEach(entity -> {
                         ZonedDateTime latest = getLatestReceivedSignal((String) entity, signal.getType());
 
-                        if (latest == null || !(latest.isAfter(signal.generatedAt))){
+                        if (latest == null || !(latest.isAfter(signal.getGeneratedAt()))){
                             callback.accept(new SignalCallbackItem((String) entity, signal.getType(), currentValue));
                         }
                     });
@@ -89,10 +89,10 @@ public final class Scheduler {
     public static void accept(Signal signal, Consumer<SignalCallbackItem> callback) throws IllegalArgumentException {
         validate(signal);
         Double currentValue = signal.getCurrentValue();
-        signal.entities.forEach(entity -> {
+        signal.getEntities().forEach(entity -> {
             ZonedDateTime latest = getLatestReceivedSignal((String) entity, signal.getType());
-            if (latest == null || latest.isBefore(signal.generatedAt)){
-                setLatestReceivedSignal((String) entity, signal.getType(), signal.generatedAt);
+            if (latest == null || latest.isBefore(signal.getGeneratedAt())){
+                setLatestReceivedSignal((String) entity, signal.getType(), signal.getGeneratedAt());
 
                 if (currentValue != null){
                     callback.accept(new SignalCallbackItem((String) entity, signal.getType(), currentValue));
@@ -110,7 +110,7 @@ public final class Scheduler {
     }
 
     private static void validate(Signal signal) throws IllegalArgumentException {
-        if (signal.getType() == null || signal.entities == null || signal.entities.size() == 0 || signal.getGeneratedAt() == null){
+        if (signal.getType() == null || signal.getEntities() == null || signal.getEntities().size() == 0 || signal.getGeneratedAt() == null){
             throw new IllegalArgumentException("Bad signal: Had null type, entities or generated_at");
         }
     }

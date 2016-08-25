@@ -14,22 +14,17 @@
 
 package com.openenergi.flex.device;
 
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.microsoft.azure.iothub.*;
+import com.openenergi.flex.message.Message;
+import com.openenergi.flex.message.MessageContext;
+import com.openenergi.flex.message.Signal;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.microsoft.azure.iothub.DeviceClient;
-import com.microsoft.azure.iothub.IotHubClientProtocol;
-import com.microsoft.azure.iothub.IotHubEventCallback;
-import com.microsoft.azure.iothub.IotHubMessageResult;
-import com.microsoft.azure.iothub.IotHubStatusCode;
-import com.microsoft.azure.iothub.MessageCallback;
-import com.openenergi.flex.message.Message;
-import com.openenergi.flex.message.MessageContext;
-import com.openenergi.flex.message.Signal;
 
 public class BasicClient implements Client {
 	private static String connStr = "HostName=%s;DeviceId=%s;SharedAccessKey=%s";
@@ -96,7 +91,6 @@ public class BasicClient implements Client {
 
 		public IotHubMessageResult execute(
 				com.microsoft.azure.iothub.Message rawMessage, Object context) {
-			Gson gson = new Gson();
 			try {
 				Signal msg = (Signal) Message.deserialize(new String(rawMessage.getBytes(), StandardCharsets.UTF_8));
 				if (this.callback != null){
@@ -106,7 +100,7 @@ public class BasicClient implements Client {
 				}
 
 				return IotHubMessageResult.COMPLETE;
-			} catch (JsonSyntaxException ex){
+			} catch (IOException ex){
 				ex.printStackTrace();
 				return IotHubMessageResult.ABANDON;
 			}

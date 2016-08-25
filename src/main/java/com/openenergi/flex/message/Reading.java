@@ -14,6 +14,8 @@
 
 package com.openenergi.flex.message;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * A Reading is an instantaneous measurement of a metric associated with an entity (eg power consumption).
  * 
@@ -85,6 +87,11 @@ public class Reading extends Message{
 		private Type(String value){
 			this.value = value;
 		}
+
+		@JsonValue
+		public String getValue(){
+			return this.value;
+		}
 	
 	}
 	
@@ -92,12 +99,10 @@ public class Reading extends Message{
 		this.setTopic("readings");
 	}
 
-	public Reading setType(Reading.Type t){
-		this.setType(t.toString());
-		return this;
-	}
 
-	Double value;
+
+
+	private Double value;
 
 	public Double getValue() {
 		return value;

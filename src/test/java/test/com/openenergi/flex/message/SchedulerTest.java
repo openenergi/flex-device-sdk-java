@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -28,8 +29,9 @@ public class SchedulerTest {
         signal.addItem(new SignalPointItem(now, 1.));
         signal.addItem(new SignalPointItem(now.plusSeconds(1), 2.));
         signal.setType("oe-test");
-        signal.entities = new ArrayList<String> ();
-        signal.entities.add("L1234");
+        List<String> entities = new ArrayList<String> ();
+        entities.add("L1234");
+        signal.setEntities(entities);
 
         Scheduler.accept(signal, signalCallbackItem -> {
             System.out.println(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli() - nowMillis); //check how good the scheduling is

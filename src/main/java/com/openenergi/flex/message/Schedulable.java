@@ -1,5 +1,8 @@
 package com.openenergi.flex.message;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.time.ZonedDateTime;
 
 /**
@@ -22,5 +25,6 @@ public interface Schedulable {
 	 * Date when the item will be valid (in the case of a schedule - when the item is next valid).
 	 * @return Start date when value takes effect
 	 */
+	@JsonIgnore
 	ZonedDateTime getStart();
 }

@@ -1,12 +1,13 @@
 package com.openenergi.flex.message;
 
-import static org.junit.Assert.*;
-
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import com.google.gson.JsonSyntaxException;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 public class ReadingTest {
@@ -38,12 +39,12 @@ public class ReadingTest {
 			assertEquals((Long) 12345L, m.getTimestamp());
 			assertEquals(m.getType(), "something");
 			if (m instanceof Reading){
-				assertEquals(((Reading)m).value, (Double)1.23);
+				assertEquals(((Reading)m).getValue(), (Double)1.23);
 			} else {
 				fail("not a reading");
 			}
 			
-		} catch (JsonSyntaxException e1) {
+		} catch (IOException e1) {
 			fail("Failed to deserialize: " + e1.getMessage());
 		}
 	}

@@ -1,12 +1,13 @@
 package com.openenergi.flex.message;
 
-import static org.junit.Assert.*;
-
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import com.google.gson.JsonSyntaxException;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 public class EventTest {
@@ -39,13 +40,13 @@ public class EventTest {
 			assertEquals((Long) 12345L, m.getTimestamp());
 			assertEquals(m.getType(), "something");
 			if (m instanceof Event){
-				assertEquals(((Event)m).value, "value");
-				assertEquals(((Event)m).level, (Integer) 0);
+				assertEquals("value", ((Event)m).getValue());
+				assertEquals(Event.Level.DEBUG, ((Event)m).getLevel());
 			} else {
 				fail("not an event");
 			}
 			
-		} catch (JsonSyntaxException e1) {
+		} catch (IOException e1) {
 			fail("Failed to deserialize: " + e1.getMessage());
 		}
 	}

@@ -24,7 +24,7 @@ import java.util.List;
  *
  */
 public class Schedule extends Message {
-	public List<ScheduleItem> schedule;
+	private List<ScheduleItem> schedule;
 	
 	public Schedule(){
 		this.setTopic("schedules");
@@ -45,5 +45,13 @@ public class Schedule extends Message {
 	
 	public ScheduleItem getItem(int index) throws IndexOutOfBoundsException{
 		return this.schedule.get(index);
+	}
+
+	public List<ScheduleItem> getSchedule(){
+		return this.schedule;
+	}
+
+	public void setSchedule(List<ScheduleItem> schedule){
+		this.schedule = schedule;
 	}
 }

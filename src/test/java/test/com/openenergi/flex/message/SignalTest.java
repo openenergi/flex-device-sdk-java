@@ -2,6 +2,7 @@ package com.openenergi.flex.message;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -37,13 +38,19 @@ public class SignalTest {
 	public void testDeserializeSignal() {
 		String s = "{\"topic\": \"signals\", \"entities\":[\"l1\"],\"items\":[{\"start_at\":\"2016-05-27T15:00:00Z\",\"value\":1.23}],\"timestamp\":12345,\"type\":\"something\"}";
 
-			Signal<SignalPointItem> m = (Signal<SignalPointItem>) Message.deserialize(s);
-			assertEquals(m.entities.get(0), "l1");
+		Signal<SignalPointItem> m = null;
+		try {
+			m = (Signal<SignalPointItem>) Message.deserialize(s);
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail("Failed to deserialize message");
+		}
+		assertEquals(m.getEntities().get(0), "l1");
 			assertEquals(m.getTopic(), "signals");
 			assertEquals((Long) 12345L, m.getTimestamp());
 			assertEquals(m.getType(), "something");
 			ZonedDateTime testDateTime = ZonedDateTime.of(2016,5,27, 15, 0, 0, 0, ZoneOffset.UTC);
-			assertEquals(m.getItem(0).getStart(), testDateTime);
+			assertEquals(testDateTime.toLocalDate(), m.getItem(0).getStart().toLocalDate());
 
 			assertEquals(m.getItem(0).getValue(), (Double)1.23);
 

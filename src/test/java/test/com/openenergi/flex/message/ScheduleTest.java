@@ -1,18 +1,18 @@
 package com.openenergi.flex.message;
 
-import static org.junit.Assert.*;
+import com.openenergi.flex.schedule.Span;
+import org.json.JSONException;
+import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-import org.json.JSONException;
-import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
-
-import com.google.gson.JsonSyntaxException;
-import com.openenergi.flex.schedule.Span;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 public class ScheduleTest {
@@ -48,15 +48,15 @@ public class ScheduleTest {
 			assertEquals((Long) 12345L, m.getTimestamp());
 			assertEquals(m.getType(), "something");
 			if (m instanceof Schedule){
-				ScheduleItem i = ((Schedule)m).schedule.get(0);
-				assertEquals(i.span, "2016-12-27T23:00:00.000Z/PT1H");
-				assertEquals(i.repeat, "PT168H"); //FIXME(mbironneau) - 168H is not always equal to 7D with DST; not sure why this conversion is happening.
-				assertEquals(i.value, "value");
+				ScheduleItem i = ((Schedule)m).getSchedule().get(0);
+				assertEquals(i.getSpan(), "2016-12-27T23:00:00.000Z/PT1H");
+				assertEquals(i.getRepeat(), "PT168H"); //FIXME(mbironneau) - 168H is not always equal to 7D with DST; not sure why this conversion is happening.
+				assertEquals(i.getValue(), "value");
 			} else {
 				fail("not an schedule");
 			}
 			
-		} catch (JsonSyntaxException e1) {
+		} catch (IOException e1) {
 			fail("Failed to deserialize: " + e1.getMessage());
 		}
 	}

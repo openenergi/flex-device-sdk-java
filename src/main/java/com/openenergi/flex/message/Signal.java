@@ -14,17 +14,15 @@
 
 package com.openenergi.flex.message;
 
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.annotations.SerializedName;
 
 
 /**
@@ -48,10 +46,23 @@ public class Signal<T extends Schedulable> extends Message {
 		this.generatedAt = generatedAt;
 	}
 
-	@SerializedName("generated_at")
-	ZonedDateTime generatedAt;
-	
-	List<String> entities;
+	public void setItems(List<T> items) {
+		this.items = items;
+	}
+
+	@JsonProperty("generated_at")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private ZonedDateTime generatedAt;
+
+	public List<String> getEntities() {
+		return entities;
+	}
+
+	public void setEntities(List<String> entities) {
+		this.entities = entities;
+	}
+
+	private List<String> entities;
 	
 	public enum Type {
 		
@@ -73,7 +84,7 @@ public class Signal<T extends Schedulable> extends Message {
 		}
 	}
 	
-	List<T> items;
+	private List<T> items;
 	
 	public Signal(){
 		this.entities = new ArrayList<String>(); 
@@ -123,6 +134,7 @@ public class Signal<T extends Schedulable> extends Message {
 	 * Gets the current value of the signal. Assumes that the signal items are sorted in decreasing priority order (i.e. the last valid item should be applied).
 	 * @return the value that the variable/parameter pointed to in type should be set to currently. 
 	 */
+	@JsonIgnore
 	public Double getCurrentValue(){
 		ZonedDateTime currentDate = ZonedDateTime.now();
 		ListIterator<T> li = this.items.listIterator(this.items.size());
@@ -139,6 +151,7 @@ public class Signal<T extends Schedulable> extends Message {
 	 * Gets the time at which the signal will next change value (call getCurrentValue() at that time to get the new value).
 	 * @return the time at which the signal will next change value.
 	 */
+	@JsonIgnore
 	public ZonedDateTime getNextChange(){
 		ZonedDateTime currentDate = ZonedDateTime.now();
 		ListIterator<T> li = this.items.listIterator(this.items.size());
