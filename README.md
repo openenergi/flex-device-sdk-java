@@ -6,23 +6,11 @@ The Device SDK allows field devices to send Dynamic Demand data to the Open Ener
 
 ## Requirements
 
-The SDK requires Java 8. If you need support for a lower version please contact us and we'll share some code that works for Java 4+ but doesn't support schedule messages.
+The SDK requires Java 8.
 
-## Installation
+## Getting Started
 
 Download a JAR from the releases page. 
-
-**Maven**
-
-Starting with version 0.3 you will be able to download the JAR from Maven central.
-
-```
-	<dependency>
-  		<groupId>com.openenergi.flex</groupId>
-  		<artifactId>flex-device-sdk-java</artifactId>
-  		<version>0.1.0</version>
-  	</dependency>
-```
 
 ## Usage
 
@@ -143,8 +131,6 @@ client.onSignal((Signal signal) -> System.out.println(signal));
 ```
 
 A Signal's current value can be obtained by calling `signal.getCurrentValue()`. For scheduling purposes, it is also possible to determine the time at which the signal will next change by calling `signal.getNextChange()`.
-
-Release 0.2 will come with a low-overhead scheduling wrapper that invokes a callback `Consumer<T>` whenever the signal changes, so it will not be necessary to invoke these methods directly.
 
 **Disabling message subscription**
 
