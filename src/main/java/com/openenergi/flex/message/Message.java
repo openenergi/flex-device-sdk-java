@@ -78,14 +78,12 @@ public class Message {
 
 	public Message(){}
 	
-	public Message setType(String value){
+	public void setType(String value){
 		this.type = value;
-		return this;
 	}
 	
-	public Message setEntity(String value){
+	public void setEntity(String value){
 		this.entity = value;
-		return this;
 	}
 
 	public String getEntity() {
@@ -96,9 +94,8 @@ public class Message {
 		return timestamp;
 	}
 
-	public Message setTimestamp(Long timestamp) {
+	public void setTimestamp(Long timestamp) {
 		this.timestamp = timestamp;
-		return this;
 	}
 
 	public String getType() {

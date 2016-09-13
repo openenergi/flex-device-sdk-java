@@ -15,12 +15,13 @@ public class EventTest {
 
 	@Test
 	public void testSerializeEvent() {
-		Event e = (Event) new Event()
-					.setValue("value")
-					.setLevel(Event.Level.DEBUG)
-					.setEntity("l1")
-					.setTimestamp(12345L)
-					.setType("something");
+		Event e = new Event.Builder()
+					.withValue("value")
+					.withLevel(Event.Level.DEBUG)
+					.withEntity("l1")
+					.atTime(12345L)
+					.withCustomType("something")
+					.build();
 		
 		try {
 			//System.out.println(e.toString());

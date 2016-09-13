@@ -20,10 +20,11 @@ public class ScheduleTest {
 
 	@Test
 	public void testSerializeSchedule() {
-		Schedule e = (Schedule) new Schedule()
-					.setEntity("l1")
-					.setTimestamp(12345L)
-					.setType("something");
+		Schedule e = new Schedule.Builder()
+					.withEntity("l1")
+					.atTime(12345L)
+					.withCustomType("something")
+					.build();
 
 		ScheduleItem item = new ScheduleItem(new Span(ZonedDateTime.of(LocalDateTime.of(2016, 12, 27, 23, 0), ZoneOffset.UTC), Duration.ofHours(1)), Duration.ofDays(7), "value");
 		

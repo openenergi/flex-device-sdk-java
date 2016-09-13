@@ -24,6 +24,43 @@ import com.fasterxml.jackson.annotation.JsonValue;
  *
  */
 public class Event extends Message {
+	public static class Builder {
+		private Event event = new Event();
+
+		public Builder atTime(Long timestamp){
+			event.setTimestamp(timestamp);
+			return this;
+		}
+
+		public Builder withType(Type type){
+			event.setType(type.getValue());
+			return this;
+		}
+
+		public Builder withCustomType(String type){
+			event.setType(type);
+			return this;
+		}
+
+		public Builder withEntity(String code){
+			event.setEntity(code);
+			return this;
+		}
+
+		public Builder withValue(String value){
+			this.event.setValue(value);
+			return this;
+		}
+
+		public Builder withLevel(Level level){
+			this.event.setLevel(level);
+			return this;
+		}
+
+		public Event build(){
+			return this.event;
+		}
+	}
 	
 	
 	/**

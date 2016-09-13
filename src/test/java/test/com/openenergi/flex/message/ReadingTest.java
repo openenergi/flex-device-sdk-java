@@ -15,11 +15,12 @@ public class ReadingTest {
 
 	@Test
 	public void testSerializeReading() {
-		Reading e = (Reading) new Reading()
-					.setValue(1.23)
-					.setEntity("l1")
-					.setTimestamp(12345L)
-					.setType("something");
+		Reading e = new Reading.Builder()
+					.withValue(1.23)
+					.withEntity("l1")
+					.atTime(12345L)
+					.withCustomType("something")
+					.build();
 		
 		try {
 			//System.out.println(e.toString());

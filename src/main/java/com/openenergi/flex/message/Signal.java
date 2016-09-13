@@ -98,9 +98,8 @@ public class Signal<T extends Schedulable> extends Message {
 	 * @param entity The entity code of the target
 	 * @return The signal
 	 */
-	public Signal<T> addEntity(String entity){
+	public void addEntity(String entity){
 		this.entities.add(entity);
-		return this;
 	}
 	
 	/**
@@ -108,9 +107,8 @@ public class Signal<T extends Schedulable> extends Message {
 	 * @param item the item to add
 	 * @return
 	 */
-	public Signal<T> addItem(T item){
+	public void addItem(T item){
 		this.items.add(item);
-		return this;
 	}
 
 	/**

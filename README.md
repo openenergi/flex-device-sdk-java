@@ -46,10 +46,11 @@ Refer to [Message Format Specification](https://github.com/openenergi/flex-devic
 import com.openenergi.flex.message.Reading;
 
 
-Reading msg = new Reading()
-		.setType(Reading.Types.POWER)
-		.setEntity("l1234")
-		.setValue(13.4);
+Reading msg = new Reading.Builder()
+		.withType(Reading.Types.POWER)
+		.withEntity("l1234")
+		.withValue(13.4)
+		.build();
 
 client.publish(msg);
 ```
@@ -65,11 +66,11 @@ Note that even if the `publish` method returns successfully, the message is not 
 ```java
 import com.openenergi.flex.message.Event;
 
-Event msg = new Event()
-		.setType("state-of-charge")
-		.setLevel(Event.Levels.WARN)
-		.setEntity("s12")
-		.setValue("State of charge below 10% for the last 5 minutes");
+Event msg = new Event.Builder()
+		.withCustomType("state-of-charge")
+		.withLevel(Event.Levels.WARN)
+		.withEntity("s12")
+		.withValue("State of charge below 10% for the last 5 minutes");
 
 client.publish(msg);
 ```
@@ -105,7 +106,8 @@ By default, the `timestamp` field of the message will be set to the current syst
 ```java
 import java.time.LocalDateTime;
 
-msg = new Reading().setTimestamp(LocalDateTime.now());
+Reading msg = new Reading.Builder().atTime(System.currentTimeMillis()).build();
+msg.setTimestamp(LocalDateTime.now()); //equivalent
 ```
     
 ### Setting the `created_at` field:
@@ -116,7 +118,8 @@ By default the `created_at` field is not populated. To set the `created_at` fiel
 import java.time.ZonedDateTime;
 import java.time.ZoneOffset;
 
-msg = new Event().setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
+Event msg = new Event();
+msg.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
 ```
 
 ## Receiving Messages

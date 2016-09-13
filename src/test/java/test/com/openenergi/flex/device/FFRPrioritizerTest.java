@@ -11,16 +11,16 @@ public class FFRPrioritizerTest {
 
     @Test
     public void testScoreTimestamp(){
-        Reading e1 = (Reading) new Reading()
-                .setValue(1.23)
-                .setEntity("l1")
-                .setTimestamp(12345L)
-                .setType("something");
-        Reading e2 = (Reading) new Reading()
-                .setValue(1.23)
-                .setEntity("l1")
-                .setTimestamp(12346L)
-                .setType("something");
+        Reading e1 = new Reading.Builder()
+                .withValue(1.23)
+                .withEntity("l1")
+                .atTime(12345L)
+                .withCustomType("something").build();
+        Reading e2 = new Reading.Builder()
+                .withValue(1.23)
+                .withEntity("l1")
+                .atTime(12346L)
+                .withCustomType("something").build();
 
         FFRPrioritizer p = new FFRPrioritizer();
 
@@ -29,18 +29,18 @@ public class FFRPrioritizerTest {
 
     @Test
     public void testScoreFFR(){
-        Reading e1 = (Reading) new Reading()
-                .setValue(1.23)
-                .setEntity("l1")
-                .setType(Reading.Type.POWER.getValue())
-                .setTimestamp(12345L);
+        Reading e1 = new Reading.Builder()
+                .withValue(1.23)
+                .withEntity("l1")
+                .withType(Reading.Type.POWER)
+                .atTime(12345L).build();
 
 
-        Reading e2 = (Reading) new Reading()
-                .setValue(1.23)
-                .setEntity("l1")
-                .setTimestamp(12346L)
-                .setType("something");
+        Reading e2 = new Reading.Builder()
+                .withValue(1.23)
+                .withEntity("l1")
+                .atTime(12346L)
+                .withCustomType("something").build();
 
         FFRPrioritizer p = new FFRPrioritizer();
 

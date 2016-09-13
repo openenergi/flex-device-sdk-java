@@ -19,10 +19,10 @@ public class SignalTest {
 
 	@Test
 	public void testSerializeEvent() {
-		Signal<SignalPointItem> s = (Signal<SignalPointItem>) new Signal<SignalPointItem>()
-					.addEntity("l1")
-					.setTimestamp(12345L)
-					.setType("something");
+		Signal<SignalPointItem> s = new Signal<SignalPointItem>();
+		s.addEntity("l1");
+		s.setTimestamp(12345L);
+		s.setType("something");
 
 		s.addItem(new SignalPointItem(ZonedDateTime.of(LocalDateTime.of(2016,12,27, 0, 0, 0, 0), ZoneOffset.UTC), 1.23));
 		

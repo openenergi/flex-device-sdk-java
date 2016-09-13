@@ -32,11 +32,11 @@ public class DeviceTest {
 			client.connect();
 			MessageContext ctx = new MessageContext();
 			ctx.setData(1L);
-			Event e = (Event) new Event()
-			.setValue("testing")
-			.setLevel(Event.Level.DEBUG)
-			.setEntity("l1")
-			.setType("test");
+			Event e = new Event.Builder()
+			.withValue("testing")
+			.withLevel(Event.Level.DEBUG)
+			.withEntity("l1")
+			.withCustomType("test").build();
 			client.onPublish((MessageContext pub) ->  assertEquals(pub.getData(), 1L));
 			client.publish(e, ctx);
 		} catch (IOException e) {

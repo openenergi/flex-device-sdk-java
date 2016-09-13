@@ -24,7 +24,38 @@ import com.fasterxml.jackson.annotation.JsonValue;
  *
  */
 public class Reading extends Message{
+	public static class Builder {
+		private Reading reading = new Reading();
 
+		public Builder atTime(Long timestamp){
+			reading.setTimestamp(timestamp);
+			return this;
+		}
+
+		public Builder withType(Type type){
+			reading.setType(type.getValue());
+			return this;
+		}
+
+		public Builder withCustomType(String type){
+			reading.setType(type);
+			return this;
+		}
+
+		public Builder withEntity(String code){
+			reading.setEntity(code);
+			return this;
+		}
+
+		public Builder withValue(double value){
+			this.reading.setValue(value);
+			return this;
+		}
+
+		public Reading build(){
+			return this.reading;
+		}
+	}
 	
 	/**
 	 * This enum contains common reading types. Custom reading types can also be sent, though care should be taken
@@ -99,18 +130,14 @@ public class Reading extends Message{
 		this.setTopic("readings");
 	}
 
-
-
-
 	private Double value;
 
 	public Double getValue() {
 		return value;
 	}
 
-	public Reading setValue(Double value) {
+	public void setValue(Double value) {
 		this.value = value;
-		return this;
 	}
 	
 	

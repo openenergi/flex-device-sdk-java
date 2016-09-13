@@ -24,6 +24,41 @@ import java.util.List;
  *
  */
 public class Schedule extends Message {
+	public static class Builder {
+		private Schedule schedule = new Schedule();
+
+		public Builder atTime(Long timestamp){
+			schedule.setTimestamp(timestamp);
+			return this;
+		}
+
+		public Builder withType(String type){
+			schedule.setType(type);
+			return this;
+		}
+
+		//repeated method to keep consistency in builder method names
+		public Builder withCustomType(String type){
+			schedule.setType(type);
+			return this;
+		}
+
+		public Builder withEntity(String code){
+			schedule.setEntity(code);
+			return this;
+		}
+
+		public Builder withSchedule(List<ScheduleItem> schedule){
+			this.schedule.setSchedule(schedule);
+			return this;
+		}
+
+		public Schedule build(){
+			return this.schedule;
+		}
+	}
+
+
 	private List<ScheduleItem> schedule;
 	
 	public Schedule(){
@@ -35,12 +70,11 @@ public class Schedule extends Message {
 	 * @param item
 	 * @return
 	 */
-	public Schedule addItem(ScheduleItem item){
+	public void addItem(ScheduleItem item){
 		if (this.schedule == null){
 			this.schedule = new ArrayList<ScheduleItem>();
 		}
 		this.schedule.add(item);
-		return this;
 	}
 	
 	public ScheduleItem getItem(int index) throws IndexOutOfBoundsException{

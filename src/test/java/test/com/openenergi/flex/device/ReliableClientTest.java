@@ -18,11 +18,11 @@ public class ReliableClientTest {
     public void testWithoutFailures() {
         MemoryPersister p = new MemoryPersister(10);
         RetryingClient client = new RetryingClient(new FailingClient(), p);
-        Reading e = (Reading) new Reading()
-                .setValue(1.23)
-                .setEntity("l1")
-                .setTimestamp(12345L)
-                .setType("something");
+        Reading e = new Reading.Builder()
+                .withValue(1.23)
+                .withEntity("l1")
+                .atTime(12345L)
+                .withCustomType("something").build();
         AtomicInteger publishedCount = new AtomicInteger(2);
         client.onPublish((MessageContext ctx) -> {
             Integer published = publishedCount.decrementAndGet();
@@ -40,11 +40,11 @@ public class ReliableClientTest {
         MemoryPersister p = new MemoryPersister(10);
         FailingClient mock = new FailingClient();
         RetryingClient client = new RetryingClient(mock, p);
-        Reading e = (Reading) new Reading()
-                .setValue(1.23)
-                .setEntity("l1")
-                .setTimestamp(12345L)
-                .setType("something");
+        Reading e = new Reading.Builder()
+                .withValue(1.23)
+                .withEntity("l1")
+                .atTime(12345L)
+                .withCustomType("something").build();
 
         client.onPublish((MessageContext ctx) -> {
             //fail("Should not get called");
