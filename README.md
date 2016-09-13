@@ -96,8 +96,12 @@ import com.openenergi.flex.message.MessageContext;
 MessageContext ctx = new MessageContext();
 ctx.setData(123); //Message context (eg. Id) meaningful to application - can be any object
 
-client.onPublish((MessageContext ctx) -> System.out.println("Message with Id " + ctx.getData().toString() + " published!"));
+client.onPublish((MessageContext mc) -> System.out.println("Message with Id " + mc.getData().toString() + " published!"));
+
+client.publish(msg, ctx);
 ```
+
+Please note that the callback must be defined *before* calling `client.publish()`, as in the above example.
 
 ### Overriding the Message Timestamp
 
@@ -163,5 +167,40 @@ To aid in implementing this behavior, the SDK comes with a singleton `Scheduler`
 client.onSignal((Signal signal) -> Scheduler.accept(signal, (SignalCallbackItem s) -> {
 	System.out.println("Change variable " + s.getType() + " to value " + s.getValue() + " for entity " + s.getEntity());
 }));
+
+```
+
+## Full Example 
+This is a simple example that connects to the IoTHub using the basic client and sends a custom "temperature" reading. 
+
+
+```java
+import com.openenergi.flex.device.BasicClient;
+import com.openenergi.flex.message.MessageContext;
+import com.openenergi.flex.message.Reading;
+
+import java.io.IOException;
+
+public class FlexUseCase {
+
+    public static void main(String[] args) throws IOException {
+        String hub = "<host>";
+        String deviceId = "<device>";
+        String key = "<key>";
+        BasicClient client = new BasicClient(hub,deviceId,key);
+        client.connect();
+
+        MessageContext ctx = new MessageContext();
+        ctx.setData(123);
+        
+        Reading msg = new Reading.Builder().withCustomType("temperature").withEntity("l4748").withValue(85).build();
+        client.onPublish((MessageContext ctx2) -> System.out.println("Message Published " + ctx2.getData().toString()));
+
+        client.publish(msg,ctx);
+        System.out.println("Message Sent");
+
+    }
+}
+
 
 ```
