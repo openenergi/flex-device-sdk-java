@@ -1,8 +1,8 @@
 # Message Format Specification
 
-*Version: 0.1.4*
+*Version: 0.2.0*
 
-last modified on 2016-07-14
+last modified on 2016-09-21
 
 ### Versioning
 *Prior to version 1.0, the specification is a draft that is subject to short-notice changes and alterations.*
@@ -535,7 +535,107 @@ Given a Grid Frequency reading of *GF*, the Effective Frequency input of the con
 
 * `0.5*(2*oeMultiplyHigh*(GF - 50)+oeAdd)+50` if `GF >= 50`
 * `0.5*(2*oeMultiplyLow*(50-GF)+oeAdd)+50` otherwise
+
+### <a name="batch-signal"></a>Batch Signals
+   
+Sometimes it is necessary to send a signal that modifies two or more variables in synchrony at one or more points in time. For example, `oe-add`, `oe-multiply-high` and `oe-multiply-low` are usually sent together so that there is no possibility that a Signal of one type is successfully received but not the other. Such signals are called **batch signals** and have a similar structure to point signals described above:
+
+**Batch Signal Fields**
+
+Unlike above, where the `value` field is a number, the `items` field is an array of **batch points**.
+
+
     
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Example</th>
+    </tr>
+	<tr>
+        <td>timestamp</td>
+		<td>Long, not null (ms since epoch)</td>
+		<td>System time when signal was generated</td>
+		<td>1413235133452</td>
+    </tr>
+    <tr>
+        <td>topic</td>
+		<td>String. The value should always be "signals"</td>
+		<td>Topic to identify the message as a Portfolio Management Signal</td>
+		<td>schedules</td>
+    </tr>
+    <tr>
+        <td>entities</td>
+		<td>String (max length 10), not null, case-insensitive</td>
+		<td>List of unique entity codes of entities targeted by signal</td>
+		<td>l1332</td>
+    </tr>
+    <tr>
+        <td>type</td>
+		<td>String (max length 64), not null, case-insensitive</td>
+		<td>The identifying name of the group of targeted variables</td>
+		<td>oe-vars</td>
+    </tr>
+    <tr>
+        <td>signal</td>
+		<td>array of <strong>batch signal points</strong></td>
+		<td>Signal specification</td>
+		<td><em>See below</em></td>
+    </tr>
+</table>
+
+**Batch Signal Points**
+
+
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Example</th>
+    </tr>
+    <tr>
+        <td>start_at</td>
+		<td>String, not null, ISO 8601 datetime</td>
+		<td>Time at which the targeted variable should assume <code>value</code> </td>
+		<td>2015-12-25T12:01:00Z</td>
+    </tr>
+    <tr>
+        <td>items</td>
+		<td>array of <strong>batch signal point items</strong>, not null</td>
+		<td>Value of readings</td>
+		<td>[{"type": "oe-add", "value": 0.1}, {"type": "oe-multiply", "value": "1.1"}]</td>
+    </tr>
+
+</table>
+
+**Batch Signal Point Item Fields**
+
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Example</th>
+    </tr>
+    <tr>
+        <td>type</td>
+		<td>String</td>
+		<td>The name of the variable</td>
+		<td>oe-add</td>
+    </tr>
+    <tr>
+        <td>value</td>
+		<td>float, not null</td>
+		<td>Value of variable</td>
+		<td>0.1</td>
+    </tr>
+
+</table>
+
+
+ 
 ### <a name="sig-schedule"></a>Schedule Signals
 
 Schedule signals are used to signal more complex or recurring signals to the device, similar to the “schedule” messages above. For a full example of such a message see below. The topic should be `schedule-signal`. 
