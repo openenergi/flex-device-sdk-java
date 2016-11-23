@@ -103,6 +103,10 @@ public class BasicClient implements Client {
 			} catch (IOException ex){
 				ex.printStackTrace();
 				return IotHubMessageResult.ABANDON;
+			} catch (IllegalArgumentException ex) {
+				System.out.println("Unexpected signal format - please try upgrading to the latest version of the SDK if you believe this to be an error");
+				ex.printStackTrace();
+				return IotHubMessageResult.ABANDON;
 			}
 			
 

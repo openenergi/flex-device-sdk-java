@@ -133,13 +133,13 @@ public class Signal<T extends Schedulable> extends Message {
 	 * @return the value that the variable/parameter pointed to in type should be set to currently. 
 	 */
 	@JsonIgnore
-	public Double getCurrentValue(){
+	public List<SignalBatchListItem> getCurrentValues(){
 		ZonedDateTime currentDate = ZonedDateTime.now();
 		ListIterator<T> li = this.items.listIterator(this.items.size());
 		while (li.hasPrevious()){
 			T item = li.previous();
-			if (currentDate.isAfter(item.getStart()) && item.getValue() != null){
-				return item.getValue();
+			if (currentDate.isAfter(item.getStart()) && item.getValues() != null){
+				return item.getValues();
 			}
 		};
 		return null;

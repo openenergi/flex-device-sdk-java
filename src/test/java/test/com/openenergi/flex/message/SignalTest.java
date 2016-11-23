@@ -55,5 +55,46 @@ public class SignalTest {
 			assertEquals(m.getItem(0).getValue(), (Double)1.23);
 
 	}
+
+	@Test
+	public void testDeserializeBatchSignal() {
+		String s = "{\n" +
+				"\t\"generated_at\": \"2016-07-30T12:00:01.000Z\",\n" +
+				"\t\"type\": \"oe-vars\",\n" +
+				"\t\"topic\": \"signals\",\n" +
+				"\t\"items\": [{\n" +
+				"\t\t\"start_at\": \"2016-08-05T12:01:00Z\",\n" +
+				"\t\t\"values\": [{\n" +
+				"\t\t\t\"subtype\": \"oe-add\",\n" +
+				"\t\t\t\"value\": 1\n" +
+				"\t\t}, {\n" +
+				"\t\t\t\"subtype\": \"oe-multiply-high\",\n" +
+				"\t\t\t\"value\": 0\n" +
+				"\t\t}, {\n" +
+				"\t\t\t\"subtype\": \"oe-multiply-low\",\n" +
+				"\t\t\t\"value\": 0\n" +
+				"\t\t}]\n" +
+				"\t}],\n" +
+				"\t\"entities\": [\"l1\"]\n" +
+				"}";
+
+		Signal<SignalBatchList> m = null;
+		try {
+			m = (Signal<SignalBatchList>) Message.deserialize(s);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Failed to deserialize message");
+		}
+		assertEquals(m.getEntities().get(0), "l1");
+		assertEquals(m.getTopic(), "signals");
+		assertEquals(m.getItems().size(), 1);
+		assertEquals(m.getItem(0).getValues().size(), 3);
+		assertEquals(m.getItem(0).getValues().get(0).getSubtype(), "oe-add");
+		assertEquals(m.getItem(0).getValues().get(0).getValue(), (Double) 1.);
+		assertEquals(m.getType(), "oe-vars");
+		ZonedDateTime testDateTime = ZonedDateTime.of(2016,8,05, 12, 0, 1, 0, ZoneOffset.UTC);
+		assertEquals(testDateTime.toLocalDate(), m.getItem(0).getStart().toLocalDate());
+
+	}
 	
 }

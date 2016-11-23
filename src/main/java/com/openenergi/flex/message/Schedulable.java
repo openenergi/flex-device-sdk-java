@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 /**
  * A Schedulable class represents an abstract point in a device-to-cloud Signal. For example, it may
@@ -16,10 +17,10 @@ import java.time.ZonedDateTime;
 public interface Schedulable {
 	
 	/**
-	 * Current value of item.
+	 * Current values of item.
 	 * @return Current value
 	 */
-	Double getValue();
+	List<SignalBatchListItem> getValues();
 	
 	/**
 	 * Date when the item will be valid (in the case of a schedule - when the item is next valid).

@@ -2,6 +2,7 @@ package com.openenergi.flex.message;
 
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
@@ -35,14 +36,24 @@ public final class Scheduler {
          * Calls back with the current value of the signal and schedules the next invocation.
          */
         public void run() {
-            Double currentValue = signal.getCurrentValue();
-            if (currentValue != null){
+            List<SignalBatchListItem> currentValues = signal.getCurrentValues();
+            if (currentValues != null){
                 try {
                     signal.getEntities().forEach(entity -> {
                         ZonedDateTime latest = getLatestReceivedSignal((String) entity, signal.getType());
 
                         if (latest == null || !(latest.isAfter(signal.getGeneratedAt()))){
-                            callback.accept(new SignalCallbackItem((String) entity, signal.getType(), currentValue));
+                            currentValues.forEach((SignalBatchListItem sbi) -> {
+                                String type;
+                                //inherit the list item type from the signal's type for point/schedule signals.
+                                if (sbi.getSubtype()==null){
+                                    type = signal.getType();
+                                } else {
+                                    type = sbi.getSubtype();
+                                }
+                                callback.accept(new SignalCallbackItem((String) entity, type, sbi.getValue()));
+                            });
+
                         }
                     });
 
@@ -88,14 +99,23 @@ public final class Scheduler {
      */
     public static void accept(Signal signal, Consumer<SignalCallbackItem> callback) throws IllegalArgumentException {
         validate(signal);
-        Double currentValue = signal.getCurrentValue();
+        List<SignalBatchListItem> currentValue = signal.getCurrentValues();
         signal.getEntities().forEach(entity -> {
             ZonedDateTime latest = getLatestReceivedSignal((String) entity, signal.getType());
             if (latest == null || latest.isBefore(signal.getGeneratedAt())){
                 setLatestReceivedSignal((String) entity, signal.getType(), signal.getGeneratedAt());
 
                 if (currentValue != null){
-                    callback.accept(new SignalCallbackItem((String) entity, signal.getType(), currentValue));
+                    currentValue.forEach((SignalBatchListItem sbi) -> {
+                        String type;
+                        //inherit the list item type from the signal's type for point/schedule signals.
+                        if (sbi.getSubtype()==null){
+                            type = signal.getType();
+                        } else {
+                            type = sbi.getSubtype();
+                        }
+                        callback.accept(new SignalCallbackItem((String) entity, type, sbi.getValue()));
+                    });
                 }
             }
         });

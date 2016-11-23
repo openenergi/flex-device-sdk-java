@@ -129,10 +129,11 @@ public class Message {
 	
 	public static Object deserialize(String json) throws IOException {
 		String topic = "";
+		String type = "";
 		JsonNode root;
 		root = mapper.readTree(json);
 		topic = root.get("topic").asText();
-
+		type = root.get("type").asText();
 
 
 		switch (topic){
@@ -143,7 +144,12 @@ public class Message {
 		case "schedules":
 			return mapper.convertValue(root, Schedule.class);
 		case "signals":
-			return mapper.convertValue(root, new TypeReference<Signal<SignalPointItem>>() {});
+			if (type.equals("oe-vars")){
+				return mapper.convertValue(root, new TypeReference<Signal<SignalBatchList>>() {});
+			} else {
+				return mapper.convertValue(root, new TypeReference<Signal<SignalPointItem>>() {});
+			}
+
 		case "schedule-signals":
 			return mapper.convertValue(root, new TypeReference<Signal<SignalScheduleItem>>() {});
 		}

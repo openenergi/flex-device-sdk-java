@@ -58,4 +58,44 @@ public class SchedulerTest {
 
     }
 
+
+    @Test
+    public void testSchedulingBatch(){
+        Signal<SignalBatchList> signal = new Signal<>();
+        ZonedDateTime now = ZonedDateTime.now();
+        Long nowMillis = now.toInstant().toEpochMilli();
+        CountDownLatch lock = new CountDownLatch(2);
+        signal.setGeneratedAt(now);
+        SignalBatchList list = new SignalBatchList();
+        list.addValue(new SignalBatchListItem("oe-add", 0.5));
+        list.startAt = now.plusSeconds(1);
+        signal.addItem(list);
+        signal.setType("oe-vars");
+        List<String> entities = new ArrayList<String> ();
+        entities.add("L1234");
+        signal.setEntities(entities);
+
+        Scheduler.accept(signal, signalCallbackItem -> {
+            System.out.println(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli() - nowMillis); //check how good the scheduling is
+            assertEquals("oe-add", signalCallbackItem.getType());
+            assertEquals("L1234", signalCallbackItem.getEntity());
+            assertEquals((Double) 0.5, signalCallbackItem.getValue());
+            if (signalCallbackItem.getType() != SignalCallbackItem.END_OF_SIGNAL){
+                latestValue = signalCallbackItem.getValue();
+                System.out.println("VALUE: " + String.valueOf(latestValue));
+            } else {
+                //ended = true;
+            }
+
+            lock.countDown();
+        });
+
+        try {
+            lock.await(5000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }
