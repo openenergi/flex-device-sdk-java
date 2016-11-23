@@ -1,8 +1,8 @@
 # Message Format Specification
 
-*Version: 0.2.0*
+*Version: 0.3.0*
 
-last modified on 2016-09-21
+Last modified on 2016-11-23
 
 ### Versioning
 *Prior to version 1.0, the specification is a draft that is subject to short-notice changes and alterations.*
@@ -471,7 +471,7 @@ Portfolio management signals (i.e. DDv2) can be sent to devices that connect via
 		<td>oe-add</td>
     </tr>
     <tr>
-        <td>signal</td>
+        <td>items</td>
 		<td>array of <strong>signal points</strong></td>
 		<td>Signal specification</td>
 		<td><em>See below</em></td>
@@ -511,7 +511,7 @@ The last signal point in the signal should leave the entity in a "safe" state.
 		"generated_at": "2015-12-25T12:00:00Z",
     	"entities": ["l1234", "l4509"],
     	"type": "oe-add",
-    	"signal": [{
+    	"items": [{
     		"start_at": "2015-12-25T12:01:00Z",
     		"value": 0.1
     	}, {
@@ -578,7 +578,7 @@ Unlike above, where the `value` field is a number, the `items` field is an array
 		<td>oe-vars</td>
     </tr>
     <tr>
-        <td>signal</td>
+        <td>items</td>
 		<td>array of <strong>batch signal points</strong></td>
 		<td>Signal specification</td>
 		<td><em>See below</em></td>
@@ -602,10 +602,10 @@ Unlike above, where the `value` field is a number, the `items` field is an array
 		<td>2015-12-25T12:01:00Z</td>
     </tr>
     <tr>
-        <td>items</td>
+        <td>values</td>
 		<td>array of <strong>batch signal point items</strong>, not null</td>
 		<td>Value of readings</td>
-		<td>[{"type": "oe-add", "value": 0.1}, {"type": "oe-multiply", "value": "1.1"}]</td>
+		<td>[{"subtype": "oe-add", "value": 0.1}, {"subtype": "oe-multiply", "value": "1.1"}]</td>
     </tr>
 
 </table>
@@ -620,7 +620,7 @@ Unlike above, where the `value` field is a number, the `items` field is an array
         <th>Example</th>
     </tr>
     <tr>
-        <td>type</td>
+        <td>subtype</td>
 		<td>String</td>
 		<td>The name of the variable</td>
 		<td>oe-add</td>
