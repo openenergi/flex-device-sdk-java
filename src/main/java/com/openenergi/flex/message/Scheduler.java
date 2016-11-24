@@ -128,7 +128,7 @@ public final class Scheduler {
             if (latest == null || latest.isBefore(signal.getGeneratedAt())){
                 setLatestReceivedSignal((String) entity, signal.getType(), signal.getGeneratedAt());
                 logger.log(Level.FINE, "Setting latest received cache for entity " + entity + " and type " + signal.getType() + " to " + signal.getGeneratedAt().format(DateTimeFormatter.ISO_DATE_TIME));
-                if (currentValue.getValues() != null){
+                if (currentValue != null && currentValue.getValues() != null){
                     logger.log(Level.FINE, "Executing invocation with start time " + currentValue.getStart().format(DateTimeFormatter.ISO_DATE_TIME));
                     currentValue.getValues().forEach((SignalBatchListItem sbi) -> {
                         String type;
