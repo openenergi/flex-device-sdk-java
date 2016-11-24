@@ -56,6 +56,7 @@ public class SignalTest {
 
 	}
 
+
 	@Test
 	public void testDeserializeBatchSignal() {
 		String s = "{\n" +

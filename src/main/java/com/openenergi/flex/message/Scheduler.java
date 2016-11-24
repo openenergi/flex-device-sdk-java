@@ -2,9 +2,12 @@ package com.openenergi.flex.message;
 
 
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class accepts a Schedulable and invokes a callback every time that the value changes with the targeted entity/ies,
@@ -16,7 +19,7 @@ import java.util.function.Consumer;
  * Another work item is to coalesce signals for the same type/entities. That will be more work...
  */
 public final class Scheduler {
-
+    private static final Logger logger = Logger.getLogger(Scheduler.class.getName());
     private final static ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(5, new ThreadPoolExecutor.CallerRunsPolicy());
     private final static ConcurrentHashMap<String, ZonedDateTime> latestSignals = new ConcurrentHashMap<String, ZonedDateTime>(1000);
 
@@ -36,6 +39,7 @@ public final class Scheduler {
          * Calls back with the current value of the signal and schedules the next invocation.
          */
         public void run() {
+            logger.log(Level.FINE, "Running invocation");
             List<SignalBatchListItem> currentValues = signal.getCurrentValues();
             if (currentValues != null){
                 try {
@@ -69,9 +73,11 @@ public final class Scheduler {
          */
         private void scheduleNextRun(){
             ZonedDateTime nextChange = signal.getNextChange();
+            logger.log(Level.FINE, "Next invocation at " + nextChange.format(DateTimeFormatter.ISO_DATE_TIME));
             if (nextChange != null){
                 try {
                     Long delay = nextChange.toInstant().toEpochMilli() - ZonedDateTime.now().toInstant().toEpochMilli();
+                    logger.log(Level.FINE, "Milliseconds to next invocation " + delay.toString());
                     scheduler.schedule(this, delay, TimeUnit.MILLISECONDS);
                 } catch (RejectedExecutionException e){
                     //should never get reached as we are using CallerRunsPolicy
@@ -99,12 +105,13 @@ public final class Scheduler {
      */
     public static void accept(Signal signal, Consumer<SignalCallbackItem> callback) throws IllegalArgumentException {
         validate(signal);
+        logger.log(Level.FINE, "Scheduler accepted signal");
         List<SignalBatchListItem> currentValue = signal.getCurrentValues();
         signal.getEntities().forEach(entity -> {
             ZonedDateTime latest = getLatestReceivedSignal((String) entity, signal.getType());
             if (latest == null || latest.isBefore(signal.getGeneratedAt())){
                 setLatestReceivedSignal((String) entity, signal.getType(), signal.getGeneratedAt());
-
+                logger.log(Level.FINE, "Setting latest received cache for entity " + entity + " and type " + signal.getType() + " to " + signal.getGeneratedAt().format(DateTimeFormatter.ISO_DATE_TIME));
                 if (currentValue != null){
                     currentValue.forEach((SignalBatchListItem sbi) -> {
                         String type;
@@ -122,9 +129,10 @@ public final class Scheduler {
 
 
         if (signal.getNextChange() == null){
+            logger.log(Level.FINE, "End of signal - exiting");
             return;
         }
-
+        logger.log(Level.FINE, "Scheduling next invocation");
         ScheduleInvocation invocations = new ScheduleInvocation(signal, Scheduler.scheduler, callback);
         invocations.scheduleNextRun();
     }

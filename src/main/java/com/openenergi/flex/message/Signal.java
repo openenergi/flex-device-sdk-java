@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -134,14 +136,14 @@ public class Signal<T extends Schedulable> extends Message {
 	 */
 	@JsonIgnore
 	public List<SignalBatchListItem> getCurrentValues(){
-		ZonedDateTime currentDate = ZonedDateTime.now();
+		ZonedDateTime currentDate = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		ListIterator<T> li = this.items.listIterator(this.items.size());
 		while (li.hasPrevious()){
 			T item = li.previous();
-			if (currentDate.isAfter(item.getStart()) && item.getValues() != null){
+			if (!currentDate.isBefore(item.getStart()) && item.getValues() != null){
 				return item.getValues();
 			}
-		};
+		}
 		return null;
 	}
 	
@@ -151,14 +153,14 @@ public class Signal<T extends Schedulable> extends Message {
 	 */
 	@JsonIgnore
 	public ZonedDateTime getNextChange(){
-		ZonedDateTime currentDate = ZonedDateTime.now();
-		ListIterator<T> li = this.items.listIterator(this.items.size());
-		while (li.hasPrevious()){
-			T item = li.previous();
+		ZonedDateTime currentDate = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		ListIterator<T> li = this.items.listIterator();
+		while (li.hasNext()){
+			T item = li.next();
 			if (item.getStart().isAfter(currentDate)){
 				return item.getStart();
 			}
-		};
+		}
 		return null;
 	}
 	
