@@ -6,8 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 /**
  * This class accepts a Schedulable and invokes a callback every time that the value changes with the targeted entity/ies,
@@ -27,6 +26,7 @@ public final class Scheduler {
         private Consumer<SignalCallbackItem> callback;
         private Signal signal;
         private ScheduledExecutorService scheduler;
+        private SignalElement nextInvocation;
 
         public ScheduleInvocation(Signal signal, ScheduledExecutorService scheduler, Consumer<SignalCallbackItem> callback){
             this.callback = callback;
@@ -40,14 +40,22 @@ public final class Scheduler {
          */
         public void run() {
             logger.log(Level.FINE, "Running invocation");
-            List<SignalBatchListItem> currentValues = signal.getCurrentValues();
+            SignalElement currentValues;
+            if (this.nextInvocation == null){
+                logger.log(Level.FINE, "Next invocation is null - getting current value");
+                currentValues = signal.getCurrentValues();
+            } else {
+                currentValues = this.nextInvocation;
+            }
+
             if (currentValues != null){
                 try {
                     signal.getEntities().forEach(entity -> {
                         ZonedDateTime latest = getLatestReceivedSignal((String) entity, signal.getType());
 
                         if (latest == null || !(latest.isAfter(signal.getGeneratedAt()))){
-                            currentValues.forEach((SignalBatchListItem sbi) -> {
+                            logger.log(Level.FINE, "Executing invocation with start date " + currentValues.getStart().format(DateTimeFormatter.ISO_DATE_TIME));
+                            currentValues.getValues().forEach((SignalBatchListItem sbi) -> {
                                 String type;
                                 //inherit the list item type from the signal's type for point/schedule signals.
                                 if (sbi.getSubtype()==null){
@@ -68,16 +76,22 @@ public final class Scheduler {
             scheduleNextRun();
         }
 
+        private Long roundToTenthsOfASecond(Long millis){
+            double m = Math.ceil(((double) millis)/10);
+            return (long) m*10;
+        }
+
         /**
          * Schedules the next invocation - or just returns if the signal has ended.
          */
         private void scheduleNextRun(){
-            ZonedDateTime nextChange = signal.getNextChange();
-            logger.log(Level.FINE, "Next invocation at " + nextChange.format(DateTimeFormatter.ISO_DATE_TIME));
+            SignalElement nextChange = signal.getNextChange();
+            logger.log(Level.FINE, "Next invocation at " + nextChange.getStart().format(DateTimeFormatter.ISO_DATE_TIME));
             if (nextChange != null){
                 try {
-                    Long delay = nextChange.toInstant().toEpochMilli() - ZonedDateTime.now().toInstant().toEpochMilli();
+                    Long delay = roundToTenthsOfASecond(nextChange.getStart().toInstant().toEpochMilli() - ZonedDateTime.now().toInstant().toEpochMilli());
                     logger.log(Level.FINE, "Milliseconds to next invocation " + delay.toString());
+                    this.nextInvocation = nextChange;
                     scheduler.schedule(this, delay, TimeUnit.MILLISECONDS);
                 } catch (RejectedExecutionException e){
                     //should never get reached as we are using CallerRunsPolicy
@@ -100,20 +114,23 @@ public final class Scheduler {
 
     /**
      * Schedules the given signal for execution by invoking the callback whenever the signal changes with the new value.
+     * Note that the scheduler will SORT the signal in start-time order before it begins!
      * @param signal The signal to schedule for execution.
      * @param callback The callback to call with the new value.
      */
     public static void accept(Signal signal, Consumer<SignalCallbackItem> callback) throws IllegalArgumentException {
         validate(signal);
+        signal.sort();
         logger.log(Level.FINE, "Scheduler accepted signal");
-        List<SignalBatchListItem> currentValue = signal.getCurrentValues();
+        SignalElement currentValue = signal.getCurrentValues();
         signal.getEntities().forEach(entity -> {
             ZonedDateTime latest = getLatestReceivedSignal((String) entity, signal.getType());
             if (latest == null || latest.isBefore(signal.getGeneratedAt())){
                 setLatestReceivedSignal((String) entity, signal.getType(), signal.getGeneratedAt());
                 logger.log(Level.FINE, "Setting latest received cache for entity " + entity + " and type " + signal.getType() + " to " + signal.getGeneratedAt().format(DateTimeFormatter.ISO_DATE_TIME));
-                if (currentValue != null){
-                    currentValue.forEach((SignalBatchListItem sbi) -> {
+                if (currentValue.getValues() != null){
+                    logger.log(Level.FINE, "Executing invocation with start time " + currentValue.getStart().format(DateTimeFormatter.ISO_DATE_TIME));
+                    currentValue.getValues().forEach((SignalBatchListItem sbi) -> {
                         String type;
                         //inherit the list item type from the signal's type for point/schedule signals.
                         if (sbi.getSubtype()==null){
@@ -123,6 +140,8 @@ public final class Scheduler {
                         }
                         callback.accept(new SignalCallbackItem((String) entity, type, sbi.getValue()));
                     });
+                } else {
+                    logger.log(Level.FINE, "Current signal value NULL");
                 }
             }
         });

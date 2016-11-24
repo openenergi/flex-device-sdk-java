@@ -21,10 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 
 /**
@@ -93,6 +90,14 @@ public class Signal<T extends Schedulable> extends Message {
 		this.items = new LinkedList<T>();
 		this.setTopic("signals");
 	}
+
+	/**
+	 * Sorts the signal items by their start time. This is a stable sort, so if two items share a start time then
+	 * they will not be re-ordered.
+	 */
+	public void sort(){
+		this.items.sort(Comparator.comparing(a -> a.getStart()));
+	}
 	
 	/**
 	 * Adds an entity to the list of target entities.
@@ -135,30 +140,30 @@ public class Signal<T extends Schedulable> extends Message {
 	 * @return the value that the variable/parameter pointed to in type should be set to currently. 
 	 */
 	@JsonIgnore
-	public List<SignalBatchListItem> getCurrentValues(){
+	public SignalElement getCurrentValues(){
 		ZonedDateTime currentDate = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		ListIterator<T> li = this.items.listIterator(this.items.size());
 		while (li.hasPrevious()){
 			T item = li.previous();
-			if (!currentDate.isBefore(item.getStart()) && item.getValues() != null){
-				return item.getValues();
+			if (currentDate.isAfter(item.getStart()) && item.getValues() != null){
+				return new SignalElement(item.getStart(), item.getValues());
 			}
 		}
 		return null;
 	}
 	
 	/**
-	 * Gets the time at which the signal will next change value (call getCurrentValue() at that time to get the new value).
-	 * @return the time at which the signal will next change value.
+	 * Gets the time and values of the signal at next change
+	 * @return the SignalElement representing the value of the signal at the next change point.
 	 */
 	@JsonIgnore
-	public ZonedDateTime getNextChange(){
+	public SignalElement getNextChange(){
 		ZonedDateTime currentDate = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		ListIterator<T> li = this.items.listIterator();
 		while (li.hasNext()){
 			T item = li.next();
 			if (item.getStart().isAfter(currentDate)){
-				return item.getStart();
+				return new SignalElement(item.getStart(), item.getValues());
 			}
 		}
 		return null;

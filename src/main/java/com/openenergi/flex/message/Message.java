@@ -127,7 +127,7 @@ public class Message {
 		}
 	}
 	
-	public static Object deserialize(String json) throws IOException {
+	public static Object deserialize(String json) throws IOException, IllegalArgumentException {
 		String topic = "";
 		String type = "";
 		JsonNode root;

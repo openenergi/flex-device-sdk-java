@@ -15,6 +15,7 @@
 package com.openenergi.flex.device;
 
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.microsoft.azure.iothub.*;
 import com.openenergi.flex.message.Message;
@@ -25,8 +26,11 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BasicClient implements Client {
+	private static final Logger logger = Logger.getLogger("Client");
 	private static String connStr = "HostName=%s;DeviceId=%s;SharedAccessKey=%s";
 	
 	/**
@@ -96,7 +100,7 @@ public class BasicClient implements Client {
 				if (this.callback != null){
 					this.callback.accept(msg);
 				} else {
-					System.out.println("[NO CALLBACK} Received signal " + new String(rawMessage.getBytes(), StandardCharsets.UTF_8));
+					logger.log(Level.WARNING, "[NO CALLBACK} Received signal " + new String(rawMessage.getBytes(), StandardCharsets.UTF_8));
 				}
 
 				return IotHubMessageResult.COMPLETE;
@@ -104,11 +108,10 @@ public class BasicClient implements Client {
 				ex.printStackTrace();
 				return IotHubMessageResult.ABANDON;
 			} catch (IllegalArgumentException ex) {
-				System.out.println("Unexpected signal format - please try upgrading to the latest version of the SDK if you believe this to be an error");
+				logger.log(Level.WARNING, "Unexpected signal format - please try upgrading to the latest version of the SDK if you believe this to be an error");
 				ex.printStackTrace();
 				return IotHubMessageResult.ABANDON;
 			}
-			
 
 		}
 		
@@ -139,6 +142,8 @@ public class BasicClient implements Client {
 		if (this.connected) return;
 		
 		this.client.open();
+
+		logger.log(Level.INFO, "Connected to IoT Hub");
 		
 		if (this.subscribed) this.client.setMessageCallback(new SignalCallback(this.onSignalCallback), null);
 	}
