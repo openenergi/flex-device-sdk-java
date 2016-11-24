@@ -534,7 +534,7 @@ There are two Signal types that have special meaning to Open Energi's control al
 Given a Grid Frequency reading of *GF*, the Effective Frequency input of the control algorithm will be
 
 * `0.5*(2*oeMultiplyHigh*(GF - 50)+oeAdd)+50` if `GF >= 50`
-* `0.5*(2*oeMultiplyLow*(50-GF)+oeAdd)+50` otherwise
+* `0.5*(2*oeMultiplyLow*(GF - 50)+oeAdd)+50` otherwise
 
 ### <a name="batch-signal"></a>Batch Signals
    
