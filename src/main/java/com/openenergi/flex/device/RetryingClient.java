@@ -86,11 +86,15 @@ public class RetryingClient implements Client{
     }
 
     public RetryingClient(String hubUrl, String deviceId, String deviceKey) {
-        this(hubUrl, deviceId, deviceKey, 10000);
+        this(hubUrl, deviceId, deviceKey, 10000, BasicClient.Protocol.AMQPS);
     }
 
-    public RetryingClient(String hubUrl, String deviceId, String deviceKey, Integer bufferSize){
-        this.client = new BasicClient(hubUrl, deviceId, deviceKey);
+    public RetryingClient(String hubUrl, String deviceId, String deviceKey, BasicClient.Protocol protocol) {
+        this(hubUrl, deviceId, deviceKey, 10000, protocol);
+    }
+
+    public RetryingClient(String hubUrl, String deviceId, String deviceKey, Integer bufferSize, BasicClient.Protocol protocol){
+        this.client = new BasicClient(hubUrl, deviceId, deviceKey, protocol);
         this.prioritizer = new FFRPrioritizer();
         this.persister = new MemoryPersister(bufferSize);
         this.setPublishCallback();
@@ -191,6 +195,14 @@ public class RetryingClient implements Client{
     @Override
     public void connect() throws IOException {
         this.client.connect();
+    }
+
+    /**
+     * Disconnects from the IotHub. Idempotent.
+     */
+    @Override
+    public void disconnect() {
+       this.client.disconnect();
     }
 
     @Override

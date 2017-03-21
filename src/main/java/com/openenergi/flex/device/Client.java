@@ -12,6 +12,7 @@ import java.util.function.Consumer;
  */
 public interface Client {
     void connect() throws IOException;
+    void disconnect();
     void publish(Message msg);
     void publish(Message msg, MessageContext ctx);
     void onPublish(Consumer<MessageContext> callback);

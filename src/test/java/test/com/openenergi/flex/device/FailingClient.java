@@ -27,6 +27,9 @@ public class FailingClient implements Client {
     public void connect() throws IOException {}
 
     @Override
+    public void disconnect(){}
+
+    @Override
     public void publish(Message msg) {
         this.publish(msg, new MessageContext(1L));
     }

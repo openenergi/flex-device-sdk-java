@@ -133,6 +133,23 @@ public class BasicClient implements Client {
 			throw new IllegalArgumentException("Invalid Hub Url");
 		}
 	}
+
+	/**
+	 * Instantiates basicClient using hub URL, device Id, and device key and protocol.
+	 *
+	 * If you have not been given these parameters please contact Open Energi.
+	 *
+	 * @param hubUrl URL to the hub (normally something.azure-devices.net).
+	 * @param deviceId Id of the gateway device.
+	 * @param deviceKey shared access key for the device.
+	 */
+	public BasicClient(String hubUrl, String deviceId, String deviceKey, Protocol protocol) throws IllegalArgumentException{
+		try {
+			this.client = new DeviceClient(String.format(BasicClient.connStr, hubUrl, deviceId, deviceKey).toString(), protocol.value);
+		} catch (URISyntaxException ex){
+			throw new IllegalArgumentException("Invalid Hub Url");
+		}
+	}
 	
 	/**
 	 * Connects to the IotHub.
@@ -143,7 +160,7 @@ public class BasicClient implements Client {
 		
 		this.client.open();
 
-		logger.log(Level.INFO, "Connected to IoT Hub");
+		logger.log(Level.INFO, "Connected to IoT Hub via " + this.protocol.toString());
 		
 		if (this.subscribed) this.client.setMessageCallback(new SignalCallback(this.onSignalCallback), null);
 	}
