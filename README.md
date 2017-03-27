@@ -170,6 +170,14 @@ client.onSignal((Signal signal) -> Scheduler.accept(signal, (SignalCallbackItem 
 
 ```
 
+## Creating custom message mappers
+
+If you need to receive messages that are not quite of the same type as the ones in the messaging specification, it is possible to override the deserialization:
+
+```java
+Message.registerMessageMapper("some-topic", new TypeReference<CustomClass>(){});
+```
+
 ## Full Example 
 This is a simple example that connects to the IoTHub using the basic client and sends a custom "temperature" reading. 
 

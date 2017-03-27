@@ -1,8 +1,8 @@
 # Message Format Specification
 
-*Version: 0.3.0*
+*Version: 1.0.0*
 
-Last modified on 2016-11-23
+Last modified on 2017-03-27
 
 ### Versioning
 *Prior to version 1.0, the specification is a draft that is subject to short-notice changes and alterations.*
@@ -561,9 +561,9 @@ Unlike above, where the `value` field is a number, the `items` field is an array
     </tr>
     <tr>
         <td>topic</td>
-		<td>String. The value should always be "signals"</td>
+		<td>String. The value should always be "batch-signals"</td>
 		<td>Topic to identify the message as a Portfolio Management Signal</td>
-		<td>schedules</td>
+		<td>batch-signals</td>
     </tr>
     <tr>
         <td>entities</td>
@@ -638,7 +638,7 @@ Unlike above, where the `value` field is a number, the `items` field is an array
  
 ### <a name="sig-schedule"></a>Schedule Signals
 
-Schedule signals are used to signal more complex or recurring signals to the device, similar to the “schedule” messages above. For a full example of such a message see below. The topic should be `schedule-signal`. 
+Schedule signals are used to signal more complex or recurring signals to the device, similar to the “schedule” messages above. For a full example of such a message see below. The topic should be `schedule-signals`. 
 
 *Example schedule signal message:*
 
@@ -647,7 +647,7 @@ This message specifies that entities `l1234` and `l4509` should defer as much po
 The last element in the `schedule` array specifies the default value fo `oe-add` outside peak price periods.
 
     {
-    	"topic": "schedule-signal",
+    	"topic": "schedule-signals",
 		"timestamp": 14100023938431,
     	"entities": ["l1234", "l4509"],
     	"type": "oe-add",
