@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * This class consists of properties and methods shared by all Flex messages. In the abstract a Flex message just contains a timestamp, entity
@@ -45,6 +46,15 @@ public class Message {
 	private String entity;
 	private String type;
 	private static final ObjectMapper mapper = getMapper();
+
+	private static final HashMap<String, TypeReference<?>> messageTypes = new HashMap<String, TypeReference<?>>(){{
+		put("readings", new TypeReference<Reading>(){});
+		put("events", new TypeReference<Event>(){});
+		put("schedules", new TypeReference<Schedule>(){});
+		put("signals", new TypeReference<Signal<SignalPointItem>>(){});
+		put("batch-signals", new TypeReference<Signal<SignalBatchList>>(){});
+		put("schedule-signals", new TypeReference<Signal<SignalScheduleItem>>(){});
+	}};
 
 	private static ObjectMapper getMapper(){
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -128,33 +138,25 @@ public class Message {
 	}
 	
 	public static Object deserialize(String json) throws IOException, IllegalArgumentException {
-		String topic = "";
-		String type = "";
+		String topic;
 		JsonNode root;
 		root = mapper.readTree(json);
 		topic = root.get("topic").asText();
-		type = root.get("type").asText();
 
-
-		switch (topic){
-		case "readings":
-			return mapper.convertValue(root, Reading.class);
-		case "events":
-			return mapper.convertValue(root, Event.class);
-		case "schedules":
-			return mapper.convertValue(root, Schedule.class);
-		case "signals":
-			if (type.equals("oe-vars")){
-				return mapper.convertValue(root, new TypeReference<Signal<SignalBatchList>>() {});
-			} else {
-				return mapper.convertValue(root, new TypeReference<Signal<SignalPointItem>>() {});
-			}
-
-		case "schedule-signals":
-			return mapper.convertValue(root, new TypeReference<Signal<SignalScheduleItem>>() {});
+		if (!messageTypes.containsKey(topic)){
+			throw new IOException("Unknown message topic - failed to deserialize: " + topic);
 		}
-		return null;
-		
+		TypeReference<?> deserializer = messageTypes.get(topic);
+		return mapper.convertValue(root, deserializer);
+	}
+
+	/**
+	 * Register a custom deserializer class for a given message topic (or override a built-in one).
+	 * @param topic - the topic of messages that will be mapped to the custom deserializer.
+	 * @param mappedType - a TypeReference to the class that the message will be mapped to
+	 */
+	public static void registerMessageMapper(String topic,  TypeReference<?> mappedType){
+		messageTypes.put(topic, mappedType);
 	}
 
 	public String getTopic() {

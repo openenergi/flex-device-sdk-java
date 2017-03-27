@@ -62,7 +62,7 @@ public class SignalTest {
 		String s = "{\n" +
 				"\t\"generated_at\": \"2016-07-30T12:00:01.000Z\",\n" +
 				"\t\"type\": \"oe-vars\",\n" +
-				"\t\"topic\": \"signals\",\n" +
+				"\t\"topic\": \"batch-signals\",\n" +
 				"\t\"items\": [{\n" +
 				"\t\t\"start_at\": \"2016-08-05T12:01:00Z\",\n" +
 				"\t\t\"values\": [{\n" +
@@ -87,7 +87,7 @@ public class SignalTest {
 			fail("Failed to deserialize message");
 		}
 		assertEquals(m.getEntities().get(0), "l1");
-		assertEquals(m.getTopic(), "signals");
+		assertEquals(m.getTopic(), "batch-signals");
 		assertEquals(m.getItems().size(), 1);
 		assertEquals(m.getItem(0).getValues().size(), 3);
 		assertEquals(m.getItem(0).getValues().get(0).getSubtype(), "oe-add");

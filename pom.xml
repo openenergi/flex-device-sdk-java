@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.openenergi.flex</groupId>
   <artifactId>flex-device-sdk-java</artifactId>
-  <version>0.4.2</version>
+  <version>0.4.3</version>
   <name>Openenergi Flex Device SDK</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
