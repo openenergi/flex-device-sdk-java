@@ -22,6 +22,8 @@ import java.time.ZonedDateTime;
  * This class represents a signal point that is part of an oe-vars batch.
  */
 public final class SignalBatchListItem {
+
+    @JsonProperty("variable")
     String subtype;
     Double value;
     public Double getValue() {

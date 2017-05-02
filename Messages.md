@@ -1,8 +1,8 @@
 # Message Format Specification
 
-*Version: 1.0.0*
+*Version: 2.0.0*
 
-Last modified on 2017-03-27
+Last modified on 2017-05-02
 
 ### Versioning
 *Prior to version 1.0, the specification is a draft that is subject to short-notice changes and alterations.*
@@ -437,110 +437,7 @@ Namely, the device should subscribe using `devices/{device_id}/messages/devicebo
 
 Portfolio management signals (i.e. DDv2) can be sent to devices that connect via MQTT or AMQP. A portfolio management signal is a request for a device to modify the state of one or more associated entities in the specified manner. It is a one-time request – for recurring requests see “Schedule signals”.
 
-**Fields**
-
-<table>
-    <tr>
-        <th>Field</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Example</th>
-    </tr>
-    <tr>
-        <td>timestamp</td>
-		<td>Long, not null (ms since epoch)</td>
-		<td>System time when signal was generated</td>
-		<td>1413235133452</td>
-    </tr>
-    <tr>
-        <td>topic</td>
-		<td>String. The value should always be "signals"</td>
-		<td>Topic to identify the message as a Portfolio Management Signal</td>
-		<td>schedules</td>
-    </tr>
-    <tr>
-        <td>entities</td>
-		<td>String (max length 10), not null, case-insensitive</td>
-		<td>List of unique entity codes of entities targeted by signal</td>
-		<td>l1332</td>
-    </tr>
-    <tr>
-        <td>type</td>
-		<td>String (max length 64), not null, case-insensitive</td>
-		<td>The variable that is targeted by the signal</td>
-		<td>oe-add</td>
-    </tr>
-    <tr>
-        <td>items</td>
-		<td>array of <strong>signal points</strong></td>
-		<td>Signal specification</td>
-		<td><em>See below</em></td>
-    </tr>
-</table>
-
-**Signal Point Fields**
-
-<table>
-    <tr>
-        <th>Field</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Example</th>
-    </tr>
-    <tr>
-        <td>start_at</td>
-		<td>String, not null, ISO 8601 datetime</td>
-		<td>Time at which the targeted variable should assume <code>value</code> </td>
-		<td>2015-12-25T12:01:00Z</td>
-    </tr>
-    <tr>
-        <td>value</td>
-		<td>float, not null</td>
-		<td>Value of reading</td>
-		<td>0.2</td>
-    </tr>
-
-</table>
-
-The last signal point in the signal should leave the entity in a "safe" state.
-
-*Example of a portfolio management signal message*
-
-    {
-    	"topic": "signals",
-		"generated_at": "2015-12-25T12:00:00Z",
-    	"entities": ["l1234", "l4509"],
-    	"type": "oe-add",
-    	"items": [{
-    		"start_at": "2015-12-25T12:01:00Z",
-    		"value": 0.1
-    	}, {
-    		"start_at": "2015-12-25T13:00:00Z",
-    		"value": 0
-    	}]
-    
-    }
-
-#### Open Energi Signal Types
-
-There are two Signal types that have special meaning to Open Energi's control algorithm: `oe-add` and `oe-multiply`. They are used to manipulate Grid Frequency before it is used as an input to the algorithm (the Effective Frequency). 
-
-* `oe-multiply-high`: This value makes the algorithm's response to the Grid Frequency more or less extreme by multiplying its deviation from 50Hz by the given amount. Its default value is 1. It only applies when the Grid Frequency is greater than 50Hz.
-* `oe-multiply-low`: This value makes the algorithm's response to the Grid Frequency more or less extreme by multiplying its deviation from 50Hz by the given amount. Its default value is 1. it only applies when the Grid Frequency is less than 50Hz.
-* `oe-add`: This value alters the algorithm's response to the Grid Frequency in an additive manner (see formulae below). Its default value is 0. 
-
-**Calculation**
-
-Given a Grid Frequency reading of *GF*, the Effective Frequency input of the control algorithm will be
-
-* `0.5*(2*oeMultiplyHigh*(GF - 50)+oeAdd)+50` if `GF >= 50`
-* `0.5*(2*oeMultiplyLow*(GF - 50)+oeAdd)+50` otherwise
-
-### <a name="batch-signal"></a>Batch Signals
-   
-Sometimes it is necessary to send a signal that modifies two or more variables in synchrony at one or more points in time. For example, `oe-add`, `oe-multiply-high` and `oe-multiply-low` are usually sent together so that there is no possibility that a Signal of one type is successfully received but not the other. Such signals are called **batch signals** and have a similar structure to point signals described above:
-
-**Batch Signal Fields**
+**Signal Fields**
 
 Unlike above, where the `value` field is a number, the `items` field is an array of **batch points**.
 
@@ -561,9 +458,9 @@ Unlike above, where the `value` field is a number, the `items` field is an array
     </tr>
     <tr>
         <td>topic</td>
-		<td>String. The value should always be "batch-signals"</td>
+		<td>String. The value should always be "signals"</td>
 		<td>Topic to identify the message as a Portfolio Management Signal</td>
-		<td>batch-signals</td>
+		<td>signals</td>
     </tr>
     <tr>
         <td>entities</td>
@@ -579,13 +476,13 @@ Unlike above, where the `value` field is a number, the `items` field is an array
     </tr>
     <tr>
         <td>items</td>
-		<td>array of <strong>batch signal points</strong></td>
+		<td>array of <strong>signal points</strong></td>
 		<td>Signal specification</td>
 		<td><em>See below</em></td>
     </tr>
 </table>
 
-**Batch Signal Points**
+**Signal Points**
 
 
 <table>
@@ -603,14 +500,14 @@ Unlike above, where the `value` field is a number, the `items` field is an array
     </tr>
     <tr>
         <td>values</td>
-		<td>array of <strong>batch signal point items</strong>, not null</td>
+		<td>array of <strong>signal point items</strong>, not null</td>
 		<td>Value of readings</td>
-		<td>[{"subtype": "oe-add", "value": 0.1}, {"subtype": "oe-multiply", "value": "1.1"}]</td>
+		<td>[{"variable": "oe-add", "value": 0.1}, {"variable": "oe-multiply", "value": "1.1"}]</td>
     </tr>
 
 </table>
 
-**Batch Signal Point Item Fields**
+**Signal Point Item Fields**
 
 <table>
     <tr>
@@ -620,7 +517,7 @@ Unlike above, where the `value` field is a number, the `items` field is an array
         <th>Example</th>
     </tr>
     <tr>
-        <td>subtype</td>
+        <td>variable</td>
 		<td>String</td>
 		<td>The name of the variable</td>
 		<td>oe-add</td>
@@ -634,8 +531,55 @@ Unlike above, where the `value` field is a number, the `items` field is an array
 
 </table>
 
+The last signal point in the signal should leave the entity in a "safe" state.
 
- 
+*Example of a portfolio management signal message*
+
+
+	{
+		"topic": "signals",
+		"generated_at": "2015-12-25T12:00:00Z",
+		"entities": ["l1234", "l4509"],	
+		"type": "oe-add",
+		"items": [{
+			"start_at": "2015-12-25T12:01:00Z",
+			"values": [{
+				"variable": "oe-add",
+				"value": 0.1
+			}, {
+				"variable": "oe-multiply",
+				"value": "1.1"
+			}]
+		}, {
+			"start_at": "2015-12-25T13:00:00Z",
+			"values": [{
+				"variable": "oe-add",
+				"value": 0
+			}, {
+				"variable": "oe-multiply",
+				"value": "1"
+			}]
+		}]
+
+	}
+
+
+#### Open Energi Signal Types
+
+There are two Signal types that have special meaning to Open Energi's control algorithm: `oe-add` and `oe-multiply`. They are used to manipulate Grid Frequency before it is used as an input to the algorithm (the Effective Frequency). 
+
+* `oe-multiply-high`: This value makes the algorithm's response to the Grid Frequency more or less extreme by multiplying its deviation from 50Hz by the given amount. Its default value is 1. It only applies when the Grid Frequency is greater than 50Hz.
+* `oe-multiply-low`: This value makes the algorithm's response to the Grid Frequency more or less extreme by multiplying its deviation from 50Hz by the given amount. Its default value is 1. it only applies when the Grid Frequency is less than 50Hz.
+* `oe-add`: This value alters the algorithm's response to the Grid Frequency in an additive manner (see formulae below). Its default value is 0. 
+
+**Calculation**
+
+Given a Grid Frequency reading of *GF*, the Effective Frequency input of the control algorithm will be
+
+* `0.5*(2*oeMultiplyHigh*(GF - 50)+oeAdd)+50` if `GF >= 50`
+* `0.5*(2*oeMultiplyLow*(GF - 50)+oeAdd)+50` otherwise
+
+
 ### <a name="sig-schedule"></a>Schedule Signals
 
 Schedule signals are used to signal more complex or recurring signals to the device, similar to the “schedule” messages above. For a full example of such a message see below. The topic should be `schedule-signals`. 

@@ -34,45 +34,23 @@ public class SignalTest {
 		}
 	}
 
-	@Test
-	public void testDeserializeSignal() {
-		String s = "{\"topic\": \"signals\", \"entities\":[\"l1\"],\"items\":[{\"start_at\":\"2016-05-27T15:00:00Z\",\"value\":1.23}],\"timestamp\":12345,\"type\":\"something\"}";
-
-		Signal<SignalPointItem> m = null;
-		try {
-			m = (Signal<SignalPointItem>) Message.deserialize(s);
-		} catch (IOException e) {
-			e.printStackTrace();
-			fail("Failed to deserialize message");
-		}
-		assertEquals(m.getEntities().get(0), "l1");
-			assertEquals(m.getTopic(), "signals");
-			assertEquals((Long) 12345L, m.getTimestamp());
-			assertEquals(m.getType(), "something");
-			ZonedDateTime testDateTime = ZonedDateTime.of(2016,5,27, 15, 0, 0, 0, ZoneOffset.UTC);
-			assertEquals(testDateTime.toLocalDate(), m.getItem(0).getStart().toLocalDate());
-
-			assertEquals(m.getItem(0).getValue(), (Double)1.23);
-
-	}
-
 
 	@Test
 	public void testDeserializeBatchSignal() {
 		String s = "{\n" +
 				"\t\"generated_at\": \"2016-07-30T12:00:01.000Z\",\n" +
 				"\t\"type\": \"oe-vars\",\n" +
-				"\t\"topic\": \"batch-signals\",\n" +
+				"\t\"topic\": \"signals\",\n" +
 				"\t\"items\": [{\n" +
 				"\t\t\"start_at\": \"2016-08-05T12:01:00Z\",\n" +
 				"\t\t\"values\": [{\n" +
-				"\t\t\t\"subtype\": \"oe-add\",\n" +
+				"\t\t\t\"variable\": \"oe-add\",\n" +
 				"\t\t\t\"value\": 1\n" +
 				"\t\t}, {\n" +
-				"\t\t\t\"subtype\": \"oe-multiply-high\",\n" +
+				"\t\t\t\"variable\": \"oe-multiply-high\",\n" +
 				"\t\t\t\"value\": 0\n" +
 				"\t\t}, {\n" +
-				"\t\t\t\"subtype\": \"oe-multiply-low\",\n" +
+				"\t\t\t\"variable\": \"oe-multiply-low\",\n" +
 				"\t\t\t\"value\": 0\n" +
 				"\t\t}]\n" +
 				"\t}],\n" +
@@ -87,7 +65,7 @@ public class SignalTest {
 			fail("Failed to deserialize message");
 		}
 		assertEquals(m.getEntities().get(0), "l1");
-		assertEquals(m.getTopic(), "batch-signals");
+		assertEquals(m.getTopic(), "signals");
 		assertEquals(m.getItems().size(), 1);
 		assertEquals(m.getItem(0).getValues().size(), 3);
 		assertEquals(m.getItem(0).getValues().get(0).getSubtype(), "oe-add");

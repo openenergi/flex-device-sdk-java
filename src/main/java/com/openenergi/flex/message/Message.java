@@ -51,8 +51,9 @@ public class Message {
 		put("readings", new TypeReference<Reading>(){});
 		put("events", new TypeReference<Event>(){});
 		put("schedules", new TypeReference<Schedule>(){});
-		put("signals", new TypeReference<Signal<SignalPointItem>>(){});
-		put("batch-signals", new TypeReference<Signal<SignalBatchList>>(){});
+		put("signals", new TypeReference<Signal<SignalBatchList>>(){});
+		//Deprecated as of Message Format Spec 2.0.0.
+		//put("batch-signals", new TypeReference<Signal<SignalBatchList>>(){});
 		put("schedule-signals", new TypeReference<Signal<SignalScheduleItem>>(){});
 	}};
 
