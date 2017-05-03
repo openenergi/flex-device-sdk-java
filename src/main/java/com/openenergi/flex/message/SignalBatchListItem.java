@@ -33,6 +33,14 @@ public final class SignalBatchListItem {
         return subtype;
     }
 
+    public void setSubtype(String subtype){
+        this.subtype = subtype;
+    }
+
+    public void setValue(Double value){
+        this.value = value;
+    }
+
     public SignalBatchListItem(){}
 
     public SignalBatchListItem(String subtype, Double value){
