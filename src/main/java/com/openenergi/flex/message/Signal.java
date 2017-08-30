@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -36,6 +35,11 @@ import java.util.*;
  *
  */
 public class Signal<T extends Schedulable> extends Message {
+	//@JsonProperty("generated_at")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private ZonedDateTime generatedAt;
+	private List<String> entities;
+	private List<T> items;
 
 	public ZonedDateTime getGeneratedAt() {
 		return generatedAt;
@@ -45,14 +49,6 @@ public class Signal<T extends Schedulable> extends Message {
 		this.generatedAt = generatedAt;
 	}
 
-	public void setItems(List<T> items) {
-		this.items = items;
-	}
-
-	@JsonProperty("generated_at")
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	private ZonedDateTime generatedAt;
-
 	public List<String> getEntities() {
 		return entities;
 	}
@@ -61,29 +57,17 @@ public class Signal<T extends Schedulable> extends Message {
 		this.entities = entities;
 	}
 
-	private List<String> entities;
-	
-	public enum Type {
-		
-		/**
-		 * Amount added to Grid Frequency before it is input to RLTEC algorithm. Default is 0.
-		 */
-		OE_ADD("oe-add"),
-		
-		/**
-		 * Amount that Grid Frequency is multiplied by before it is input to RLTEC algorithm. Default is 1.
-		 */
-		OE_MULTIPLY("oe-multiply");
-		
-		@SuppressWarnings("unused")
-		private String value;
-		
-		private Type(String value){
-			this.value = value;
-		}
+	/**
+	 * Return the list of signal items
+	 * @return items.
+	 */
+	public List<T> getItems(){
+		return this.items;
 	}
-	
-	private List<T> items;
+
+	public void setItems(List<T> items) {
+		this.items = items;
+	}
 	
 	public Signal(){
 		this.entities = new ArrayList<String>(); 
@@ -96,7 +80,7 @@ public class Signal<T extends Schedulable> extends Message {
 	 * they will not be re-ordered.
 	 */
 	public void sort(){
-		this.items.sort(Comparator.comparing(a -> a.getStart()));
+		this.items.sort(Comparator.comparing(a -> a.getStartAt()));
 	}
 	
 	/**
@@ -119,14 +103,6 @@ public class Signal<T extends Schedulable> extends Message {
 	}
 
 	/**
-	 * Return the list of signal items
-	 * @return items.
-     */
-	public List<T> getItems(){
-		return this.items;
-	}
-
-	/**
 	 * Returns the Signal item at the given index. 
 	 * @param ix Zero-based index
 	 * @return The item
@@ -145,8 +121,8 @@ public class Signal<T extends Schedulable> extends Message {
 		ListIterator<T> li = this.items.listIterator(this.items.size());
 		while (li.hasPrevious()){
 			T item = li.previous();
-			if (currentDate.isAfter(item.getStart()) && item.getValues() != null){
-				return new SignalElement(item.getStart(), item.getValues());
+			if (currentDate.isAfter(item.getStartAt()) && item.getValues() != null){
+				return new SignalElement(item.getStartAt(), item.getValues());
 			}
 		}
 		return null;
@@ -162,12 +138,29 @@ public class Signal<T extends Schedulable> extends Message {
 		ListIterator<T> li = this.items.listIterator();
 		while (li.hasNext()){
 			T item = li.next();
-			if (item.getStart().isAfter(currentDate)){
-				return new SignalElement(item.getStart(), item.getValues());
+			if (item.getStartAt().isAfter(currentDate)){
+				return new SignalElement(item.getStartAt(), item.getValues());
 			}
 		}
 		return null;
 	}
-	
 
+	public enum Type {
+		/**
+		 * Amount added to Grid Frequency before it is input to RLTEC algorithm. Default is 0.
+		 */
+		OE_ADD("oe-add"),
+
+		/**
+		 * Amount that Grid Frequency is multiplied by before it is input to RLTEC algorithm. Default is 1.
+		 */
+		OE_MULTIPLY("oe-multiply");
+
+		@SuppressWarnings("unused")
+		private String value;
+
+		private Type(String value){
+			this.value = value;
+		}
+	}
 }

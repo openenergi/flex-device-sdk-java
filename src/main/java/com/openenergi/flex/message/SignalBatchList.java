@@ -14,11 +14,9 @@
 
 package com.openenergi.flex.message;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,26 +24,24 @@ import java.util.List;
  * are changed simultaneously. The only supported such batch right now is
  * oe-vars.
  */
-public final class SignalBatchList implements Schedulable {
+public class SignalBatchList implements Schedulable {
+    private ZonedDateTime startAt;
+    private List<SignalBatchListItem> values;
+
+    public SignalBatchList(
+            @JsonProperty("start_at") ZonedDateTime startAt,
+            @JsonProperty("values") List<SignalBatchListItem> values)
+    {
+        this.startAt = startAt;
+        this.values = values;
+    }
+
     @JsonProperty("start_at")
-    ZonedDateTime startAt;
-    List<SignalBatchListItem> values;
+    public ZonedDateTime getStartAt() {
+        return startAt;
+    }
 
     public List<SignalBatchListItem> getValues() {
         return this.values;
     }
-
-    public ZonedDateTime getStart() {
-        return startAt;
-    }
-
-    public void addValue(SignalBatchListItem item){
-        if (values == null){
-            values = new ArrayList<>();
-        }
-        values.add(item);
-    }
-
-    public SignalBatchList(){}
-
 }

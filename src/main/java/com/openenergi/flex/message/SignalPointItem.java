@@ -15,12 +15,13 @@
 package com.openenergi.flex.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This class represents a single point in a Signal. The variable (type) of the Signal should take the value of the signal item 
@@ -29,26 +30,30 @@ import java.util.List;
  * @author mbironneau
  *
  */
-public final class SignalPointItem implements Schedulable {
-	@JsonProperty("start_at")
-	ZonedDateTime startAt;
-	Double value;
+public class SignalPointItem implements Schedulable {
+	private ZonedDateTime startAt;
+	private Double value;
+
+	public ZonedDateTime getStartAt() {
+		return startAt;
+	}
+
 	public Double getValue() {
 		return this.value;
 	}
 
 	@JsonIgnore
 	public List<SignalBatchListItem> getValues() {
-		return new ArrayList<SignalBatchListItem>(Arrays.asList(new SignalBatchListItem(null, this.value)));
-	}
-	public ZonedDateTime getStart() {
-		return startAt;
+		return Arrays.asList(new SignalBatchListItem(null, this.value));
 	}
 	
-	public SignalPointItem(){}
-	
-	public SignalPointItem(ZonedDateTime start, Double value){
-		this.startAt = start;
+	public SignalPointItem(
+					@JsonProperty("start_at") ZonedDateTime startAt,
+					@JsonProperty("value") Double value)
+	{
+		Objects.requireNonNull(startAt);
+		Objects.requireNonNull(value);
+		this.startAt = startAt;
 		this.value = value;
 	}
 }

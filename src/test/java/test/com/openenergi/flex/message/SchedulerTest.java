@@ -58,7 +58,6 @@ public class SchedulerTest {
 
     }
 
-
     @Test
     public void testSchedulingBatch(){
         Signal<SignalBatchList> signal = new Signal<>();
@@ -66,9 +65,10 @@ public class SchedulerTest {
         Long nowMillis = now.toInstant().toEpochMilli();
         CountDownLatch lock = new CountDownLatch(2);
         signal.setGeneratedAt(now);
-        SignalBatchList list = new SignalBatchList();
-        list.addValue(new SignalBatchListItem("oe-add", 0.5));
-        list.startAt = now.plusSeconds(1);
+        List<SignalBatchListItem> items = new ArrayList<>();
+        items.add(new SignalBatchListItem("oe-add", 0.5));
+        SignalBatchList list = new SignalBatchList(now.plusSeconds(1), items);
+        //list.setStartAt(now.plusSeconds(1));
         signal.addItem(list);
         signal.setType("oe-vars");
         List<String> entities = new ArrayList<String> ();

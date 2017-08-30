@@ -36,8 +36,7 @@ public final class SignalScheduleItem implements Schedulable {
 	Double value;
 	
 	private RecurringSpan recurringSpan;
-	
-	
+
 	public Double getValue() {
 		return this.value;
 	}
@@ -48,7 +47,7 @@ public final class SignalScheduleItem implements Schedulable {
 	public List<SignalBatchListItem> getValues() {
 		return new ArrayList<SignalBatchListItem>(Arrays.asList(new SignalBatchListItem(null, this.value)));
 	}
-	public ZonedDateTime getStart() {
+	public ZonedDateTime getStartAt() {
 		if (this.recurringSpan == null) this.parse();
 		
 		Span next = this.recurringSpan.getNextSpan();

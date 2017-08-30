@@ -19,9 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
@@ -39,6 +37,7 @@ import java.util.HashMap;
  * Refer to the documentation <a href="https://github.com/openenergi/flex-device-sdk-java/blob/master/Messages.md">here</a> for more details.
  */
 public class Message {
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String topic;
 	private Long timestamp;
 
@@ -57,16 +56,6 @@ public class Message {
 		put("schedule-signals", new TypeReference<Signal<SignalScheduleItem>>(){});
 	}};
 
-	private static ObjectMapper getMapper(){
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.setDateFormat(df);
-		mapper.registerModule(new JavaTimeModule());
-		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-
-		return mapper;
-	}
-
 	@JsonProperty("devicecode")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String deviceId;
@@ -74,44 +63,9 @@ public class Message {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String provenance;
 
-	
-	@JsonProperty("created_at")
+	//@JsonProperty("created_at")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Date createdAt;
-	
-	public Date getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public Message(){}
-	
-	public void setType(String value){
-		this.type = value;
-	}
-	
-	public void setEntity(String value){
-		this.entity = value;
-	}
-
-	public String getEntity() {
-		return entity;
-	}
-
-	public Long getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(Long timestamp) {
-		this.timestamp = timestamp;
-	}
-
-	public String getType() {
-		return type;
-	}
 	
 	public void validate() throws InvalidMessageException {
 		if (this.type.length() == 0) {
@@ -151,21 +105,46 @@ public class Message {
 		return mapper.convertValue(root, deserializer);
 	}
 
-	/**
-	 * Register a custom deserializer class for a given message topic (or override a built-in one).
-	 * @param topic - the topic of messages that will be mapped to the custom deserializer.
-	 * @param mappedType - a TypeReference to the class that the message will be mapped to
-	 */
-	public static void registerMessageMapper(String topic,  TypeReference<?> mappedType){
-		messageTypes.put(topic, mappedType);
-	}
-
-	public String getTopic() {
+	public String getTopic()
+	{
 		return topic;
 	}
 
 	public void setTopic(String topic) {
 		this.topic = topic;
+	}
+
+	public Long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Long timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public String getEntity() {
+		return entity;
+	}
+
+	public void setEntity(String value){
+		this.entity = value;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String value){
+		this.type = value;
+	}
+
+	public Date getCreatedAt()
+	{
+		return createdAt;
+	}
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
 	}
 
 	public String getDeviceId() {
@@ -182,5 +161,29 @@ public class Message {
 
 	public void setProvenance(String provenance) {
 		this.provenance = provenance;
+	}
+
+	/**
+	 * Register a custom deserializer class for a given message topic (or override a built-in one).
+	 * @param topic - the topic of messages that will be mapped to the custom deserializer.
+	 * @param mappedType - a TypeReference to the class that the message will be mapped to
+	 */
+	public static void registerMessageMapper(String topic,  TypeReference<?> mappedType){
+		messageTypes.put(topic, mappedType);
+	}
+
+	private static ObjectMapper getMapper(){
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+		mapper.setDateFormat(df);
+		mapper.registerModule(new JavaTimeModule());
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		mapper.disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS);
+		mapper.disable(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
+		mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
+		mapper.disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
+
+		return mapper;
 	}
 }

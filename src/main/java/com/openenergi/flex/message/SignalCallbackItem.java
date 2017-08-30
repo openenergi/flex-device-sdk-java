@@ -1,7 +1,5 @@
 package com.openenergi.flex.message;
 
-import java.util.List;
-
 /**
  * The parameter passed to callbacks for the scheduler. This is the information that implementors should need to act on
  * Signal messages.
