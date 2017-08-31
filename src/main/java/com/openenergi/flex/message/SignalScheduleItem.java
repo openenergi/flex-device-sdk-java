@@ -14,14 +14,13 @@
 
 package com.openenergi.flex.message;
 
-import java.time.LocalDateTime;
+import com.openenergi.flex.schedule.RecurringSpan;
+import com.openenergi.flex.schedule.Span;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.openenergi.flex.schedule.RecurringSpan;
-import com.openenergi.flex.schedule.Span;
 
 /**
  * This class represents a single point in a Signal. The variable (type) of the Signal should take the value of the signal item 
@@ -33,11 +32,11 @@ import com.openenergi.flex.schedule.Span;
 public final class SignalScheduleItem implements Schedulable {
 	String span;
 	String repeat;
-	Double value;
+	double value;
 	
 	private RecurringSpan recurringSpan;
 
-	public Double getValue() {
+	public double getValue() {
 		return this.value;
 	}
 	

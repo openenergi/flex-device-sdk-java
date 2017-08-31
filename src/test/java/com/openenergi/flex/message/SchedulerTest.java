@@ -1,7 +1,6 @@
 package com.openenergi.flex.message;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -10,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by mbironneau on 02/08/2016.
@@ -67,7 +69,10 @@ public class SchedulerTest {
         signal.setGeneratedAt(now);
         List<SignalBatchListItem> items = new ArrayList<>();
         items.add(new SignalBatchListItem("oe-add", 0.5));
-        SignalBatchList list = new SignalBatchList(now.plusSeconds(1), items);
+        //SignalBatchList list = new SignalBatchList(now.plusSeconds(1), items);
+        SignalBatchList list = new SignalBatchList();
+        list.setStartAt(now.plusSeconds(1));
+        list.setValues(items);
         //list.setStartAt(now.plusSeconds(1));
         signal.addItem(list);
         signal.setType("oe-vars");
@@ -79,7 +84,7 @@ public class SchedulerTest {
             System.out.println(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli() - nowMillis); //check how good the scheduling is
             assertEquals("oe-add", signalCallbackItem.getType());
             assertEquals("L1234", signalCallbackItem.getEntity());
-            assertEquals((Double) 0.5, signalCallbackItem.getValue());
+            assertEquals(0.5, signalCallbackItem.getValue(), 0.1);
             if (signalCallbackItem.getType() != SignalCallbackItem.END_OF_SIGNAL){
                 latestValue = signalCallbackItem.getValue();
                 System.out.println("VALUE: " + String.valueOf(latestValue));

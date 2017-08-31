@@ -24,24 +24,27 @@ import java.util.List;
  * are changed simultaneously. The only supported such batch right now is
  * oe-vars.
  */
-public class SignalBatchList implements Schedulable {
+public class SignalBatchList implements Schedulable
+{
+    @JsonProperty(value = "start_at")
     private ZonedDateTime startAt;
     private List<SignalBatchListItem> values;
 
-    public SignalBatchList(
-            @JsonProperty("start_at") ZonedDateTime startAt,
-            @JsonProperty("values") List<SignalBatchListItem> values)
-    {
-        this.startAt = startAt;
-        this.values = values;
-    }
-
-    @JsonProperty("start_at")
     public ZonedDateTime getStartAt() {
         return startAt;
     }
 
+    public void setStartAt(ZonedDateTime startAt)
+    {
+        this.startAt = startAt;
+    }
+
     public List<SignalBatchListItem> getValues() {
         return this.values;
+    }
+
+    public void setValues(List<SignalBatchListItem> values)
+    {
+        this.values = values;
     }
 }

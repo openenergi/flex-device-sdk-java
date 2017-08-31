@@ -7,10 +7,10 @@ package com.openenergi.flex.message;
 public final class SignalCallbackItem {
     private String entity;
     private String type;
-    private Double value;
+    private double value;
     public static final String END_OF_SIGNAL = "END_OF_SIGNAL";
 
-    public SignalCallbackItem(String entity, String type, Double value){
+    public SignalCallbackItem(String entity, String type, double value){
         this.entity = entity;
         this.type = type;
         this.value = value;
@@ -37,7 +37,7 @@ public final class SignalCallbackItem {
      * Get the value of the variable/type that should be set (eg. set "oe-add" to 0.5)
      * @return The value
      */
-    public Double getValue() {
+    public double getValue() {
         return value;
     }
 

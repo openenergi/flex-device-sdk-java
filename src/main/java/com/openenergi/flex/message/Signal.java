@@ -16,12 +16,10 @@ package com.openenergi.flex.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-
 
 /**
  * 
@@ -34,12 +32,19 @@ import java.util.*;
  * @param <T>  The type of signal item (eg. NumericalItem or ScheduleItem)
  *
  */
-public class Signal<T extends Schedulable> extends Message {
-	//@JsonProperty("generated_at")
-	@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Signal<T extends Schedulable> extends Message
+{
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	private ZonedDateTime generatedAt;
 	private List<String> entities;
 	private List<T> items;
+
+	public Signal()
+	{
+		this.entities = new ArrayList<>();
+		this.items = new LinkedList<T>();
+		this.setTopic("signals");
+	}
 
 	public ZonedDateTime getGeneratedAt() {
 		return generatedAt;
@@ -57,22 +62,12 @@ public class Signal<T extends Schedulable> extends Message {
 		this.entities = entities;
 	}
 
-	/**
-	 * Return the list of signal items
-	 * @return items.
-	 */
 	public List<T> getItems(){
 		return this.items;
 	}
 
 	public void setItems(List<T> items) {
 		this.items = items;
-	}
-	
-	public Signal(){
-		this.entities = new ArrayList<String>(); 
-		this.items = new LinkedList<T>();
-		this.setTopic("signals");
 	}
 
 	/**
@@ -82,31 +77,15 @@ public class Signal<T extends Schedulable> extends Message {
 	public void sort(){
 		this.items.sort(Comparator.comparing(a -> a.getStartAt()));
 	}
-	
-	/**
-	 * Adds an entity to the list of target entities.
-	 * 
-	 * @param entity The entity code of the target
-	 * @return The signal
-	 */
+
 	public void addEntity(String entity){
 		this.entities.add(entity);
 	}
-	
-	/**
-	 * Adds signal item to the list of items.
-	 * @param item the item to add
-	 * @return
-	 */
+
 	public void addItem(T item){
 		this.items.add(item);
 	}
 
-	/**
-	 * Returns the Signal item at the given index. 
-	 * @param ix Zero-based index
-	 * @return The item
-	 */
 	public T getItem(int ix){
 		return this.items.get(ix);
 	}
@@ -156,11 +135,11 @@ public class Signal<T extends Schedulable> extends Message {
 		 */
 		OE_MULTIPLY("oe-multiply");
 
-		@SuppressWarnings("unused")
-		private String value;
-
-		private Type(String value){
+		Type(String value)
+		{
 			this.value = value;
 		}
+
+		private String value;
 	}
 }

@@ -16,30 +16,36 @@ package com.openenergi.flex.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.ZonedDateTime;
-
 /**
  * This class represents a signal point that is part of an oe-vars batch.
  */
-public final class SignalBatchListItem {
+public final class SignalBatchListItem
+{
     @JsonProperty("variable")
     private String subtype;
-    private Double value;
+    private double value;
 
-    public String getSubtype() {
-        return subtype;
-    }
-
-    public Double getValue() {
-        return this.value;
-    }
-
-    public SignalBatchListItem(
-            @JsonProperty("variable") String subtype,
-            @JsonProperty("value") Double value)
+    public SignalBatchListItem(String subtype, double value)
     {
         this.subtype = subtype;
         this.value = value;
     }
 
+    public String getSubtype() {
+        return subtype;
+    }
+
+    public void setSubtype(String subtype)
+    {
+        this.subtype = subtype;
+    }
+
+    public double getValue() {
+        return this.value;
+    }
+
+    public void setValue(double value)
+    {
+        this.value = value;
+    }
 }

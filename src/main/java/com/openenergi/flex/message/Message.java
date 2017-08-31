@@ -14,7 +14,6 @@
 
 package com.openenergi.flex.message;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,8 +22,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -36,73 +33,31 @@ import java.util.HashMap;
  * 
  * Refer to the documentation <a href="https://github.com/openenergi/flex-device-sdk-java/blob/master/Messages.md">here</a> for more details.
  */
-public class Message {
+public class Message
+{
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String topic;
 	private Long timestamp;
-
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String entity;
 	private String type;
-	private static final ObjectMapper mapper = getMapper();
-
-	private static final HashMap<String, TypeReference<?>> messageTypes = new HashMap<String, TypeReference<?>>(){{
-		put("readings", new TypeReference<Reading>(){});
-		put("events", new TypeReference<Event>(){});
-		put("schedules", new TypeReference<Schedule>(){});
-		put("signals", new TypeReference<Signal<SignalBatchList>>(){});
-		//Deprecated as of Message Format Spec 2.0.0.
-		//put("batch-signals", new TypeReference<Signal<SignalBatchList>>(){});
-		put("schedule-signals", new TypeReference<Signal<SignalScheduleItem>>(){});
-	}};
-
 	@JsonProperty("devicecode")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String deviceId;
-
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String provenance;
-
-	//@JsonProperty("created_at")
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Date createdAt;
-	
-	public void validate() throws InvalidMessageException {
-		if (this.type.length() == 0) {
-			throw new InvalidMessageException("Message type not defined");
-		}
-		if (this.entity.length() == 0){
-			throw new InvalidMessageException("Entity not defined");
-		}
-	};
-	
-	/**
-	 * Serializes the message using JSON. If the timestamp field is not set it will be
-	 * set to the current system time.
-	 */
-	public String toString() {
-		if (this.timestamp == null){
-			this.timestamp = System.currentTimeMillis();
-		}
-		try {
-			return mapper.writeValueAsString(this);
-		} catch (JsonProcessingException e){
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
-	public static Object deserialize(String json) throws IOException, IllegalArgumentException {
-		String topic;
-		JsonNode root;
-		root = mapper.readTree(json);
-		topic = root.get("topic").asText();
-
-		if (!messageTypes.containsKey(topic)){
-			throw new IOException("Unknown message topic - failed to deserialize: " + topic);
-		}
-		TypeReference<?> deserializer = messageTypes.get(topic);
-		return mapper.convertValue(root, deserializer);
+	private static final ObjectMapper mapper = getMapper();
+	private static final HashMap<String, TypeReference<?>> messageTypes = new HashMap<>();
+	{
+		messageTypes.put("readings", new TypeReference<Reading>(){});
+		messageTypes.put("events", new TypeReference<Event>(){});
+		messageTypes.put("schedules", new TypeReference<Schedule>(){});
+		messageTypes.put("signals", new TypeReference<Signal<SignalBatchList>>(){});
+		//Deprecated as of Message Format Spec 2.0.0.
+		//messageTypes.put("batch-signals", new TypeReference<Signal<SignalBatchList>>(){});
+		messageTypes.put("schedule-signals", new TypeReference<Signal<SignalScheduleItem>>(){});
 	}
 
 	public String getTopic()
@@ -162,6 +117,41 @@ public class Message {
 	public void setProvenance(String provenance) {
 		this.provenance = provenance;
 	}
+	
+	public void validate() throws InvalidMessageException {
+		if (this.type.length() == 0) {
+			throw new InvalidMessageException("Message type not defined");
+		}
+		if (this.entity.length() == 0){
+			throw new InvalidMessageException("Entity not defined");
+		}
+	}
+	
+	/**
+	 * Serializes the message using JSON. If the timestamp field is not set it will be
+	 * set to the current system time.
+	 */
+	public String toString() {
+		if (this.timestamp == null){
+			this.timestamp = System.currentTimeMillis();
+		}
+		try {
+			return mapper.writeValueAsString(this);
+		} catch (JsonProcessingException e){
+			throw new RuntimeException("Could not serialise message: " + e);
+		}
+	}
+	
+	public static Object deserialize(String json) throws IOException
+	{
+		JsonNode root = mapper.readTree(json);
+		String topic = root.get("topic").asText();
+
+		if (!messageTypes.containsKey(topic))
+			throw new IOException("Unknown message topic - failed to deserialize: " + topic);
+
+		return mapper.convertValue(root, messageTypes.get(topic));
+	}
 
 	/**
 	 * Register a custom deserializer class for a given message topic (or override a built-in one).
@@ -172,17 +162,23 @@ public class Message {
 		messageTypes.put(topic, mappedType);
 	}
 
-	private static ObjectMapper getMapper(){
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+	private static ObjectMapper getMapper()
+	{
 		ObjectMapper mapper = new ObjectMapper();
+
 		mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-		mapper.setDateFormat(df);
-		mapper.registerModule(new JavaTimeModule());
+
+		// handle serialisation of ZonedDateTime
 		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-		mapper.disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS);
+		mapper.registerModule(new JavaTimeModule());
+		//DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+		//mapper.setDateFormat(df);
+
+		// following not permitted by niagara security manager
+		/*mapper.disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS);
 		mapper.disable(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
 		mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
-		mapper.disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
+		mapper.disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);*/
 
 		return mapper;
 	}

@@ -14,9 +14,6 @@
 
 package com.openenergi.flex.device;
 
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.microsoft.azure.iothub.*;
 import com.openenergi.flex.message.Message;
 import com.openenergi.flex.message.MessageContext;
@@ -50,11 +47,10 @@ public class BasicClient implements Client {
 		
 		IotHubClientProtocol value;
 		
-		private Protocol(IotHubClientProtocol value){
+		Protocol(IotHubClientProtocol value){
 			this.value = value;
 		}
-	
-	};
+	}
 	private Protocol protocol = Protocol.AMQPS;
 	private DeviceClient client;
 	private Consumer<MessageContext> onPublishCallback;
@@ -66,7 +62,7 @@ public class BasicClient implements Client {
 	private class HubCallback implements IotHubEventCallback {
 		private Consumer<MessageContext> callback;
 		
-		public HubCallback(Consumer<MessageContext> callback){
+		HubCallback(Consumer<MessageContext> callback){
 			this.callback = callback;
 		}
 		
@@ -83,13 +79,12 @@ public class BasicClient implements Client {
 			ctx.setStatus(status);
 			this.callback.accept(ctx);
 		}
-		
 	}
 	
 	private class SignalCallback implements MessageCallback {
 		private Consumer<Signal<?>> callback;
 		
-		public SignalCallback(Consumer<Signal<?>> callback){
+		SignalCallback(Consumer<Signal<?>> callback){
 			this.callback = callback;
 		}
 
@@ -112,9 +107,7 @@ public class BasicClient implements Client {
 				ex.printStackTrace();
 				return IotHubMessageResult.ABANDON;
 			}
-
 		}
-		
 	}
 	
 	/**
@@ -145,7 +138,8 @@ public class BasicClient implements Client {
 	 */
 	public BasicClient(String hubUrl, String deviceId, String deviceKey, Protocol protocol) throws IllegalArgumentException{
 		try {
-			this.client = new DeviceClient(String.format(BasicClient.connStr, hubUrl, deviceId, deviceKey).toString(), protocol.value);
+			this.protocol = protocol;
+			this.client = new DeviceClient(String.format(BasicClient.connStr, hubUrl, deviceId, deviceKey).toString(), this.protocol.value);
 		} catch (URISyntaxException ex){
 			throw new IllegalArgumentException("Invalid Hub Url");
 		}
@@ -160,7 +154,7 @@ public class BasicClient implements Client {
 		
 		this.client.open();
 
-		logger.log(Level.INFO, "Connected to IoT Hub via " + this.protocol.toString());
+		logger.log(Level.INFO, "Connected to IoT Hub via " + this.protocol);
 		
 		if (this.subscribed) this.client.setMessageCallback(new SignalCallback(this.onSignalCallback), null);
 	}
@@ -178,8 +172,6 @@ public class BasicClient implements Client {
 		} finally {
 			this.connected = false;
 		}
-		
-		
 	}
 	
 	/**
@@ -218,7 +210,6 @@ public class BasicClient implements Client {
 		this.onPublishCallback = callback;
 	}
 
-
 	/**
 	 * Sets the Lambda to invoke when a signal is received. 
 	 * 
@@ -232,10 +223,7 @@ public class BasicClient implements Client {
 	public void onSignal(Consumer<Signal<?>> callback){
 		this.onSignalCallback = callback;
 	}
-	
 
-	
-	
 	/**
 	 * Unsubscribes the basicClient from cloud-to-device messages (Signals). By default the subscription is enabled.
 	 */
@@ -249,7 +237,5 @@ public class BasicClient implements Client {
 	public void enableSubscription(){
 		this.subscribed = true;
 	}
-	
-	
 
 }

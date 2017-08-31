@@ -15,7 +15,6 @@
 package com.openenergi.flex.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.ZonedDateTime;
@@ -32,13 +31,13 @@ import java.util.Objects;
  */
 public class SignalPointItem implements Schedulable {
 	private ZonedDateTime startAt;
-	private Double value;
+	private double value;
 
 	public ZonedDateTime getStartAt() {
 		return startAt;
 	}
 
-	public Double getValue() {
+	public double getValue() {
 		return this.value;
 	}
 
@@ -49,7 +48,7 @@ public class SignalPointItem implements Schedulable {
 	
 	public SignalPointItem(
 					@JsonProperty("start_at") ZonedDateTime startAt,
-					@JsonProperty("value") Double value)
+					@JsonProperty("value") double value)
 	{
 		Objects.requireNonNull(startAt);
 		Objects.requireNonNull(value);
