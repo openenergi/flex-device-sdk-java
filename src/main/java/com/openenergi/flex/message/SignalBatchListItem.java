@@ -14,30 +14,29 @@
 
 package com.openenergi.flex.message;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * This class represents a signal point that is part of an oe-vars batch.
  */
 public final class SignalBatchListItem
 {
-    @JsonProperty("variable")
-    private String subtype;
+    private String variable;
     private double value;
 
-    public SignalBatchListItem(String subtype, double value)
+    public SignalBatchListItem() {} // default constructor required for json deserialisation
+
+    public SignalBatchListItem(String variable, double value)
     {
-        this.subtype = subtype;
+        this.variable = variable;
         this.value = value;
     }
 
-    public String getSubtype() {
-        return subtype;
+    public String getVariable() {
+        return variable;
     }
 
-    public void setSubtype(String subtype)
+    public void setVariable(String variable)
     {
-        this.subtype = subtype;
+        this.variable = variable;
     }
 
     public double getValue() {

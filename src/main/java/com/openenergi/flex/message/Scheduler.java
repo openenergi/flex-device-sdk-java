@@ -3,10 +3,10 @@ package com.openenergi.flex.message;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class accepts a Schedulable and invokes a callback every time that the value changes with the targeted entity/ies,
@@ -54,14 +54,14 @@ public final class Scheduler {
                         ZonedDateTime latest = getLatestReceivedSignal((String) entity, signal.getType());
 
                         if (latest == null || !(latest.isAfter(signal.getGeneratedAt()))){
-                            logger.log(Level.FINE, "Executing invocation with start date " + currentValues.getStart().format(DateTimeFormatter.ISO_DATE_TIME));
+                            logger.log(Level.FINE, "Executing invocation with start date " + currentValues.getStartAt().format(DateTimeFormatter.ISO_DATE_TIME));
                             currentValues.getValues().forEach((SignalBatchListItem sbi) -> {
                                 String type;
                                 //inherit the list item type from the signal's type for point/schedule signals.
-                                if (sbi.getSubtype()==null){
+                                if (sbi.getVariable()==null){
                                     type = signal.getType();
                                 } else {
-                                    type = sbi.getSubtype();
+                                    type = sbi.getVariable();
                                 }
                                 callback.accept(new SignalCallbackItem((String) entity, type, sbi.getValue()));
                             });
@@ -86,10 +86,10 @@ public final class Scheduler {
          */
         private void scheduleNextRun(){
             SignalElement nextChange = signal.getNextChange();
-            logger.log(Level.FINE, "Next invocation at " + nextChange.getStart().format(DateTimeFormatter.ISO_DATE_TIME));
+            logger.log(Level.FINE, "Next invocation at " + nextChange.getStartAt().format(DateTimeFormatter.ISO_DATE_TIME));
             if (nextChange != null){
                 try {
-                    Long delay = roundToTenthsOfASecond(nextChange.getStart().toInstant().toEpochMilli() - ZonedDateTime.now().toInstant().toEpochMilli());
+                    Long delay = roundToTenthsOfASecond(nextChange.getStartAt().toInstant().toEpochMilli() - ZonedDateTime.now().toInstant().toEpochMilli());
                     logger.log(Level.FINE, "Milliseconds to next invocation " + delay.toString());
                     this.nextInvocation = nextChange;
                     scheduler.schedule(this, delay, TimeUnit.MILLISECONDS);
@@ -129,14 +129,14 @@ public final class Scheduler {
                 setLatestReceivedSignal((String) entity, signal.getType(), signal.getGeneratedAt());
                 logger.log(Level.FINE, "Setting latest received cache for entity " + entity + " and type " + signal.getType() + " to " + signal.getGeneratedAt().format(DateTimeFormatter.ISO_DATE_TIME));
                 if (currentValue != null && currentValue.getValues() != null){
-                    logger.log(Level.FINE, "Executing invocation with start time " + currentValue.getStart().format(DateTimeFormatter.ISO_DATE_TIME));
+                    logger.log(Level.FINE, "Executing invocation with start time " + currentValue.getStartAt().format(DateTimeFormatter.ISO_DATE_TIME));
                     currentValue.getValues().forEach((SignalBatchListItem sbi) -> {
                         String type;
                         //inherit the list item type from the signal's type for point/schedule signals.
-                        if (sbi.getSubtype()==null){
+                        if (sbi.getVariable()==null){
                             type = signal.getType();
                         } else {
-                            type = sbi.getSubtype();
+                            type = sbi.getVariable();
                         }
                         callback.accept(new SignalCallbackItem((String) entity, type, sbi.getValue()));
                     });

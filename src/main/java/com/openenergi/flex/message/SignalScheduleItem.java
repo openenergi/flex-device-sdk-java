@@ -29,33 +29,57 @@ import java.util.List;
  * @author mbironneau
  *
  */
-public final class SignalScheduleItem implements Schedulable {
-	String span;
-	String repeat;
-	double value;
-	
+public final class SignalScheduleItem implements Schedulable
+{
+	private String span;
+	private String repeat;
+	private double value;
 	private RecurringSpan recurringSpan;
+
+	public String getSpan() {
+		return this.span;
+	}
+
+	public void setSpan(String span)
+	{
+		this.span = span;
+	}
+
+	public String getRepeat() {
+		return this.repeat;
+	}
+
+	public void setRepeat(String repeat)
+	{
+		this.repeat = repeat;
+	}
 
 	public double getValue() {
 		return this.value;
 	}
-	
+
+	public void setValue(double value)
+	{
+		this.value = value;
+	}
+
 	private void parse() {
 		this.recurringSpan = new RecurringSpan(this.span, this.repeat);
 	}
-	public List<SignalBatchListItem> getValues() {
-		return new ArrayList<SignalBatchListItem>(Arrays.asList(new SignalBatchListItem(null, this.value)));
+
+	public List<SignalBatchListItem> getValues()
+	{
+		return Arrays.asList(new SignalBatchListItem(null, value));
 	}
+
 	public ZonedDateTime getStartAt() {
 		if (this.recurringSpan == null) this.parse();
 		
 		Span next = this.recurringSpan.getNextSpan();
 		
-		if (next.containsCurrentTime()) {
+		if (next.containsCurrentTime())
 			return next.getEndTime();
-		} else {
-			return next.start;
-		}
-		
+
+		return next.start;
 	}
 }

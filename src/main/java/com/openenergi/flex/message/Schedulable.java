@@ -26,6 +26,5 @@ public interface Schedulable {
 	 * Date when the item will be valid (in the case of a schedule - when the item is next valid).
 	 * @return Start date when value takes effect
 	 */
-	@JsonIgnore
 	ZonedDateTime getStartAt();
 }

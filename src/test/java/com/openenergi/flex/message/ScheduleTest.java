@@ -33,7 +33,7 @@ public class ScheduleTest {
 		try {
 			//System.out.println(e.toString());
 			//FIXME(mbironneau) - 168H is not always equal to 7D with DST; not sure why this conversion is happening.
-			JSONAssert.assertEquals("{\"topic\": \"schedules\", \"entity\": \"l1\",  \"timestamp\": 12345,  \"type\": \"something\", \"schedule\": [{\"span\": \"2016-12-27T23:00:00Z/PT1H\", \"repeat\": \"PT168H\", \"value\": \"value\"}]}", e.toString(), true);
+			JSONAssert.assertEquals("{\"topic\": \"schedules\", \"entity\": \"l1\",  \"timestamp\": 12345,  \"type\": \"something\", \"schedule\": [{\"span\": \"2016-12-27T23:00:00Z/PT1H\", \"repeat\": \"PT168H\", \"value\": \"value\"}]}", e.serialise(), true);
 		} catch (JSONException e1) {
 			fail("Failed to serialize: " + e1.getMessage());
 		}

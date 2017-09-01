@@ -26,7 +26,8 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class BasicClient implements Client {
+public class BasicClient implements Client
+{
 	private static final Logger logger = Logger.getLogger("Client");
 	private static String connStr = "HostName=%s;DeviceId=%s;SharedAccessKey=%s";
 	
@@ -81,15 +82,17 @@ public class BasicClient implements Client {
 		}
 	}
 	
-	private class SignalCallback implements MessageCallback {
+	private class SignalCallback implements MessageCallback
+	{
 		private Consumer<Signal<?>> callback;
 		
-		SignalCallback(Consumer<Signal<?>> callback){
+		SignalCallback(Consumer<Signal<?>> callback)
+		{
 			this.callback = callback;
 		}
 
-		public IotHubMessageResult execute(
-				com.microsoft.azure.iothub.Message rawMessage, Object context) {
+		public IotHubMessageResult execute(com.microsoft.azure.iothub.Message rawMessage, Object context)
+		{
 			try {
 				Signal msg = (Signal) Message.deserialize(new String(rawMessage.getBytes(), StandardCharsets.UTF_8));
 				if (this.callback != null){
@@ -119,7 +122,8 @@ public class BasicClient implements Client {
 	 * @param deviceId Id of the gateway device.
 	 * @param deviceKey shared access key for the device. 
 	 */
-	public BasicClient(String hubUrl, String deviceId, String deviceKey) throws IllegalArgumentException{
+	public BasicClient(String hubUrl, String deviceId, String deviceKey) throws IllegalArgumentException
+	{
 		try {
 			this.client = new DeviceClient(String.format(BasicClient.connStr, hubUrl, deviceId, deviceKey).toString(), this.protocol.value);
 		} catch (URISyntaxException ex){
@@ -136,7 +140,8 @@ public class BasicClient implements Client {
 	 * @param deviceId Id of the gateway device.
 	 * @param deviceKey shared access key for the device.
 	 */
-	public BasicClient(String hubUrl, String deviceId, String deviceKey, Protocol protocol) throws IllegalArgumentException{
+	public BasicClient(String hubUrl, String deviceId, String deviceKey, Protocol protocol) throws IllegalArgumentException
+	{
 		try {
 			this.protocol = protocol;
 			this.client = new DeviceClient(String.format(BasicClient.connStr, hubUrl, deviceId, deviceKey).toString(), this.protocol.value);
@@ -149,7 +154,8 @@ public class BasicClient implements Client {
 	 * Connects to the IotHub.
 	 * @throws IOException if the connection does not succeed.
 	 */
-	public void connect() throws IOException {
+	public void connect() throws IOException
+	{
 		if (this.connected) return;
 		
 		this.client.open();
@@ -162,7 +168,8 @@ public class BasicClient implements Client {
 	/**
 	 * Disconnects from the IotHub. Idempotent.
 	 */
-	public void disconnect() {
+	public void disconnect()
+	{
 		if (!this.connected) return;
 		
 		try {
@@ -180,7 +187,8 @@ public class BasicClient implements Client {
 	 * 
 	 * @param msg The message to publish.
 	 */
-	public void publish(Message msg){
+	public void publish(Message msg)
+	{
 		this.publish(msg, null);
 	}
 	
@@ -192,8 +200,9 @@ public class BasicClient implements Client {
 	 * @param msg The message
 	 * @param context The context, passed to onPublish() callback when the message is delivered
 	 */
-	public void publish(Message msg, MessageContext context){
-		this.client.sendEventAsync(new com.microsoft.azure.iothub.Message(msg.toString()), new HubCallback(this.onPublishCallback), context);
+	public void publish(Message msg, MessageContext context)
+	{
+		this.client.sendEventAsync(new com.microsoft.azure.iothub.Message(msg.serialise()), new HubCallback(this.onPublishCallback), context);
 	}
 	
 	/**
@@ -206,7 +215,8 @@ public class BasicClient implements Client {
 	 * </pre>
 	 * @param callback
 	 */
-	public void onPublish(Consumer<MessageContext> callback){
+	public void onPublish(Consumer<MessageContext> callback)
+	{
 		this.onPublishCallback = callback;
 	}
 
@@ -220,21 +230,24 @@ public class BasicClient implements Client {
 	 * </pre>
 	 * @param callback
 	 */
-	public void onSignal(Consumer<Signal<?>> callback){
+	public void onSignal(Consumer<Signal<?>> callback)
+	{
 		this.onSignalCallback = callback;
 	}
 
 	/**
 	 * Unsubscribes the basicClient from cloud-to-device messages (Signals). By default the subscription is enabled.
 	 */
-	public void disableSubscription(){
+	public void disableSubscription()
+	{
 		this.subscribed = false;
 	}
 	
 	/**
 	 * Subscribes the basicClient to cloud-to-device messages (Signals). By default the subscription is enabled.
 	 */
-	public void enableSubscription(){
+	public void enableSubscription()
+	{
 		this.subscribed = true;
 	}
 

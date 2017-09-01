@@ -95,7 +95,8 @@ public class Signal<T extends Schedulable> extends Message
 	 * @return the value that the variable/parameter pointed to in type should be set to currently. 
 	 */
 	@JsonIgnore
-	public SignalElement getCurrentValues(){
+	public SignalElement getCurrentValues()
+	{
 		ZonedDateTime currentDate = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		ListIterator<T> li = this.items.listIterator(this.items.size());
 		while (li.hasPrevious()){
@@ -112,7 +113,8 @@ public class Signal<T extends Schedulable> extends Message
 	 * @return the SignalElement representing the value of the signal at the next change point.
 	 */
 	@JsonIgnore
-	public SignalElement getNextChange(){
+	public SignalElement getNextChange()
+	{
 		ZonedDateTime currentDate = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		ListIterator<T> li = this.items.listIterator();
 		while (li.hasNext()){
@@ -124,6 +126,7 @@ public class Signal<T extends Schedulable> extends Message
 		return null;
 	}
 
+	// is this needed?
 	public enum Type {
 		/**
 		 * Amount added to Grid Frequency before it is input to RLTEC algorithm. Default is 0.

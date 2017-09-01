@@ -4,13 +4,15 @@ package com.openenergi.flex.message;
  * The parameter passed to callbacks for the scheduler. This is the information that implementors should need to act on
  * Signal messages.
  */
-public final class SignalCallbackItem {
+public final class SignalCallbackItem
+{
     private String entity;
     private String type;
     private double value;
     public static final String END_OF_SIGNAL = "END_OF_SIGNAL";
 
-    public SignalCallbackItem(String entity, String type, double value){
+    public SignalCallbackItem(String entity, String type, double value)
+    {
         this.entity = entity;
         this.type = type;
         this.value = value;
@@ -24,12 +26,22 @@ public final class SignalCallbackItem {
         return entity;
     }
 
+    public void setEntity(String entity)
+    {
+        this.entity = entity;
+    }
+
     /**
      * Get the type of the Signal (eg. "oe-add")
      * @return The type of the signal
      */
     public String getType() {
         return type;
+    }
+
+    public void setType(String type)
+    {
+        this.type = type;
     }
 
 
@@ -41,4 +53,8 @@ public final class SignalCallbackItem {
         return value;
     }
 
+    public void setValue(double value)
+    {
+        this.value = value;
+    }
 }

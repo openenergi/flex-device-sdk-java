@@ -20,8 +20,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.ser.ZonedDateTimeSerializer;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -127,11 +130,18 @@ public class Message
 		}
 	}
 	
+	@Override
+	public String toString()
+	{
+		return getTopic() + ' ' + getType();
+	}
+
 	/**
 	 * Serializes the message using JSON. If the timestamp field is not set it will be
 	 * set to the current system time.
 	 */
-	public String toString() {
+	public String serialise()
+	{
 		if (this.timestamp == null){
 			this.timestamp = System.currentTimeMillis();
 		}
@@ -166,19 +176,21 @@ public class Message
 	{
 		ObjectMapper mapper = new ObjectMapper();
 
+		// json names should be in snake case
 		mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
 
 		// handle serialisation of ZonedDateTime
+		// causes ZonedDateTime to serialise as a timestamp string rather than props
+		// like 1483228800.000000000
 		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		// converts timestamp to formatted string like 2017-01-01T00:00Z[UTC]
 		mapper.registerModule(new JavaTimeModule());
-		//DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-		//mapper.setDateFormat(df);
 
 		// following not permitted by niagara security manager
-		/*mapper.disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS);
+		mapper.disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS);
 		mapper.disable(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
 		mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
-		mapper.disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);*/
+		mapper.disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
 
 		return mapper;
 	}
