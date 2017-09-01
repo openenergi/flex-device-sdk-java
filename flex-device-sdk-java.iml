@@ -15,6 +15,15 @@
     <orderEntry type="library" name="Maven: com.microsoft.azure.iothub-java-client:iothub-java-device-client:1.0.16" level="project" />
     <orderEntry type="library" name="Maven: org.apache.qpid:proton-j:0.15.0" level="project" />
     <orderEntry type="library" name="Maven: com.microsoft.azure.iothub-java-client:websocket-transport-layer:0.1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.0" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.0" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.0" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.0" level="project" />
+    <orderEntry type="library" name="Maven: org.skyscreamer:jsonassert:1.5.0" level="project" />
+    <orderEntry type="library" name="Maven: com.vaadin.external.google:android-json:0.0.20131108.vaadin1" level="project" />
+    <orderEntry type="library" name="Maven: com.microsoft.azure.iothub-java-client:iothub-java-device-client:1.0.16" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.qpid:proton-j:0.15.0" level="project" />
+    <orderEntry type="library" name="Maven: com.microsoft.azure.iothub-java-client:websocket-transport-layer:0.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.47" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.47" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.0.2" level="project" />
