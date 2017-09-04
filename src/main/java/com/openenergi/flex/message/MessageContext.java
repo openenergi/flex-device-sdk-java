@@ -14,7 +14,7 @@
 
 package com.openenergi.flex.message;
 
-import com.microsoft.azure.iothub.IotHubStatusCode;
+import com.microsoft.azure.sdk.iot.device.IotHubStatusCode;
 
 /**
  * This class contains application-level data for a message as well as a status code passed back from the IoTHub.

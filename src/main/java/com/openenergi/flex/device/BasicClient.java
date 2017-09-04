@@ -14,10 +14,11 @@
 
 package com.openenergi.flex.device;
 
-import com.microsoft.azure.iothub.*;
+import com.microsoft.azure.sdk.iot.device.*;
 import com.openenergi.flex.message.Message;
 import com.openenergi.flex.message.MessageContext;
 import com.openenergi.flex.message.Signal;
+import org.apache.log4j.BasicConfigurator;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -42,7 +43,7 @@ public class BasicClient implements Client
 	 *
 	 */
 	public enum Protocol {
-		AMQPS(IotHubClientProtocol.AMQPS), 
+		AMQPS(IotHubClientProtocol.AMQPS),
 		MQTT(IotHubClientProtocol.MQTT), 
 		HTTPS(IotHubClientProtocol.HTTPS);
 		
@@ -60,7 +61,8 @@ public class BasicClient implements Client
 	
 	private Boolean connected = false;
 	
-	private class HubCallback implements IotHubEventCallback {
+	private class HubCallback implements IotHubEventCallback
+	{
 		private Consumer<MessageContext> callback;
 		
 		HubCallback(Consumer<MessageContext> callback){
@@ -91,7 +93,7 @@ public class BasicClient implements Client
 			this.callback = callback;
 		}
 
-		public IotHubMessageResult execute(com.microsoft.azure.iothub.Message rawMessage, Object context)
+		public IotHubMessageResult execute(com.microsoft.azure.sdk.iot.device.Message rawMessage, Object context)
 		{
 			try {
 				Signal msg = (Signal) Message.deserialize(new String(rawMessage.getBytes(), StandardCharsets.UTF_8));
@@ -142,6 +144,9 @@ public class BasicClient implements Client
 	 */
 	public BasicClient(String hubUrl, String deviceId, String deviceKey, Protocol protocol) throws IllegalArgumentException
 	{
+		// initialise IotHubConnection logging
+		BasicConfigurator.configure();
+
 		try {
 			this.protocol = protocol;
 			this.client = new DeviceClient(String.format(BasicClient.connStr, hubUrl, deviceId, deviceKey).toString(), this.protocol.value);
@@ -202,7 +207,7 @@ public class BasicClient implements Client
 	 */
 	public void publish(Message msg, MessageContext context)
 	{
-		this.client.sendEventAsync(new com.microsoft.azure.iothub.Message(msg.serialise()), new HubCallback(this.onPublishCallback), context);
+		this.client.sendEventAsync(new com.microsoft.azure.sdk.iot.device.Message(msg.serialise()), new HubCallback(this.onPublishCallback), context);
 	}
 	
 	/**

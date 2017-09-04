@@ -1,6 +1,6 @@
 package com.openenergi.flex.device;
 
-import com.microsoft.azure.iothub.IotHubStatusCode;
+import com.microsoft.azure.sdk.iot.device.IotHubStatusCode;
 import com.openenergi.flex.message.MessageContext;
 import com.openenergi.flex.message.Reading;
 import com.openenergi.flex.persistence.MemoryPersister;
