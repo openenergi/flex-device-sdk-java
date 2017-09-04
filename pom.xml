@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.openenergi.flex</groupId>
 	<artifactId>flex-device-sdk-java</artifactId>
-	<version>0.5.0</version>
+	<version>0.5.1</version>
 	<name>Openenergi Flex Device SDK</name>
 	<url>https://github.com/openenergi/flex-device-sdk-java</url>
 	<packaging>jar</packaging>
@@ -48,6 +48,12 @@
 			<artifactId>iothub-java-device-client</artifactId>
 			<version>1.0.16</version>
 		</dependency>
+		<!--&lt;!&ndash; forced dependency of Proton-J for iothub client &ndash;&gt;
+		<dependency>
+			<groupId>org.apache.qpid</groupId>
+			<artifactId>proton-j</artifactId>
+			<version>0.20.0</version>
+		</dependency>-->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
