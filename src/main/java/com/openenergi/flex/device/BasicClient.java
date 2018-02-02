@@ -18,18 +18,17 @@ import com.microsoft.azure.sdk.iot.device.*;
 import com.openenergi.flex.message.Message;
 import com.openenergi.flex.message.MessageContext;
 import com.openenergi.flex.message.Signal;
-import org.apache.log4j.BasicConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class BasicClient implements Client
 {
-	private static final Logger logger = Logger.getLogger("Client");
+	private static final Logger logger = LoggerFactory.getLogger(BasicClient.class);
 	private static String connStr = "HostName=%s;DeviceId=%s;SharedAccessKey=%s";
 	
 	/**
@@ -100,7 +99,7 @@ public class BasicClient implements Client
 				if (this.callback != null){
 					this.callback.accept(msg);
 				} else {
-					logger.log(Level.WARNING, "[NO CALLBACK} Received signal " + new String(rawMessage.getBytes(), StandardCharsets.UTF_8));
+					logger.warn("[NO CALLBACK} Received signal " + new String(rawMessage.getBytes(), StandardCharsets.UTF_8));
 				}
 
 				return IotHubMessageResult.COMPLETE;
@@ -108,7 +107,7 @@ public class BasicClient implements Client
 				ex.printStackTrace();
 				return IotHubMessageResult.ABANDON;
 			} catch (IllegalArgumentException ex) {
-				logger.log(Level.WARNING, "Unexpected signal format - please try upgrading to the latest version of the SDK if you believe this to be an error");
+				logger.warn("Unexpected signal format - please try upgrading to the latest version of the SDK if you believe this to be an error");
 				ex.printStackTrace();
 				return IotHubMessageResult.ABANDON;
 			}
@@ -144,9 +143,6 @@ public class BasicClient implements Client
 	 */
 	public BasicClient(String hubUrl, String deviceId, String deviceKey, Protocol protocol) throws IllegalArgumentException
 	{
-		// initialise IotHubConnection logging
-		BasicConfigurator.configure();
-
 		try {
 			this.protocol = protocol;
 			this.client = new DeviceClient(String.format(BasicClient.connStr, hubUrl, deviceId, deviceKey).toString(), this.protocol.value);
@@ -161,29 +157,22 @@ public class BasicClient implements Client
 	 */
 	public void connect() throws IOException
 	{
-		if (this.connected) return;
-		
 		this.client.open();
 
-		logger.log(Level.INFO, "Connected to IoT Hub via " + this.protocol);
+		logger.info("Connected to IoT Hub via " + this.protocol);
 		
 		if (this.subscribed) this.client.setMessageCallback(new SignalCallback(this.onSignalCallback), null);
 	}
 	
 	/**
-	 * Disconnects from the IotHub. Idempotent.
+	 * Disconnects from the IotHub.
+	 * @throws IOException if disconnect fails
 	 */
-	public void disconnect()
+	public void disconnect() throws IOException
 	{
-		if (!this.connected) return;
-		
-		try {
-			this.client.close();
-		} catch (IOException ignored){
-			//Ignore IOExceptions to make method idempotent
-		} finally {
-			this.connected = false;
-		}
+		this.client.closeNow();
+
+		logger.info("Disconnected from IoT Hub");
 	}
 	
 	/**

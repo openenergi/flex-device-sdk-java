@@ -1,12 +1,13 @@
 package com.openenergi.flex.message;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class accepts a Schedulable and invokes a callback every time that the value changes with the targeted entity/ies,
@@ -18,7 +19,7 @@ import java.util.logging.Logger;
  * Another work item is to coalesce signals for the same type/entities. That will be more work...
  */
 public final class Scheduler {
-    private static final Logger logger = Logger.getLogger(Scheduler.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(Scheduler.class);
     private final static ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(5, new ThreadPoolExecutor.CallerRunsPolicy());
     private final static ConcurrentHashMap<String, ZonedDateTime> latestSignals = new ConcurrentHashMap<String, ZonedDateTime>(1000);
 
@@ -39,10 +40,10 @@ public final class Scheduler {
          * Calls back with the current value of the signal and schedules the next invocation.
          */
         public void run() {
-            logger.log(Level.FINE, "Running invocation");
+            logger.trace("Running invocation");
             SignalElement currentValues;
             if (this.nextInvocation == null){
-                logger.log(Level.FINE, "Next invocation is null - getting current value");
+                logger.trace("Next invocation is null - getting current value");
                 currentValues = signal.getCurrentValues();
             } else {
                 currentValues = this.nextInvocation;
@@ -54,7 +55,7 @@ public final class Scheduler {
                         ZonedDateTime latest = getLatestReceivedSignal((String) entity, signal.getType());
 
                         if (latest == null || !(latest.isAfter(signal.getGeneratedAt()))){
-                            logger.log(Level.FINE, "Executing invocation with start date " + currentValues.getStartAt().format(DateTimeFormatter.ISO_DATE_TIME));
+                            logger.trace("Executing invocation with start date " + currentValues.getStartAt().format(DateTimeFormatter.ISO_DATE_TIME));
                             currentValues.getValues().forEach((SignalBatchListItem sbi) -> {
                                 String type;
                                 //inherit the list item type from the signal's type for point/schedule signals.
@@ -86,11 +87,11 @@ public final class Scheduler {
          */
         private void scheduleNextRun(){
             SignalElement nextChange = signal.getNextChange();
-            logger.log(Level.FINE, "Next invocation at " + nextChange.getStartAt().format(DateTimeFormatter.ISO_DATE_TIME));
+            logger.trace("Next invocation at " + nextChange.getStartAt().format(DateTimeFormatter.ISO_DATE_TIME));
             if (nextChange != null){
                 try {
                     Long delay = roundToTenthsOfASecond(nextChange.getStartAt().toInstant().toEpochMilli() - ZonedDateTime.now().toInstant().toEpochMilli());
-                    logger.log(Level.FINE, "Milliseconds to next invocation " + delay.toString());
+                    logger.trace("Milliseconds to next invocation " + delay.toString());
                     this.nextInvocation = nextChange;
                     scheduler.schedule(this, delay, TimeUnit.MILLISECONDS);
                 } catch (RejectedExecutionException e){
@@ -121,15 +122,15 @@ public final class Scheduler {
     public static void accept(Signal signal, Consumer<SignalCallbackItem> callback) throws IllegalArgumentException {
         validate(signal);
         signal.sort();
-        logger.log(Level.FINE, "Scheduler accepted signal");
+        logger.trace("Scheduler accepted signal");
         SignalElement currentValue = signal.getCurrentValues();
         signal.getEntities().forEach(entity -> {
             ZonedDateTime latest = getLatestReceivedSignal((String) entity, signal.getType());
             if (latest == null || latest.isBefore(signal.getGeneratedAt())){
                 setLatestReceivedSignal((String) entity, signal.getType(), signal.getGeneratedAt());
-                logger.log(Level.FINE, "Setting latest received cache for entity " + entity + " and type " + signal.getType() + " to " + signal.getGeneratedAt().format(DateTimeFormatter.ISO_DATE_TIME));
+                logger.trace("Setting latest received cache for entity " + entity + " and type " + signal.getType() + " to " + signal.getGeneratedAt().format(DateTimeFormatter.ISO_DATE_TIME));
                 if (currentValue != null && currentValue.getValues() != null){
-                    logger.log(Level.FINE, "Executing invocation with start time " + currentValue.getStartAt().format(DateTimeFormatter.ISO_DATE_TIME));
+                    logger.trace("Executing invocation with start time " + currentValue.getStartAt().format(DateTimeFormatter.ISO_DATE_TIME));
                     currentValue.getValues().forEach((SignalBatchListItem sbi) -> {
                         String type;
                         //inherit the list item type from the signal's type for point/schedule signals.
@@ -141,17 +142,17 @@ public final class Scheduler {
                         callback.accept(new SignalCallbackItem((String) entity, type, sbi.getValue()));
                     });
                 } else {
-                    logger.log(Level.FINE, "Current signal value NULL");
+                    logger.trace("Current signal value NULL");
                 }
             }
         });
 
 
         if (signal.getNextChange() == null){
-            logger.log(Level.FINE, "End of signal - exiting");
+            logger.trace("End of signal - exiting");
             return;
         }
-        logger.log(Level.FINE, "Scheduling next invocation");
+        logger.trace("Scheduling next invocation");
         ScheduleInvocation invocations = new ScheduleInvocation(signal, Scheduler.scheduler, callback);
         invocations.scheduleNextRun();
     }
