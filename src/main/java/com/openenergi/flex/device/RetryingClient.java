@@ -201,7 +201,7 @@ public class RetryingClient implements Client{
      * Disconnects from the IotHub. Idempotent.
      */
     @Override
-    public void disconnect() {
+    public void disconnect() throws IOException{
        this.client.disconnect();
     }
 
