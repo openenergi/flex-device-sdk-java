@@ -20,11 +20,11 @@ package com.openenergi.flex.message;
 public final class SignalBatchListItem
 {
     private String variable;
-    private double value;
+    private Double value;
 
     public SignalBatchListItem() {} // default constructor required for json deserialisation
 
-    public SignalBatchListItem(String variable, double value)
+    public SignalBatchListItem(String variable, Double value)
     {
         this.variable = variable;
         this.value = value;
@@ -39,11 +39,11 @@ public final class SignalBatchListItem
         this.variable = variable;
     }
 
-    public double getValue() {
+    public Double getValue() {
         return this.value;
     }
 
-    public void setValue(double value)
+    public void setValue(Double value)
     {
         this.value = value;
     }

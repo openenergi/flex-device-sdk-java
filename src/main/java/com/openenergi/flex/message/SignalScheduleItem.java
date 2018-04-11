@@ -33,7 +33,7 @@ public final class SignalScheduleItem implements Schedulable
 {
 	private String span;
 	private String repeat;
-	private double value;
+	private Double value;
 	private RecurringSpan recurringSpan;
 
 	public String getSpan() {
@@ -54,11 +54,11 @@ public final class SignalScheduleItem implements Schedulable
 		this.repeat = repeat;
 	}
 
-	public double getValue() {
+	public Double getValue() {
 		return this.value;
 	}
 
-	public void setValue(double value)
+	public void setValue(Double value)
 	{
 		this.value = value;
 	}

@@ -8,10 +8,10 @@ public final class SignalCallbackItem
 {
     private String entity;
     private String type;
-    private double value;
+    private Double value;
     public static final String END_OF_SIGNAL = "END_OF_SIGNAL";
 
-    public SignalCallbackItem(String entity, String type, double value)
+    public SignalCallbackItem(String entity, String type, Double value)
     {
         this.entity = entity;
         this.type = type;
@@ -49,11 +49,11 @@ public final class SignalCallbackItem
      * Get the value of the variable/type that should be set (eg. set "oe-add" to 0.5)
      * @return The value
      */
-    public double getValue() {
+    public Double getValue() {
         return value;
     }
 
-    public void setValue(double value)
+    public void setValue(Double value)
     {
         this.value = value;
     }

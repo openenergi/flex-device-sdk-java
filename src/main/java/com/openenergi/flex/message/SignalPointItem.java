@@ -30,9 +30,9 @@ import java.util.List;
 public final class SignalPointItem implements Schedulable
 {
 	private ZonedDateTime startAt;
-	private double value;
+	private Double value;
 
-	public SignalPointItem(ZonedDateTime startAt, double value)
+	public SignalPointItem(ZonedDateTime startAt, Double value)
 	{
 		this.startAt = startAt;
 		this.value = value;
@@ -47,11 +47,11 @@ public final class SignalPointItem implements Schedulable
 		this.startAt = startAt;
 	}
 
-	public double getValue() {
+	public Double getValue() {
 		return this.value;
 	}
 
-	public void setValue(double value)
+	public void setValue(Double value)
 	{
 		this.value = value;
 	}
